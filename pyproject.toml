@@ -4,7 +4,7 @@ authors = [
     { name = "Alessandro Miranda", email = "alessandro.siqueira@outlook.com"}
 ]
 description = "Modulo de integracoes customizadas para o ERPNext"
-requires-python = "3.11"
+requires-python = ">=3.11"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
