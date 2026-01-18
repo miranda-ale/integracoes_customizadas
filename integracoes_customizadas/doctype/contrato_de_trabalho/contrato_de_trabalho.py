@@ -1,34 +1,45 @@
+# apps/integracoes_customizadas/integracoes_customizadas/doctype/contrato_de_trabalho/contrato_de_trabalho.py
+
 import frappe
 from frappe.model.document import Document
 from frappe.utils import getdate, nowdate
 
-
-ALERTA_DIAS = [60, 30, 15, 7, 3, 1, 0]  # use no scheduler
-
-def _norm(s: str) -> str:
-    """Normaliza string para comparação (lower + sem acentos + trim)."""
-    if not s:
-        return ""
-    s = (s or "").strip().lower()
-    # remove acentos sem depender de libs externas
-    mapa = str.maketrans(
-        "áàâãäéèêëíìîïóòôõöúùûüç",
-        "aaaaaeeeeiiiiooooouuuuc"
-    )
-    return s.translate(mapa)
-
-# Conjuntos normalizados (para comparar com _norm)
-TIPOS_INDETERMINADO = {_norm(x) for x in ["Prazo indeterminado", "Indeterminado", "Indeterminado (CLT)", "Prazo Indeterminado"]}
-TIPOS_INTERMITENTE = {_norm(x) for x in ["Intermitente", "Contrato intermitente"]}
-TIPOS_EXPERIENCIA = {_norm(x) for x in ["Experiência", "Experiencia", "Contrato de experiencia"]}
-TIPOS_DETERMINADO = {_norm(x) for x in [
+# ==============================
+# Tipos (ajuste conforme seus valores reais em doc.tipo_contrato)
+# ==============================
+TIPOS_INDETERMINADO = {"Prazo indeterminado", "Indeterminado"}
+TIPOS_INTERMITENTE = {"Intermitente"}
+TIPOS_EXPERIENCIA = {"Experiência", "Experiencia"}
+TIPOS_DETERMINADO = {
     "Prazo determinado",
     "Prazo determinado com cláusula assecuratória",
     "Prazo determinado com clausula assecuratoria",
-    "Contrato por prazo determinado",
-]}
+}
+
+# Se vocês utilizam "PJ" dentro do mesmo DocType, trate como NÃO aplicável a vencimentos CLT.
+TIPOS_NAO_APLICAVEL = {"PJ", "Pessoa Jurídica", "Pessoa Juridica"}
+
+# Política de alertas (se você for usar em Notification/Job)
+ALERTA_DIAS = [60, 30, 15, 7, 3, 1, 0]
+
 
 class ContratoDeTrabalho(Document):
+    """
+    DocType Controller - Contrato de Trabalho
+
+    Campos esperados no DocType (fieldname):
+      - tipo_contrato (Data/Select)  [já existe via fetch do Employee]
+      - data_admissao (Date)         [fetch do employee.date_of_joining]
+      - data_fim_determinado (Date)
+      - data_fim_prorrogacao (Date)
+      - data_rescisao (Date)
+      - status (Select)             [Rascunho/Impresso/Assinado/Vigente/Encerrado/Cancelado]
+
+    Campos de controle (devem existir no DocType):
+      - proximo_vencimento (Date, Read Only)
+      - dias_para_vencimento (Int, Read Only)
+      - status_prazo (Select, Read Only) [Em dia / A vencer / Vencido / Encerrado / Não aplicável]
+    """
 
     def validate(self):
         self._validar_regras_basicas()
@@ -36,36 +47,46 @@ class ContratoDeTrabalho(Document):
         self._calcular_dias_para_vencimento()
         self._calcular_status_prazo()
 
-    # opcional (recomendado se você quer rigidez ao submeter)
-    # def before_submit(self):
-    #     self._validar_regras_basicas()
-    #     self._calcular_proximo_vencimento()
-    #     self._calcular_dias_para_vencimento()
-    #     self._calcular_status_prazo()
-
+    # ------------------------------
+    # Helpers
+    # ------------------------------
     def _tipo(self) -> str:
-        return _norm(self.tipo_contrato)
+        return (self.tipo_contrato or "").strip()
 
     def _encerrado(self) -> bool:
-        return bool(self.data_rescisao) or (self.status in ["Encerrado", "Cancelado"])
+        # Encerrado se houver data_rescisao ou status final
+        return bool(self.data_rescisao) or (self.status in {"Encerrado", "Cancelado"})
 
+    def _nao_aplicavel(self) -> bool:
+        t = self._tipo()
+        return t in TIPOS_INDETERMINADO or t in TIPOS_INTERMITENTE or t in TIPOS_NAO_APLICAVEL
+
+    # ------------------------------
+    # Regras e Validações
+    # ------------------------------
     def _validar_regras_basicas(self):
         t = self._tipo()
 
         if not self.data_admissao:
             frappe.throw("Preencha a Data de Admissão.")
 
-        if t in TIPOS_INDETERMINADO:
+        # Se for encerrado, ainda validamos coerência mínima com admissão.
+        adm = getdate(self.data_admissao)
+
+        if self.data_rescisao:
+            resc = getdate(self.data_rescisao)
+            if resc < adm:
+                frappe.throw("'Data da Rescisão' não pode ser anterior à Data de Admissão.")
+
+        # Tipos sem vencimento por data (CLT indeterminado / intermitente / PJ etc.)
+        if t in TIPOS_INDETERMINADO or t in TIPOS_INTERMITENTE or t in TIPOS_NAO_APLICAVEL:
             return
 
-        if t in TIPOS_INTERMITENTE:
-            return
-
+        # Experiência / determinado: pelo menos fim_determinado deve existir
         if t in TIPOS_EXPERIENCIA or t in TIPOS_DETERMINADO:
             if not self.data_fim_determinado:
                 frappe.throw("Para este tipo de contrato, preencha o campo 'Fim do Determinado'.")
 
-            adm = getdate(self.data_admissao)
             fim1 = getdate(self.data_fim_determinado) if self.data_fim_determinado else None
             fim2 = getdate(self.data_fim_prorrogacao) if self.data_fim_prorrogacao else None
 
@@ -75,61 +96,76 @@ class ContratoDeTrabalho(Document):
             if fim2 and fim1 and fim2 < fim1:
                 frappe.throw("'Fim da Prorrogação' não pode ser anterior ao 'Fim do Determinado'.")
 
-            if self.data_rescisao:
-                resc = getdate(self.data_rescisao)
-                if resc < adm:
-                    frappe.throw("'Data da Rescisão' não pode ser anterior à Data de Admissão.")
+        # Se o tipo não for reconhecido, marque como não aplicável (evita “limbo”)
+        else:
+            # Não bloqueia salvamento, mas padroniza o comportamento.
+            # Se preferir exigir padronização, troque para frappe.throw(...)
+            self.status_prazo = "Não aplicável"
+            self.proximo_vencimento = None
+            self.dias_para_vencimento = None
 
+    # ------------------------------
+    # Cálculos de controle
+    # ------------------------------
     def _calcular_proximo_vencimento(self):
         """
         Próximo vencimento:
-        - Se houver fim_prorrogacao: ele é o vencimento final.
-        - Caso contrário: fim_determinado.
-        - Se quiser "próximo vencimento ainda não ocorrido", prioriza a data >= hoje.
+          - Se encerrado: None
+          - Se não aplicável (indeterminado/intermitente/PJ): None
+          - Caso contrário: fim_prorrogacao (se existir) senão fim_determinado
         """
+        # Garanta que os campos existem no DocType:
+        # proximo_vencimento (Date)
         if self._encerrado():
             self.proximo_vencimento = None
             return
 
-        t = self._tipo()
-        if t in TIPOS_INDETERMINADO or t in TIPOS_INTERMITENTE:
+        if self._nao_aplicavel():
             self.proximo_vencimento = None
             return
 
-        hoje = getdate(nowdate())
         fim1 = getdate(self.data_fim_determinado) if self.data_fim_determinado else None
         fim2 = getdate(self.data_fim_prorrogacao) if self.data_fim_prorrogacao else None
 
-        # regra "inteligente": escolhe o próximo marco futuro; se ambos passaram, fica no último (fim2 > fim1)
-        candidato = None
-        if fim1 and fim1 >= hoje:
-            candidato = fim1
-        if fim2 and fim2 >= hoje:
-            # se existe fim2 futuro, ele prevalece como "próximo" (vencimento final/prorrogação)
-            candidato = fim2
-
-        # se nenhum está no futuro, registra o último existente (para marcar vencido)
-        if not candidato:
-            candidato = fim2 or fim1
-
-        self.proximo_vencimento = candidato
+        self.proximo_vencimento = fim2 or fim1
 
     def _calcular_dias_para_vencimento(self):
-        if not self.proximo_vencimento:
+        """
+        dias_para_vencimento:
+          - None se não houver proximo_vencimento
+          - Inteiro baseado em get_day_diff(vencimento, hoje)
+        """
+        # Garanta que o campo existe no DocType:
+        # dias_para_vencimento (Int)
+        if not getattr(self, "proximo_vencimento", None):
             self.dias_para_vencimento = None
             return
 
-        dias = frappe.datetime.get_day_diff(getdate(self.proximo_vencimento), getdate(nowdate()))
+        hoje = getdate(nowdate())
+        venc = getdate(self.proximo_vencimento)
+
+        # get_day_diff: evita o erro clássico 'function object has no attribute get_day_diff'
+        dias = frappe.datetime.get_day_diff(venc, hoje)
         self.dias_para_vencimento = int(dias)
 
     def _calcular_status_prazo(self):
+        """
+        status_prazo:
+          - Encerrado se _encerrado()
+          - Não aplicável se indeterminado/intermitente/PJ ou sem proximo_vencimento
+          - Vencido se dias < 0
+          - A vencer se 0 <= dias <= 30
+          - Em dia se dias > 30
+        """
+        # Garanta que o campo existe no DocType:
+        # status_prazo (Select)
         if self._encerrado():
             self.status_prazo = "Encerrado"
             return
 
-        t = self._tipo()
-        if t in TIPOS_INDETERMINADO or t in TIPOS_INTERMITENTE:
+        if self._nao_aplicavel():
             self.status_prazo = "Não aplicável"
+            self.dias_para_vencimento = None  # mantém coerência
             return
 
         if self.dias_para_vencimento is None:
