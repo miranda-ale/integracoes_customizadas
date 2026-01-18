@@ -5,6 +5,33 @@ app_description = "Modulo de integracoes customizadas para o ERPNext"
 app_email = "alessandro.siqueira@outlook.com"
 app_license = "mit"
 
+fixtures = [
+  {"dt": "DocType", "filters": [["name", "in", ["Contrato de Trabalho"]]]},
+  {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation", "Contrato de Trabalho"]]]},
+  {"dt": "Client Script", "filters": [["dt", "in", ["Contrato de Trabalho"]]]},
+  {"dt": "Print Format", "filters": [["doc_type", "in", ["Contrato de Trabalho"]]]},
+  {"dt": "Property Setter", "filters": [["doc_type", "in", ["Contrato de Trabalho"]]]},
+  {
+    "dt": "Print Format",
+    "filters": [["doc_type", "=", "Contrato de Trabalho"]]
+  },
+  {
+    "dt": "Report",
+    "filters": [["ref_doctype", "=", "Contrato de Trabalho"]]
+  },
+  {
+    "dt": "Notification",
+    "filters": [["document_type", "=", "Contrato de Trabalho"]]
+  }
+]
+
+scheduler_events = {
+    "daily": [
+        "integracoes_customizadas.contratos.utils.processar_alertas_contratos"
+    ]
+}
+
+
 # Apps
 # ------------------
 
