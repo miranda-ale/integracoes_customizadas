@@ -1,0 +1,91 @@
+{
+	"actions": [],
+	"creation": "2026-01-23 12:00:00.000000",
+	"doctype": "DocType",
+	"editable_grid": 1,
+	"engine": "InnoDB",
+	"field_order": [
+		"job_applicant",
+		"applicant_name",
+		"email",
+		"column_break_status",
+		"etapa_atual",
+		"status_candidato",
+		"column_break_interview",
+		"interview",
+		"nota"
+	],
+	"fields": [
+		{
+			"fieldname": "job_applicant",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Candidato",
+			"options": "Job Applicant",
+			"reqd": 1
+		},
+		{
+			"fetch_from": "job_applicant.applicant_name",
+			"fieldname": "applicant_name",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"label": "Nome do Candidato",
+			"read_only": 1
+		},
+		{
+			"fetch_from": "job_applicant.email_id",
+			"fieldname": "email",
+			"fieldtype": "Data",
+			"label": "Email",
+			"read_only": 1
+		},
+		{
+			"fieldname": "column_break_status",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "etapa_atual",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Etapa Atual",
+			"options": "Interview Round"
+		},
+		{
+			"default": "Inscrito",
+			"fieldname": "status_candidato",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"label": "Status",
+			"options": "Inscrito\nAprovado\nReprovado\nEliminado"
+		},
+		{
+			"fieldname": "column_break_interview",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "interview",
+			"fieldtype": "Link",
+			"label": "Interview Atual",
+			"options": "Interview",
+			"read_only": 1
+		},
+		{
+			"fieldname": "nota",
+			"fieldtype": "Float",
+			"label": "Nota",
+			"precision": "2"
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-23 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Edital Candidato Item",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "applicant_name",
+	"sort_order": "ASC",
+	"states": [],
+	"track_changes": 1
+}

@@ -9,6 +9,7 @@
 		"naming_series",
 		"tipo",
 		"disciplina",
+		"disciplina_aplicavel_a_todos",
 		"dificuldade",
 		"ativo",
 		"column_break_info",
@@ -54,6 +55,14 @@
 			"reqd": 1
 		},
 		{
+			"default": "0",
+			"fieldname": "disciplina_aplicavel_a_todos",
+			"fieldtype": "Check",
+			"hidden": 1,
+			"label": "Disciplina Aplicável a Todos",
+			"read_only": 1
+		},
+		{
 			"fieldname": "dificuldade",
 			"fieldtype": "Select",
 			"in_list_view": 1,
@@ -78,7 +87,7 @@
 			"fieldname": "designations",
 			"fieldtype": "Table",
 			"label": "Cargos Aplicáveis",
-			"mandatory_depends_on": "eval:!doc.__disciplina_aplicavel_a_todos",
+			"mandatory_depends_on": "eval:!doc.disciplina_aplicavel_a_todos",
 			"options": "Questao Designation Item"
 		},
 		{

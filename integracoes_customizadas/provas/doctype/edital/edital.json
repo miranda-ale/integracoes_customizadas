@@ -1,0 +1,215 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-23 12:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"titulo",
+		"job_opening",
+		"column_break_info",
+		"designation",
+		"status",
+		"section_datas",
+		"data_publicacao",
+		"column_break_datas",
+		"data_encerramento",
+		"section_descricao",
+		"descricao",
+		"section_etapas",
+		"etapas",
+		"section_candidatos",
+		"candidatos",
+		"section_acoes",
+		"btn_importar_candidatos",
+		"btn_avancar_candidatos",
+		"btn_gerar_blog"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "EDI-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "EDI-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"fieldname": "titulo",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Título do Edital",
+			"reqd": 1
+		},
+		{
+			"fieldname": "job_opening",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Vaga (Job Opening)",
+			"options": "Job Opening",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_info",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fetch_from": "job_opening.designation",
+			"fieldname": "designation",
+			"fieldtype": "Link",
+			"label": "Cargo",
+			"options": "Designation",
+			"read_only": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nPublicado\nEm Andamento\nEncerrado",
+			"reqd": 1
+		},
+		{
+			"fieldname": "section_datas",
+			"fieldtype": "Section Break",
+			"label": "Datas"
+		},
+		{
+			"fieldname": "data_publicacao",
+			"fieldtype": "Date",
+			"label": "Data de Publicação"
+		},
+		{
+			"fieldname": "column_break_datas",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "data_encerramento",
+			"fieldtype": "Date",
+			"label": "Data de Encerramento das Inscrições"
+		},
+		{
+			"fieldname": "section_descricao",
+			"fieldtype": "Section Break",
+			"label": "Descrição do Edital"
+		},
+		{
+			"fieldname": "descricao",
+			"fieldtype": "Text Editor",
+			"label": "Conteúdo do Edital"
+		},
+		{
+			"fieldname": "section_etapas",
+			"fieldtype": "Section Break",
+			"label": "Etapas do Processo Seletivo"
+		},
+		{
+			"fieldname": "etapas",
+			"fieldtype": "Table",
+			"label": "Etapas",
+			"options": "Edital Etapa Item",
+			"reqd": 1
+		},
+		{
+			"fieldname": "section_candidatos",
+			"fieldtype": "Section Break",
+			"label": "Candidatos"
+		},
+		{
+			"fieldname": "candidatos",
+			"fieldtype": "Table",
+			"label": "Candidatos",
+			"options": "Edital Candidato Item"
+		},
+		{
+			"fieldname": "section_acoes",
+			"fieldtype": "Section Break",
+			"label": "Ações"
+		},
+		{
+			"fieldname": "btn_importar_candidatos",
+			"fieldtype": "Button",
+			"label": "Importar Candidatos da Vaga"
+		},
+		{
+			"fieldname": "btn_avancar_candidatos",
+			"fieldtype": "Button",
+			"label": "Avançar Candidatos de Etapa"
+		},
+		{
+			"fieldname": "btn_gerar_blog",
+			"fieldtype": "Button",
+			"label": "Gerar Publicação no Blog"
+		}
+	],
+	"links": [
+		{
+			"link_doctype": "Interview",
+			"link_fieldname": "job_applicant",
+			"group": "Entrevistas"
+		}
+	],
+	"modified": "2026-01-23 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Edital",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "HR Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 0,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "HR User",
+			"share": 0,
+			"write": 0
+		}
+	],
+	"search_fields": "titulo,job_opening,status",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "titulo",
+	"track_changes": 1
+}
