@@ -134,23 +134,23 @@ frappe.ui.form.on("Edital", {
 					fieldtype: "Section Break",
 					label: __("Selecione os Candidatos")
 				},
-				{
-					fieldtype: "HTML",
-					fieldname: "candidatos_html",
-					options: `
-						<div style="margin-bottom: 10px;">
-							<button class="btn btn-xs btn-default" onclick="$('.candidato-checkbox').prop('checked', true)">
-								${__("Selecionar Todos")}
-							</button>
-							<button class="btn btn-xs btn-default" onclick="$('.candidato-checkbox').prop('checked', false)">
-								${__("Desmarcar Todos")}
-							</button>
-						</div>
-						<div id="candidatos_list" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d8dd; padding: 10px; border-radius: 4px;">
-							${candidatos_html}
-						</div>
-					`
-				}
+			{
+				fieldtype: "HTML",
+				fieldname: "candidatos_html",
+				options: `
+					<div style="margin-bottom: 10px;">
+						<button class="btn btn-xs btn-default" id="btn_selecionar_todos">
+							${__("Selecionar Todos")}
+						</button>
+						<button class="btn btn-xs btn-default" id="btn_desmarcar_todos">
+							${__("Desmarcar Todos")}
+						</button>
+					</div>
+					<div id="candidatos_list" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d8dd; padding: 10px; border-radius: 4px;">
+						${candidatos_html}
+					</div>
+				`
+			}
 			],
 			primary_action_label: __("Avançar Selecionados"),
 			primary_action: function() {
@@ -190,6 +190,14 @@ frappe.ui.form.on("Edital", {
 		});
 		
 		dialog.show();
+		
+		// Adiciona event listeners para os botões após o dialog ser exibido
+		dialog.$wrapper.find('#btn_selecionar_todos').on('click', function() {
+			dialog.$wrapper.find('.candidato-checkbox').prop('checked', true);
+		});
+		dialog.$wrapper.find('#btn_desmarcar_todos').on('click', function() {
+			dialog.$wrapper.find('.candidato-checkbox').prop('checked', false);
+		});
 	},
 	
 	gerar_blog: function(frm) {

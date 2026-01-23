@@ -78,6 +78,15 @@ class Edital(Document):
 					"etapa_atual": primeira_etapa,
 					"status_candidato": "Inscrito"
 				})
+				
+				# Atualiza o Job Applicant com o edital
+				try:
+					job_applicant_doc = frappe.get_doc("Job Applicant", ja.name)
+					job_applicant_doc.edital = self.name
+					job_applicant_doc.save(ignore_permissions=True)
+				except Exception:
+					pass  # Ignora erro se não conseguir atualizar
+				
 				novos += 1
 		
 		self.save()
@@ -193,6 +202,13 @@ class Edital(Document):
 		# Busca dados do Interview Round
 		interview_round_doc = frappe.get_doc("Interview Round", interview_round)
 		
+		# Busca dados da etapa no edital para obter data e horários
+		etapa_edital = None
+		for etapa in self.etapas:
+			if etapa.interview_round == interview_round:
+				etapa_edital = etapa
+				break
+		
 		# Cria novo Interview
 		interview = frappe.new_doc("Interview")
 		interview.interview_round = interview_round
@@ -200,6 +216,18 @@ class Edital(Document):
 		interview.designation = interview_round_doc.designation or self.designation
 		interview.job_opening = self.job_opening
 		interview.resume_link = job_applicant_doc.resume_link
+		
+		# Define data e horários da etapa se disponíveis
+		if etapa_edital:
+			if etapa_edital.data_prevista:
+				interview.scheduled_on = etapa_edital.data_prevista
+			if etapa_edital.hora_inicio:
+				interview.from_time = etapa_edital.hora_inicio
+			if etapa_edital.hora_fim:
+				interview.to_time = etapa_edital.hora_fim
+		
+		# Vincula o edital ao Interview (via Custom Field)
+		interview.edital = self.name
 		
 		# Adiciona entrevistadores do Interview Round
 		if interview_round_doc.interviewers:
@@ -210,8 +238,9 @@ class Edital(Document):
 		
 		interview.insert(ignore_permissions=True)
 		
-		# Atualiza status do Job Applicant
+		# Atualiza Job Applicant com o edital e status
 		job_applicant_doc.status = "Replied"
+		job_applicant_doc.edital = self.name
 		job_applicant_doc.save(ignore_permissions=True)
 		
 		return interview
