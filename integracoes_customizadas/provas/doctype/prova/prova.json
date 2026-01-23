@@ -11,7 +11,7 @@
 		"titulo",
 		"status",
 		"column_break_info",
-		"interview",
+		"edital",
 		"designation",
 		"data_aplicacao",
 		"duracao_minutos",
@@ -67,21 +67,21 @@
 			"fieldtype": "Column Break"
 		},
 		{
-			"fieldname": "interview",
+			"fieldname": "edital",
 			"fieldtype": "Link",
 			"in_list_view": 1,
 			"in_standard_filter": 1,
-			"label": "Interview",
-			"options": "Interview"
+			"label": "Edital",
+			"options": "Edital",
+			"reqd": 1
 		},
 		{
+			"fetch_from": "edital.designation",
 			"fieldname": "designation",
 			"fieldtype": "Link",
-			"in_list_view": 1,
-			"in_standard_filter": 1,
 			"label": "Cargo",
 			"options": "Designation",
-			"reqd": 1
+			"read_only": 1
 		},
 		{
 			"fieldname": "data_aplicacao",
@@ -126,11 +126,12 @@
 	],
 	"links": [
 		{
-			"link_doctype": "Interview",
-			"link_fieldname": "prova"
+			"link_doctype": "Edital",
+			"link_fieldname": "name",
+			"group": "Edital"
 		}
 	],
-	"modified": "2026-01-22 12:00:00.000000",
+	"modified": "2026-01-23 14:00:00.000000",
 	"modified_by": "Administrator",
 	"module": "Provas",
 	"name": "Prova",
@@ -150,7 +151,7 @@
 			"write": 1
 		}
 	],
-	"search_fields": "titulo,interview,designation,status",
+	"search_fields": "titulo,edital,designation,status",
 	"sort_field": "modified",
 	"sort_order": "DESC",
 	"states": [],

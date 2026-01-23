@@ -15,7 +15,6 @@ class Prova(Document):
 	def validate(self):
 		self.verificar_custom_field_interview()
 		self.calcular_total_pontos()
-		self.validar_interview_tipo()
 		self.validar_questoes_designation()
 		self.validar_questoes_duplicadas()
 		self.validar_ordem_questoes()
@@ -84,27 +83,11 @@ class Prova(Document):
 		"""Calcula o total de pontos da prova baseado nos pesos das questões."""
 		self.total_pontos = sum(q.peso or 0 for q in self.questoes)
 
-	def validar_interview_tipo(self):
-		"""Valida que o Interview vinculado é do tipo correto."""
-		if not self.interview:
-			return
-
-		interview = frappe.get_doc("Interview", self.interview)
-
-		# Verifica se o Interview é do tipo "Prova de Conhecimentos Gerais e Específicos"
-		tipo_esperado = "Prova de Conhecimentos Gerais e Específicos"
-		if hasattr(interview, "interview_type") and interview.interview_type != tipo_esperado:
-			frappe.throw(
-				_(
-					"O Interview {0} deve ser do tipo '{1}' para ser vinculado a uma prova. "
-					"Tipo atual: {2}"
-				).format(self.interview, tipo_esperado, interview.interview_type)
-			)
-
 	def validar_questoes_designation(self):
 		"""Valida que todas as questões são aplicáveis ao cargo da prova.
 
 		Considera disciplinas gerais (aplicavel_a_todos) e específicas.
+		O cargo é obtido do Edital vinculado.
 		"""
 		if not self.designation:
 			return
@@ -127,7 +110,7 @@ class Prova(Document):
 
 			# Verifica também se a questão tem o cargo na sua lista de designations
 			designations_questao = questao.get_designations()
-			if self.designation not in designations_questao:
+			if designations_questao and self.designation not in designations_questao:
 				frappe.throw(
 					_(
 						"A questão {0} não é aplicável ao cargo {1}. "
@@ -182,11 +165,11 @@ class Prova(Document):
 				gabarito.append({"ordem": item.ordem, "resposta": resposta})
 		return gabarito
 
-	def get_interview_info(self):
-		"""Retorna informações do Interview vinculado."""
-		if not self.interview:
+	def get_edital_info(self):
+		"""Retorna informações do Edital vinculado."""
+		if not self.edital:
 			return None
-		return frappe.get_doc("Interview", self.interview)
+		return frappe.get_doc("Edital", self.edital)
 
 
 @frappe.whitelist()

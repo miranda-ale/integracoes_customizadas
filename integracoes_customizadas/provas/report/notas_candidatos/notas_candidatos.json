@@ -1,0 +1,30 @@
+{
+	"add_total_row": 0,
+	"columns": [],
+	"creation": "2026-01-23 14:00:00.000000",
+	"disabled": 0,
+	"docstatus": 0,
+	"doctype": "Report",
+	"filters": [],
+	"is_standard": "Yes",
+	"modified": "2026-01-23 14:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Notas dos Candidatos",
+	"owner": "Administrator",
+	"prepared_report": 0,
+	"ref_doctype": "Edital",
+	"report_name": "Notas dos Candidatos",
+	"report_type": "Script Report",
+	"roles": [
+		{
+			"role": "System Manager"
+		},
+		{
+			"role": "HR Manager"
+		},
+		{
+			"role": "HR User"
+		}
+	]
+}

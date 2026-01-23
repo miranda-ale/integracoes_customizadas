@@ -16,7 +16,26 @@ frappe.ui.form.on("Prova", {
 		}
 	},
 	
+	edital: function(frm) {
+		// Quando o edital é alterado, atualiza o campo designation automaticamente
+		if (frm.doc.edital) {
+			frappe.db.get_value("Edital", frm.doc.edital, "designation", (r) => {
+				if (r && r.designation) {
+					frm.set_value("designation", r.designation);
+				}
+			});
+		} else {
+			frm.set_value("designation", "");
+		}
+	},
+	
 	abrir_dialog_questoes: function(frm) {
+		// Valida que o edital está preenchido
+		if (!frm.doc.edital) {
+			frappe.msgprint(__("Por favor, selecione um Edital antes de selecionar questões."));
+			return;
+		}
+		
 		// Busca questões disponíveis
 		frappe.call({
 			method: "integracoes_customizadas.provas.doctype.prova.prova.get_questoes_disponiveis",
@@ -163,9 +182,15 @@ frappe.ui.form.on("Prova", {
 	},
 	
 	abrir_dialog_gerador: function(frm) {
-		// Valida que o cargo está preenchido
+		// Valida que o edital está preenchido
+		if (!frm.doc.edital) {
+			frappe.msgprint(__("Por favor, selecione um Edital antes de gerar questões."));
+			return;
+		}
+		
+		// Valida que o cargo está preenchido (vem do edital)
 		if (!frm.doc.designation) {
-			frappe.msgprint(__("Por favor, preencha o campo 'Cargo' antes de gerar questões."));
+			frappe.msgprint(__("O Edital selecionado não possui cargo definido."));
 			return;
 		}
 		
@@ -180,6 +205,7 @@ frappe.ui.form.on("Prova", {
 							<p><strong>Instruções:</strong></p>
 							<p>Configure as disciplinas e a quantidade de questões desejada para cada uma. 
 							O sistema selecionará questões aleatórias aplicáveis ao cargo <strong>${frm.doc.designation}</strong>.</p>
+							<p><small>Edital: ${frm.doc.edital}</small></p>
 						</div>
 					`
 				},

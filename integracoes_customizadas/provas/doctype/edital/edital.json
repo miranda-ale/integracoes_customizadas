@@ -157,8 +157,18 @@
 	],
 	"links": [
 		{
+			"link_doctype": "Job Applicant",
+			"link_fieldname": "job_title",
+			"group": "Candidatos"
+		},
+		{
+			"link_doctype": "Prova",
+			"link_fieldname": "edital",
+			"group": "Provas"
+		},
+		{
 			"link_doctype": "Interview",
-			"link_fieldname": "job_applicant",
+			"link_fieldname": "job_opening",
 			"group": "Entrevistas"
 		}
 	],
