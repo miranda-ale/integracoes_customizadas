@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+import random
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import now_datetime
@@ -261,3 +262,107 @@ def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None,
 		})
 	
 	return resultado
+
+
+@frappe.whitelist()
+def gerar_questoes_automaticas(prova_name, designation, configuracoes):
+	"""Gera questões automaticamente baseado em configurações de disciplinas e quantidades.
+	
+	Args:
+		prova_name: Nome da prova
+		designation: Cargo da prova
+		configuracoes: Lista de dicionários com:
+			- disciplina: Nome da disciplina
+			- quantidade: Quantidade de questões desejada
+			- dificuldade: Dificuldade (Aleatória/Fácil/Média/Difícil)
+	
+	Returns:
+		Dict com:
+			- questoes_selecionadas: Lista de nomes de questões selecionadas
+			- total_adicionadas: Total de questões adicionadas
+			- avisos: Lista de avisos (se houver)
+	"""
+	if not designation:
+		frappe.throw(_("É necessário informar o cargo da prova para gerar questões."))
+	
+	# Obtém questões já adicionadas
+	questoes_ja_adicionadas = []
+	if prova_name:
+		prova = frappe.get_doc("Prova", prova_name)
+		questoes_ja_adicionadas = [q.questao for q in prova.questoes]
+	
+	questoes_selecionadas = []
+	avisos = []
+	
+	# Processa cada configuração
+	for config in configuracoes:
+		disciplina = config.get("disciplina")
+		quantidade = int(config.get("quantidade", 1))
+		dificuldade = config.get("dificuldade", "Aleatória")
+		
+		if not disciplina:
+			continue
+		
+		# Busca questões disponíveis da disciplina
+		filters = {
+			"ativo": 1,
+			"disciplina": disciplina
+		}
+		
+		# Filtra por dificuldade se não for "Aleatória"
+		if dificuldade != "Aleatória":
+			filters["dificuldade"] = dificuldade
+		
+		questoes_disponiveis = frappe.get_all(
+			"Questao",
+			filters=filters,
+			fields=["name", "tipo", "disciplina", "dificuldade"]
+		)
+		
+		# Filtra questões aplicáveis ao cargo
+		questoes_aplicaveis = []
+		for questao in questoes_disponiveis:
+			# Exclui questões já adicionadas
+			if questao.name in questoes_ja_adicionadas:
+				continue
+			
+			# Verifica se a questão é aplicável ao cargo
+			questao_doc = frappe.get_doc("Questao", questao.name)
+			disciplina_doc = frappe.get_doc("Disciplina", disciplina)
+			
+			# Se a disciplina é aplicável a todos, OK
+			if disciplina_doc.aplicavel_a_todos:
+				questoes_aplicaveis.append(questao.name)
+			# Se a disciplina não é aplicável a todos, verifica se o cargo está na lista
+			elif disciplina_doc.is_aplicavel_a_designation(designation):
+				# Verifica se a questão tem o cargo na sua lista de designations
+				designations_questao = questao_doc.get_designations()
+				if not designations_questao or designation in designations_questao:
+					questoes_aplicaveis.append(questao.name)
+		
+		# Seleciona aleatoriamente a quantidade solicitada
+		if len(questoes_aplicaveis) < quantidade:
+			avisos.append(
+				_(
+					"Disciplina '{0}': solicitadas {1} questões, mas apenas {2} disponíveis. "
+					"Foram adicionadas {2} questão(ões)."
+				).format(disciplina, quantidade, len(questoes_aplicaveis))
+			)
+			quantidade = len(questoes_aplicaveis)
+		
+		if questoes_aplicaveis:
+			# Seleciona aleatoriamente
+			random.shuffle(questoes_aplicaveis)
+			questoes_selecionadas.extend(questoes_aplicaveis[:quantidade])
+		else:
+			avisos.append(
+				_("Disciplina '{0}': nenhuma questão disponível aplicável ao cargo '{1}'.").format(
+					disciplina, designation
+				)
+			)
+	
+	return {
+		"questoes_selecionadas": questoes_selecionadas,
+		"total_adicionadas": len(questoes_selecionadas),
+		"avisos": avisos
+	}

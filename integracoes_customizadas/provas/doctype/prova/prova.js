@@ -8,6 +8,11 @@ frappe.ui.form.on("Prova", {
 			frm.add_custom_button(__("Selecionar Questões"), function() {
 				frm.events.abrir_dialog_questoes(frm);
 			}, __("Ações"));
+			
+			// Adiciona botão para gerar questões automaticamente
+			frm.add_custom_button(__("Gerar Questões"), function() {
+				frm.events.abrir_dialog_gerador(frm);
+			}, __("Ações"));
 		}
 	},
 	
@@ -155,5 +160,122 @@ frappe.ui.form.on("Prova", {
 			message: __("{0} questão(ões) adicionada(s)", [questoes_selecionadas.length]),
 			indicator: "green"
 		}, 3);
+	},
+	
+	abrir_dialog_gerador: function(frm) {
+		// Valida que o cargo está preenchido
+		if (!frm.doc.designation) {
+			frappe.msgprint(__("Por favor, preencha o campo 'Cargo' antes de gerar questões."));
+			return;
+		}
+		
+		// Cria dialog com tabela dinâmica
+		let dialog = new frappe.ui.Dialog({
+			title: __("Gerador Automático de Questões"),
+			fields: [
+				{
+					fieldtype: "HTML",
+					options: `
+						<div class="alert alert-info">
+							<p><strong>Instruções:</strong></p>
+							<p>Configure as disciplinas e a quantidade de questões desejada para cada uma. 
+							O sistema selecionará questões aleatórias aplicáveis ao cargo <strong>${frm.doc.designation}</strong>.</p>
+						</div>
+					`
+				},
+				{
+					fieldname: "configuracoes",
+					fieldtype: "Table",
+					label: __("Configurações de Disciplinas"),
+					fields: [
+						{
+							fieldname: "disciplina",
+							fieldtype: "Link",
+							options: "Disciplina",
+							label: __("Disciplina"),
+							reqd: 1,
+							in_list_view: 1
+						},
+						{
+							fieldname: "quantidade",
+							fieldtype: "Int",
+							label: __("Quantidade"),
+							reqd: 1,
+							default: 1,
+							in_list_view: 1
+						},
+						{
+							fieldname: "dificuldade",
+							fieldtype: "Select",
+							label: __("Dificuldade"),
+							options: "Aleatória\nFácil\nMédia\nDifícil",
+							default: "Aleatória",
+							in_list_view: 1
+						}
+					],
+					reqd: 1
+				}
+			],
+			primary_action_label: __("Gerar Questões"),
+			primary_action: function() {
+				let configuracoes = dialog.get_value("configuracoes");
+				
+				if (!configuracoes || configuracoes.length === 0) {
+					frappe.msgprint(__("Por favor, adicione pelo menos uma disciplina."));
+					return;
+				}
+				
+				// Valida configurações
+				for (let config of configuracoes) {
+					if (!config.disciplina) {
+						frappe.msgprint(__("Todas as disciplinas devem ser preenchidas."));
+						return;
+					}
+					if (!config.quantidade || config.quantidade < 1) {
+						frappe.msgprint(__("A quantidade deve ser pelo menos 1 para cada disciplina."));
+						return;
+					}
+				}
+				
+				frm.events.gerar_questoes_automaticas(frm, configuracoes);
+				dialog.hide();
+			}
+		});
+		
+		// Adiciona uma linha inicial
+		dialog.fields_dict.configuracoes.df.data = [{}];
+		dialog.show();
+	},
+	
+	gerar_questoes_automaticas: function(frm, configuracoes) {
+		frappe.call({
+			method: "integracoes_customizadas.provas.doctype.prova.prova.gerar_questoes_automaticas",
+			args: {
+				prova_name: frm.doc.name,
+				designation: frm.doc.designation,
+				configuracoes: configuracoes
+			},
+			freeze: true,
+			freeze_message: __("Gerando questões..."),
+			callback: function(r) {
+				if (r.message) {
+					let resultado = r.message;
+					
+					// Adiciona questões à tabela
+					if (resultado.questoes_selecionadas && resultado.questoes_selecionadas.length > 0) {
+						frm.events.adicionar_questoes(frm, resultado.questoes_selecionadas);
+					}
+					
+					// Mostra resumo
+					let mensagem = __("{0} questão(ões) adicionada(s)", [resultado.total_adicionadas]);
+					if (resultado.avisos && resultado.avisos.length > 0) {
+						mensagem += "\n\n" + __("Avisos:") + "\n" + resultado.avisos.join("\n");
+						frappe.msgprint(mensagem, indicator="orange", title=__("Geração Concluída"));
+					} else {
+						frappe.msgprint(mensagem, indicator="green", title=__("Sucesso"));
+					}
+				}
+			}
+		});
 	}
 });
