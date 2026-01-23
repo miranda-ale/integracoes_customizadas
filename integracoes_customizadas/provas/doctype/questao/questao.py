@@ -39,18 +39,28 @@ class Questao(Document):
 	def validate_designations_disciplina(self):
 		"""Valida que os cargos da questão são compatíveis com a disciplina.
 
-		- Se a disciplina é aplicável a todos: qualquer cargo é válido
+		- Se a disciplina é aplicável a todos: qualquer cargo é válido (e não é obrigatório)
 		- Se a disciplina é específica: os cargos da questão devem estar
-		  contidos nos cargos da disciplina
+		  contidos nos cargos da disciplina e são obrigatórios
 		"""
-		if not self.disciplina or not self.designations:
+		if not self.disciplina:
 			return
 
 		disciplina = frappe.get_doc("Disciplina", self.disciplina)
 
-		# Se a disciplina é aplicável a todos, qualquer cargo é válido
+		# Se a disciplina é aplicável a todos, não exige cargos
 		if disciplina.aplicavel_a_todos:
+			# Se houver cargos preenchidos, limpa (opcional, mas não necessário)
 			return
+
+		# Se a disciplina não é aplicável a todos, exige pelo menos um cargo
+		if not self.designations or len(self.designations) == 0:
+			frappe.throw(
+				_(
+					"A disciplina '{0}' não é aplicável a todos os cargos. "
+					"É necessário informar pelo menos um cargo aplicável."
+				).format(self.disciplina)
+			)
 
 		# Obtém os cargos da disciplina
 		cargos_disciplina = disciplina.get_designations()

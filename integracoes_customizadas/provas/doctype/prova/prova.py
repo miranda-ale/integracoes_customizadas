@@ -186,3 +186,78 @@ class Prova(Document):
 		if not self.interview:
 			return None
 		return frappe.get_doc("Interview", self.interview)
+
+
+@frappe.whitelist()
+def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None, tipo=None):
+	"""Retorna lista de questões disponíveis para seleção na prova.
+	
+	Args:
+		prova_name: Nome da prova (para excluir questões já adicionadas)
+		designation: Cargo para filtrar questões aplicáveis
+		disciplina: Disciplina para filtrar
+		tipo: Tipo de questão (Objetiva/Discursiva)
+	
+	Returns:
+		Lista de questões com informações resumidas
+	"""
+	filters = {"ativo": 1}
+	
+	# Filtros opcionais
+	if disciplina:
+		filters["disciplina"] = disciplina
+	if tipo:
+		filters["tipo"] = tipo
+	
+	# Busca questões
+	questoes = frappe.get_all(
+		"Questao",
+		filters=filters,
+		fields=["name", "tipo", "disciplina", "dificuldade", "enunciado"],
+		order_by="modified desc"
+	)
+	
+	# Se houver prova, exclui questões já adicionadas
+	questoes_ja_adicionadas = []
+	if prova_name:
+		prova = frappe.get_doc("Prova", prova_name)
+		questoes_ja_adicionadas = [q.questao for q in prova.questoes]
+	
+	# Filtra questões aplicáveis ao cargo (se fornecido)
+	resultado = []
+	for questao in questoes:
+		if questao.name in questoes_ja_adicionadas:
+			continue
+		
+		# Verifica se a questão é aplicável ao cargo
+		if designation:
+			questao_doc = frappe.get_doc("Questao", questao.name)
+			disciplina_doc = frappe.get_doc("Disciplina", questao.disciplina)
+			
+			# Se a disciplina é aplicável a todos, OK
+			if disciplina_doc.aplicavel_a_todos:
+				pass
+			# Se a disciplina não é aplicável a todos, verifica se o cargo está na lista
+			elif not disciplina_doc.is_aplicavel_a_designation(designation):
+				continue
+			
+			# Verifica se a questão tem o cargo na sua lista de designations
+			designations_questao = questao_doc.get_designations()
+			if designations_questao and designation not in designations_questao:
+				continue
+		
+		# Limita o tamanho do enunciado para preview
+		enunciado_preview = questao.enunciado
+		if enunciado_preview and len(enunciado_preview) > 200:
+			enunciado_preview = enunciado_preview[:200] + "..."
+		
+		resultado.append({
+			"name": questao.name,
+			"tipo": questao.tipo,
+			"disciplina": questao.disciplina,
+			"dificuldade": questao.dificuldade,
+			"enunciado": enunciado_preview,
+			"enunciado_completo": questao.enunciado
+		})
+	
+	return resultado

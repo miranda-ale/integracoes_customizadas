@@ -78,8 +78,8 @@
 			"fieldname": "designations",
 			"fieldtype": "Table",
 			"label": "Cargos Aplicáveis",
-			"options": "Questao Designation Item",
-			"reqd": 1
+			"mandatory_depends_on": "eval:!doc.__disciplina_aplicavel_a_todos",
+			"options": "Questao Designation Item"
 		},
 		{
 			"fieldname": "section_enunciado",
