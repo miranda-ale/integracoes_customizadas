@@ -157,24 +157,19 @@
 	],
 	"links": [
 		{
-			"link_doctype": "Job Applicant",
-			"link_fieldname": "edital",
-			"group": "Candidatos"
-		},
-		{
 			"link_doctype": "Prova",
 			"link_fieldname": "edital",
 			"group": "Provas"
 		},
 		{
+			"link_doctype": "Job Applicant",
+			"link_fieldname": "edital",
+			"group": "Candidatos"
+		},
+		{
 			"link_doctype": "Interview",
 			"link_fieldname": "edital",
 			"group": "Entrevistas"
-		},
-		{
-			"link_doctype": "Interview Round",
-			"link_fieldname": "edital",
-			"group": "Etapas"
 		}
 	],
 	"modified": "2026-01-23 12:00:00.000000",

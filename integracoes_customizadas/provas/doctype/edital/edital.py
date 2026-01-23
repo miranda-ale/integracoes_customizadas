@@ -18,10 +18,9 @@ class Edital(Document):
 		if not self.etapas or len(self.etapas) == 0:
 			frappe.throw(_("É necessário definir pelo menos uma etapa do processo seletivo."))
 		
-		# Valida ordens duplicadas
-		ordens = [e.ordem for e in self.etapas]
-		if len(ordens) != len(set(ordens)):
-			frappe.throw(_("Não é permitido ter etapas com a mesma ordem."))
+		# Sincroniza o campo ordem com idx para compatibilidade
+		for etapa in self.etapas:
+			etapa.ordem = etapa.idx
 	
 	def validar_datas(self):
 		"""Valida as datas do edital."""
@@ -37,8 +36,8 @@ class Edital(Document):
 				frappe.throw(_("Não é permitido incluir o mesmo candidato mais de uma vez."))
 	
 	def get_etapas_ordenadas(self):
-		"""Retorna as etapas ordenadas pela ordem."""
-		return sorted(self.etapas, key=lambda x: x.ordem)
+		"""Retorna as etapas ordenadas pelo idx (ordem de inserção)."""
+		return sorted(self.etapas, key=lambda x: x.idx)
 	
 	def get_proxima_etapa(self, etapa_atual):
 		"""Retorna a próxima etapa após a etapa atual."""

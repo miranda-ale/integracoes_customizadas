@@ -29,12 +29,11 @@
 			"fieldtype": "Column Break"
 		},
 		{
-			"default": "1",
+			"default": "0",
 			"fieldname": "ordem",
 			"fieldtype": "Int",
-			"in_list_view": 1,
-			"label": "Ordem",
-			"reqd": 1
+			"hidden": 1,
+			"label": "Ordem"
 		},
 		{
 			"default": "Pendente",
@@ -81,7 +80,7 @@
 	"name": "Edital Etapa Item",
 	"owner": "Administrator",
 	"permissions": [],
-	"sort_field": "ordem",
+	"sort_field": "idx",
 	"sort_order": "ASC",
 	"states": [],
 	"track_changes": 1

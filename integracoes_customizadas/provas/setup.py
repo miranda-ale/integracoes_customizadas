@@ -147,3 +147,25 @@ def verify_edital_custom_fields():
 			return False
 	
 	return True
+
+
+def after_migrate():
+	"""Cria Custom Fields após cada migração do banco de dados."""
+	try:
+		create_interview_custom_fields()
+		create_edital_custom_fields()
+	except Exception as e:
+		frappe.log_error(f"Erro ao criar Custom Fields durante migração: {str(e)}")
+
+
+@frappe.whitelist()
+def criar_custom_fields_edital():
+	"""Método whitelisted para criar Custom Fields manualmente via console ou API."""
+	try:
+		create_interview_custom_fields()
+		create_edital_custom_fields()
+		frappe.msgprint("Custom Fields criados com sucesso!", indicator="green", title="Sucesso")
+		return {"success": True, "message": "Custom Fields criados com sucesso"}
+	except Exception as e:
+		frappe.log_error(f"Erro ao criar Custom Fields: {str(e)}")
+		return {"success": False, "message": str(e)}

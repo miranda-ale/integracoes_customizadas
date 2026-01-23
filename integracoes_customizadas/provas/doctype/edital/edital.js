@@ -61,16 +61,63 @@ frappe.ui.form.on("Edital", {
 		frappe.confirm(
 			__("Deseja importar todos os candidatos da vaga '{0}'?", [frm.doc.job_opening]),
 			function() {
+				// Busca candidatos da vaga diretamente via API
 				frappe.call({
-					method: "integracoes_customizadas.provas.doctype.edital.edital.importar_candidatos",
+					method: "frappe.client.get_list",
 					args: {
-						edital_name: frm.doc.name
+						doctype: "Job Applicant",
+						filters: {
+							"job_title": frm.doc.job_opening,
+							"status": ["not in", ["Rejected"]]
+						},
+						fields: ["name", "applicant_name", "email_id"],
+						limit_page_length: 0
 					},
 					freeze: true,
-					freeze_message: __("Importando candidatos..."),
+					freeze_message: __("Buscando candidatos..."),
 					callback: function(r) {
-						if (r.message) {
-							frm.reload_doc();
+						if (r.message && r.message.length > 0) {
+							// Obtém lista de candidatos já adicionados
+							let candidatos_existentes = [];
+							if (frm.doc.candidatos) {
+								candidatos_existentes = frm.doc.candidatos.map(c => c.job_applicant);
+							}
+							
+							// Obtém primeira etapa do edital
+							let primeira_etapa = null;
+							if (frm.doc.etapas && frm.doc.etapas.length > 0) {
+								// Ordena por idx para pegar a primeira
+								let etapas_ordenadas = frm.doc.etapas.slice().sort((a, b) => a.idx - b.idx);
+								primeira_etapa = etapas_ordenadas[0].interview_round;
+							}
+							
+							// Adiciona candidatos novos diretamente na tabela
+							let novos = 0;
+							r.message.forEach(function(ja) {
+								if (!candidatos_existentes.includes(ja.name)) {
+									let row = frm.add_child("candidatos");
+									row.job_applicant = ja.name;
+									row.applicant_name = ja.applicant_name;
+									row.email = ja.email_id;
+									row.etapa_atual = primeira_etapa;
+									row.status_candidato = "Inscrito";
+									novos++;
+								}
+							});
+							
+							frm.refresh_field("candidatos");
+							
+							if (novos > 0) {
+								frappe.show_alert({
+									message: __("{0} candidato(s) importado(s)", [novos]),
+									indicator: "green"
+								}, 5);
+								frm.dirty();
+							} else {
+								frappe.msgprint(__("Nenhum candidato novo encontrado para importar."));
+							}
+						} else {
+							frappe.msgprint(__("Nenhum candidato encontrado para a vaga selecionada."));
 						}
 					}
 				});
@@ -79,10 +126,11 @@ frappe.ui.form.on("Edital", {
 	},
 	
 	abrir_dialog_avancar: function(frm) {
-		// Monta lista de etapas disponíveis
-		let etapas_options = frm.doc.etapas.map(e => ({
+		// Monta lista de etapas disponíveis (ordenadas por idx)
+		let etapas_ordenadas = frm.doc.etapas.slice().sort((a, b) => a.idx - b.idx);
+		let etapas_options = etapas_ordenadas.map(e => ({
 			value: e.interview_round,
-			label: e.interview_round + " (Ordem: " + e.ordem + ")"
+			label: e.interview_round + " (Etapa " + e.idx + ")"
 		}));
 		
 		// Monta lista de candidatos

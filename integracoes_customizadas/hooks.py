@@ -127,6 +127,10 @@ override_doctype_class = {
 # before_install = "integracoes_customizadas.install.before_install"
 after_install = "integracoes_customizadas.provas.setup.after_install"
 
+# Migration
+# ---------
+after_migrate = "integracoes_customizadas.provas.setup.after_migrate"
+
 # Uninstallation
 # ------------
 
