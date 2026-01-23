@@ -1,0 +1,99 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "field:nome",
+	"creation": "2026-01-22 12:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"nome",
+		"descricao",
+		"column_break_config",
+		"aplicavel_a_todos",
+		"enabled",
+		"section_cargos",
+		"designations"
+	],
+	"fields": [
+		{
+			"fieldname": "nome",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Nome",
+			"reqd": 1,
+			"unique": 1
+		},
+		{
+			"fieldname": "descricao",
+			"fieldtype": "Small Text",
+			"label": "Descrição"
+		},
+		{
+			"fieldname": "column_break_config",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "0",
+			"description": "Se marcado, esta disciplina será aplicável a todos os cargos",
+			"fieldname": "aplicavel_a_todos",
+			"fieldtype": "Check",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Aplicável a Todos os Cargos"
+		},
+		{
+			"default": "1",
+			"fieldname": "enabled",
+			"fieldtype": "Check",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Ativo"
+		},
+		{
+			"depends_on": "eval:!doc.aplicavel_a_todos",
+			"fieldname": "section_cargos",
+			"fieldtype": "Section Break",
+			"label": "Cargos Específicos"
+		},
+		{
+			"depends_on": "eval:!doc.aplicavel_a_todos",
+			"fieldname": "designations",
+			"fieldtype": "Table",
+			"label": "Cargos Aplicáveis",
+			"mandatory_depends_on": "eval:!doc.aplicavel_a_todos",
+			"options": "Disciplina Designation Item"
+		}
+	],
+	"links": [
+		{
+			"link_doctype": "Questao",
+			"link_fieldname": "disciplina"
+		}
+	],
+	"modified": "2026-01-22 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Disciplina",
+	"naming_rule": "By fieldname",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		}
+	],
+	"sort_field": "nome",
+	"sort_order": "ASC",
+	"states": [],
+	"title_field": "nome",
+	"track_changes": 1
+}

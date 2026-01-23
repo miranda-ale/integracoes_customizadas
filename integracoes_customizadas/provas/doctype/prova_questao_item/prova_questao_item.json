@@ -1,0 +1,82 @@
+{
+	"actions": [],
+	"creation": "2026-01-22 12:00:00.000000",
+	"doctype": "DocType",
+	"editable_grid": 1,
+	"engine": "InnoDB",
+	"field_order": [
+		"questao",
+		"ordem",
+		"peso",
+		"column_break_info",
+		"tipo",
+		"disciplina",
+		"dificuldade"
+	],
+	"fields": [
+		{
+			"fieldname": "questao",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Questão",
+			"options": "Questao",
+			"reqd": 1
+		},
+		{
+			"fieldname": "ordem",
+			"fieldtype": "Int",
+			"in_list_view": 1,
+			"label": "Ordem",
+			"reqd": 1
+		},
+		{
+			"default": "1",
+			"fieldname": "peso",
+			"fieldtype": "Float",
+			"in_list_view": 1,
+			"label": "Peso",
+			"precision": "2",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_info",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fetch_from": "questao.tipo",
+			"fieldname": "tipo",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"label": "Tipo",
+			"read_only": 1
+		},
+		{
+			"fetch_from": "questao.disciplina",
+			"fieldname": "disciplina",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Disciplina",
+			"options": "Disciplina",
+			"read_only": 1
+		},
+		{
+			"fetch_from": "questao.dificuldade",
+			"fieldname": "dificuldade",
+			"fieldtype": "Data",
+			"label": "Dificuldade",
+			"read_only": 1
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-22 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Prova Questao Item",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "ordem",
+	"sort_order": "ASC",
+	"states": [],
+	"track_changes": 1
+}

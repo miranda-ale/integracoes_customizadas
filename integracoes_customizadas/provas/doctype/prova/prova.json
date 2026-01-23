@@ -1,0 +1,159 @@
+{
+	"actions": [],
+	"autoname": "naming_series:",
+	"creation": "2026-01-22 12:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"identificador",
+		"titulo",
+		"status",
+		"column_break_info",
+		"interview",
+		"designation",
+		"data_aplicacao",
+		"duracao_minutos",
+		"total_pontos",
+		"section_instrucoes",
+		"instrucoes",
+		"section_questoes",
+		"questoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "PRV-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "PRV-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"fieldname": "identificador",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"label": "Identificador",
+			"read_only": 1,
+			"unique": 1
+		},
+		{
+			"fieldname": "titulo",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Título",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nAprovada\nAplicada",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_info",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "interview",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Interview",
+			"options": "Interview"
+		},
+		{
+			"fieldname": "designation",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Cargo",
+			"options": "Designation",
+			"reqd": 1
+		},
+		{
+			"fieldname": "data_aplicacao",
+			"fieldtype": "Date",
+			"label": "Data de Aplicação"
+		},
+		{
+			"default": "180",
+			"fieldname": "duracao_minutos",
+			"fieldtype": "Int",
+			"label": "Duração (minutos)"
+		},
+		{
+			"fieldname": "total_pontos",
+			"fieldtype": "Float",
+			"label": "Total de Pontos",
+			"precision": "2",
+			"read_only": 1
+		},
+		{
+			"fieldname": "section_instrucoes",
+			"fieldtype": "Section Break",
+			"label": "Instruções"
+		},
+		{
+			"fieldname": "instrucoes",
+			"fieldtype": "Text Editor",
+			"label": "Instruções ao Candidato"
+		},
+		{
+			"fieldname": "section_questoes",
+			"fieldtype": "Section Break",
+			"label": "Questões da Prova"
+		},
+		{
+			"fieldname": "questoes",
+			"fieldtype": "Table",
+			"label": "Questões",
+			"options": "Prova Questao Item",
+			"reqd": 1
+		}
+	],
+	"links": [
+		{
+			"link_doctype": "Interview",
+			"link_fieldname": "prova"
+		}
+	],
+	"modified": "2026-01-22 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Prova",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		}
+	],
+	"search_fields": "titulo,interview,designation,status",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "titulo",
+	"track_changes": 1
+}

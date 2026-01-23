@@ -5,6 +5,17 @@ app_description = "Modulo de integracoes customizadas para o ERPNext"
 app_email = "alessandro.siqueira@outlook.com"
 app_license = "mit"
 
+# Fixtures
+# --------
+fixtures = [
+	{
+		"dt": "Custom Field",
+		"filters": [
+			["name", "in", ["Interview-prova"]]
+		]
+	}
+]
+
 # Apps
 # ------------------
 
@@ -86,7 +97,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "integracoes_customizadas.install.before_install"
-# after_install = "integracoes_customizadas.install.after_install"
+after_install = "integracoes_customizadas.provas.setup.after_install"
 
 # Uninstallation
 # ------------

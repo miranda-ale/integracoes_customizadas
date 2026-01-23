@@ -1,0 +1,149 @@
+{
+	"actions": [],
+	"autoname": "naming_series:",
+	"creation": "2026-01-22 12:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"tipo",
+		"disciplina",
+		"dificuldade",
+		"ativo",
+		"column_break_info",
+		"designations",
+		"section_enunciado",
+		"enunciado",
+		"section_alternativas",
+		"alternativas",
+		"section_resposta_discursiva",
+		"resposta_esperada"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "QUEST-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "QUEST-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"fieldname": "tipo",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Tipo",
+			"options": "Objetiva\nDiscursiva",
+			"reqd": 1
+		},
+		{
+			"fieldname": "disciplina",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Disciplina",
+			"options": "Disciplina",
+			"reqd": 1
+		},
+		{
+			"fieldname": "dificuldade",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Dificuldade",
+			"options": "Fácil\nMédia\nDifícil",
+			"reqd": 1
+		},
+		{
+			"default": "1",
+			"fieldname": "ativo",
+			"fieldtype": "Check",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Ativo"
+		},
+		{
+			"fieldname": "column_break_info",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "designations",
+			"fieldtype": "Table",
+			"label": "Cargos Aplicáveis",
+			"options": "Questao Designation Item",
+			"reqd": 1
+		},
+		{
+			"fieldname": "section_enunciado",
+			"fieldtype": "Section Break",
+			"label": "Enunciado"
+		},
+		{
+			"fieldname": "enunciado",
+			"fieldtype": "Text Editor",
+			"label": "Enunciado",
+			"reqd": 1
+		},
+		{
+			"depends_on": "eval:doc.tipo=='Objetiva'",
+			"fieldname": "section_alternativas",
+			"fieldtype": "Section Break",
+			"label": "Alternativas"
+		},
+		{
+			"depends_on": "eval:doc.tipo=='Objetiva'",
+			"fieldname": "alternativas",
+			"fieldtype": "Table",
+			"label": "Alternativas",
+			"mandatory_depends_on": "eval:doc.tipo=='Objetiva'",
+			"options": "Alternativa Questao"
+		},
+		{
+			"depends_on": "eval:doc.tipo=='Discursiva'",
+			"fieldname": "section_resposta_discursiva",
+			"fieldtype": "Section Break",
+			"label": "Resposta Esperada"
+		},
+		{
+			"depends_on": "eval:doc.tipo=='Discursiva'",
+			"fieldname": "resposta_esperada",
+			"fieldtype": "Text Editor",
+			"label": "Resposta Esperada",
+			"mandatory_depends_on": "eval:doc.tipo=='Discursiva'"
+		}
+	],
+	"links": [],
+	"modified": "2026-01-22 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Questao",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		}
+	],
+	"search_fields": "disciplina,tipo,dificuldade",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 1
+}

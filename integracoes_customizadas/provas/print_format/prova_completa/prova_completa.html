@@ -1,0 +1,85 @@
+{%- set questoes = doc.get_questoes_completas() -%}
+{%- set interview_info = doc.get_interview_info() -%}
+
+<div class="prova-container">
+	<!-- Cabeçalho -->
+	<div class="prova-header">
+		<h1>{{ doc.titulo }}</h1>
+		<div class="identificador">Identificador: {{ doc.identificador }}</div>
+	</div>
+
+	<!-- Informações da Prova -->
+	<div class="prova-info">
+		{% if doc.interview %}
+		<div class="info-item">
+			<div class="info-label">Interview</div>
+			<div class="info-value">{{ doc.interview }}</div>
+		</div>
+		{% endif %}
+		<div class="info-item">
+			<div class="info-label">Cargo</div>
+			<div class="info-value">{{ doc.designation }}</div>
+		</div>
+		<div class="info-item">
+			<div class="info-label">Data</div>
+			<div class="info-value">{{ frappe.format_date(doc.data_aplicacao) if doc.data_aplicacao else '—' }}</div>
+		</div>
+		<div class="info-item">
+			<div class="info-label">Duração</div>
+			<div class="info-value">{{ doc.duracao_minutos }} minutos</div>
+		</div>
+		<div class="info-item">
+			<div class="info-label">Total de Pontos</div>
+			<div class="info-value">{{ doc.total_pontos }}</div>
+		</div>
+	</div>
+
+	<!-- Instruções -->
+	{% if doc.instrucoes %}
+	<div class="prova-instrucoes">
+		<h3>Instruções</h3>
+		{{ doc.instrucoes }}
+	</div>
+	{% endif %}
+
+	<!-- Questões -->
+	{% for questao in questoes %}
+	<div class="questao">
+		<div class="questao-header">
+			<div class="questao-numero">{{ questao.ordem }}</div>
+			<div class="questao-meta">
+				<span><strong>Disciplina:</strong> {{ questao.disciplina }}</span>
+				<span><strong>Peso:</strong> {{ questao.peso }} ponto(s)</span>
+			</div>
+		</div>
+
+		<div class="questao-enunciado">
+			{{ questao.enunciado }}
+		</div>
+
+		{% if questao.tipo == 'Objetiva' %}
+		<div class="alternativas">
+			{% for alt in questao.alternativas %}
+			<div class="alternativa">
+				<span class="alternativa-letra">({{ alt.letra }})</span>
+				<span class="alternativa-texto">{{ alt.texto }}</span>
+			</div>
+			{% endfor %}
+		</div>
+		{% else %}
+		<div class="espaco-resposta">
+			<div class="espaco-resposta-label">Espaço para resposta:</div>
+		</div>
+		{% endif %}
+	</div>
+	{% endfor %}
+
+	<!-- Rodapé -->
+	<div class="prova-footer">
+		<p>{{ doc.identificador }} | {{ doc.designation }}</p>
+		{% if doc.interview %}
+		<p>Interview: {{ doc.interview }}</p>
+		{% endif %}
+		<p>Gerado em {{ frappe.format_datetime(frappe.utils.now()) }}</p>
+	</div>
+</div>

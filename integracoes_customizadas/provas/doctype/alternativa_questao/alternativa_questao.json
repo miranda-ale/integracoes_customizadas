@@ -1,0 +1,48 @@
+{
+	"actions": [],
+	"creation": "2026-01-22 12:00:00.000000",
+	"doctype": "DocType",
+	"editable_grid": 1,
+	"engine": "InnoDB",
+	"field_order": [
+		"letra",
+		"texto",
+		"correta"
+	],
+	"fields": [
+		{
+			"fieldname": "letra",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"label": "Letra",
+			"options": "A\nB\nC\nD\nE",
+			"reqd": 1
+		},
+		{
+			"fieldname": "texto",
+			"fieldtype": "Text Editor",
+			"in_list_view": 1,
+			"label": "Texto",
+			"reqd": 1
+		},
+		{
+			"default": "0",
+			"fieldname": "correta",
+			"fieldtype": "Check",
+			"in_list_view": 1,
+			"label": "Correta"
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-22 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Provas",
+	"name": "Alternativa Questao",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "letra",
+	"sort_order": "ASC",
+	"states": [],
+	"track_changes": 1
+}
