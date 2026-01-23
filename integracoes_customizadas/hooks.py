@@ -5,16 +5,44 @@ app_description = "Modulo de integracoes customizadas para o ERPNext"
 app_email = "alessandro.siqueira@outlook.com"
 app_license = "mit"
 
-# Fixtures
-# --------
 fixtures = [
-	{
-		"dt": "Custom Field",
-		"filters": [
-			["name", "in", ["Interview-prova"]]
-		]
-	}
+    # Exporta o DocType (se estiver no filesystem / exportável)
+    {"dt": "DocType", "filters": [["name", "in", ["Contrato de Trabalho"]]]},
+
+    # Exporta Custom Fields relacionados
+    {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation", "Contrato de Trabalho"]]]},
+
+    # Exporta Client Scripts do DocType
+    {"dt": "Client Script", "filters": [["dt", "in", ["Contrato de Trabalho"]]]},
+
+    # Exporta Print Formats do DocType (SEM duplicidade)
+    {"dt": "Print Format", "filters": [["doc_type", "=", "Contrato de Trabalho"]]},
+
+    # Exporta Property Setters (se você tiver criado/ajustado)
+    {"dt": "Property Setter", "filters": [["doc_type", "=", "Contrato de Trabalho"]]},
+
+    # Exporta Query Reports ligados ao DocType (Report do tipo "Query Report" geralmente usa ref_doctype)
+    {"dt": "Report", "filters": [["ref_doctype", "=", "Contrato de Trabalho"]]},
+
+    # Exporta Notifications do DocType
+    {"dt": "Notification", "filters": [["document_type", "=", "Contrato de Trabalho"]]},
+
+    {"dt": "Custom Field",	"filters": [["name", "in", ["Interview-prova"]]]},
+    
 ]
+
+scheduler_events = {
+    "daily": [
+        "integracoes_customizadas.contratos.utils.processar_alertas_contratos"
+    ]
+}
+
+override_doctype_class = {
+    # Corrigido: sem repetir o nome do app no import path
+    "Contrato de Trabalho": "integracoes_customizadas.doctype.contrato_de_trabalho.contrato_de_trabalho.ContratoDeTrabalho"
+}
+
+
 
 # Apps
 # ------------------
