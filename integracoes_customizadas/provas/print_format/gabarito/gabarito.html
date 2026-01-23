@@ -78,6 +78,6 @@
 	<div class="gabarito-footer">
 		<p><strong>{{ doc.identificador }}</strong></p>
 		<p>{{ doc.designation }}{% if doc.interview %} | Interview: {{ doc.interview }}{% endif %}</p>
-		<p>Gerado em {{ frappe.format_datetime(frappe.utils.now()) }}</p>
+		<p>Gerado em {{ frappe.utils.format_datetime(frappe.utils.now()) }}</p>
 	</div>
 </div>

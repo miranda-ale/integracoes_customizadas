@@ -12,11 +12,56 @@ class Prova(Document):
 		self.gerar_identificador()
 
 	def validate(self):
+		self.verificar_custom_field_interview()
 		self.calcular_total_pontos()
 		self.validar_interview_tipo()
 		self.validar_questoes_designation()
 		self.validar_questoes_duplicadas()
 		self.validar_ordem_questoes()
+
+	def verificar_custom_field_interview(self):
+		"""Verifica se o Custom Field 'prova' existe no DocType Interview."""
+		if not frappe.db.exists("DocType", "Interview"):
+			return
+
+		custom_field_exists = frappe.db.exists(
+			"Custom Field",
+			{"dt": "Interview", "fieldname": "prova"}
+		)
+
+		if not custom_field_exists:
+			# Tenta criar o campo automaticamente
+			try:
+				from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+				
+				custom_fields = {
+					"Interview": [
+						{
+							"fieldname": "prova",
+							"fieldtype": "Link",
+							"label": "Prova",
+							"options": "Prova",
+							"insert_after": "interview_round",
+							"depends_on": "eval:doc.interview_type=='Prova de Conhecimentos Gerais e Específicos'",
+							"description": "Prova vinculada a este Interview",
+						}
+					]
+				}
+
+				create_custom_fields(custom_fields, update=True)
+				frappe.db.commit()
+				
+				frappe.msgprint(
+					_("Custom Field 'prova' foi criado automaticamente no DocType 'Interview'."),
+					indicator="blue",
+					title=_("Campo Criado")
+				)
+			except Exception as e:
+				frappe.log_error(
+					f"Erro ao criar Custom Field 'prova' automaticamente: {str(e)}",
+					"Prova - Verificação Custom Field"
+				)
+				# Não bloqueia o salvamento, apenas registra o erro
 
 	def gerar_identificador(self):
 		"""Gera identificador único para a prova no formato PRV-YYYYMMDD-XXXX."""
