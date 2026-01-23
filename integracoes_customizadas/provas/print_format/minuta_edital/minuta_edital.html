@@ -1,0 +1,407 @@
+{%- set job_opening_doc = frappe.get_doc("Job Opening", doc.job_opening) if doc.job_opening else None -%}
+{%- set etapas_ordenadas = doc.etapas | sort(attribute='ordem') if doc.etapas else [] -%}
+
+<style>
+	.edital-container {
+		font-family: "Times New Roman", Times, serif;
+		font-size: 12pt;
+		line-height: 1.5;
+		color: #000;
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 20px;
+	}
+	
+	.edital-header {
+		text-align: center;
+		margin-bottom: 30px;
+		border-bottom: 2px solid #000;
+		padding-bottom: 20px;
+	}
+	
+	.edital-header h1 {
+		font-size: 16pt;
+		font-weight: bold;
+		margin: 10px 0;
+		text-transform: uppercase;
+	}
+	
+	.edital-header h2 {
+		font-size: 14pt;
+		font-weight: bold;
+		margin: 10px 0;
+	}
+	
+	.edital-header .numero-edital {
+		font-size: 12pt;
+		margin-top: 15px;
+	}
+	
+	.edital-section {
+		margin-bottom: 25px;
+	}
+	
+	.edital-section h3 {
+		font-size: 12pt;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 15px;
+		border-bottom: 1px solid #ccc;
+		padding-bottom: 5px;
+	}
+	
+	.edital-section p {
+		text-align: justify;
+		margin-bottom: 10px;
+		text-indent: 2em;
+	}
+	
+	.edital-section p.no-indent {
+		text-indent: 0;
+	}
+	
+	.edital-section ul, .edital-section ol {
+		margin-left: 40px;
+		margin-bottom: 15px;
+	}
+	
+	.edital-section li {
+		margin-bottom: 8px;
+		text-align: justify;
+	}
+	
+	.tabela-vagas {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 15px 0;
+	}
+	
+	.tabela-vagas th, .tabela-vagas td {
+		border: 1px solid #000;
+		padding: 8px;
+		text-align: left;
+	}
+	
+	.tabela-vagas th {
+		background-color: #f0f0f0;
+		font-weight: bold;
+	}
+	
+	.tabela-etapas {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 15px 0;
+	}
+	
+	.tabela-etapas th, .tabela-etapas td {
+		border: 1px solid #000;
+		padding: 8px;
+		text-align: center;
+	}
+	
+	.tabela-etapas th {
+		background-color: #f0f0f0;
+		font-weight: bold;
+	}
+	
+	.edital-footer {
+		margin-top: 50px;
+		text-align: center;
+	}
+	
+	.assinatura {
+		margin-top: 80px;
+		text-align: center;
+	}
+	
+	.assinatura .linha {
+		border-top: 1px solid #000;
+		width: 300px;
+		margin: 0 auto;
+		padding-top: 5px;
+	}
+	
+	.artigo {
+		margin-bottom: 15px;
+	}
+	
+	.artigo strong {
+		font-weight: bold;
+	}
+	
+	.paragrafo {
+		margin-left: 20px;
+		margin-bottom: 10px;
+	}
+</style>
+
+<div class="edital-container">
+	<!-- CABEÇALHO -->
+	<div class="edital-header">
+		<h1>BENEFICÊNCIA HOSPITALAR DE CESÁRIO LANGE</h1>
+		<h2>PROCESSO SELETIVO SIMPLIFICADO</h2>
+		<h2>{{ doc.titulo }}</h2>
+		<div class="numero-edital">
+			<strong>EDITAL Nº {{ doc.name }}</strong>
+		</div>
+	</div>
+
+	<!-- PREÂMBULO -->
+	<div class="edital-section">
+		<p>
+			O <strong>BENEFICÊNCIA HOSPITALAR DE CESÁRIO LANGE</strong>, entidade qualificada como Organização Social, 
+			no uso de suas atribuições legais e em conformidade com o Regulamento de Recrutamento, Seleção e 
+			Contratação de Pessoal, fundamentado no art. 4º da Lei Federal nº 9.637/98, no art. 22 "g" do Estatuto 
+			Social da entidade e decisão em ADI 1923/DF do Supremo Tribunal Federal, torna público a abertura de 
+			inscrições para o <strong>PROCESSO SELETIVO SIMPLIFICADO</strong> destinado ao preenchimento de vaga 
+			para o cargo abaixo especificado.
+		</p>
+		
+		<p>
+			O presente processo seletivo será regido pelos princípios da moralidade, probidade, impessoalidade, 
+			economicidade, eficiência, isonomia, publicidade e legalidade, visando selecionar os candidatos mais 
+			aptos às funções a serem preenchidas.
+		</p>
+	</div>
+
+	<!-- CAPÍTULO I - DAS VAGAS -->
+	<div class="edital-section">
+		<h3>CAPÍTULO I - DAS VAGAS</h3>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 1º</strong> – O presente Processo Seletivo destina-se ao preenchimento de vaga para o 
+				seguinte cargo:
+			</p>
+		</div>
+		
+		<table class="tabela-vagas">
+			<thead>
+				<tr>
+					<th>Cargo/Função</th>
+					<th>Vagas</th>
+					<th>Carga Horária</th>
+					<th>Regime</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ doc.designation or "A definir" }}</td>
+					<td>01</td>
+					<td>Conforme necessidade do serviço</td>
+					<td>CLT</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		{% if job_opening_doc and job_opening_doc.description %}
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 2º</strong> – Descrição sumária das atribuições do cargo:
+			</p>
+			<p>{{ job_opening_doc.description | striptags }}</p>
+		</div>
+		{% endif %}
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 3º</strong> – Os candidatos aprovados serão contratados sob o regime da Consolidação 
+				das Leis do Trabalho (CLT), conforme carga horária previamente informada, podendo variar para os 
+				períodos diurno, noturno, misto, na forma de revezamento ou escala de serviço.
+			</p>
+		</div>
+	</div>
+
+	<!-- CAPÍTULO II - DAS INSCRIÇÕES -->
+	<div class="edital-section">
+		<h3>CAPÍTULO II - DAS INSCRIÇÕES</h3>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 4º</strong> – As inscrições serão realizadas no período de 
+				{% if doc.data_publicacao %}{{ frappe.format_date(doc.data_publicacao) }}{% else %}[DATA INÍCIO]{% endif %} 
+				a 
+				{% if doc.data_encerramento %}{{ frappe.format_date(doc.data_encerramento) }}{% else %}[DATA FIM]{% endif %}, 
+				exclusivamente através do site institucional ou presencialmente no setor de Recursos Humanos.
+			</p>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 5º</strong> – Para inscrição, o candidato deverá apresentar os seguintes documentos:
+			</p>
+			<ol type="I">
+				<li>Documento de identificação oficial com foto;</li>
+				<li>CPF;</li>
+				<li>Currículo atualizado;</li>
+				<li>Comprovante de escolaridade exigida para o cargo;</li>
+				<li>Comprovante de experiência profissional, quando exigido;</li>
+				<li>Registro no conselho de classe, quando aplicável.</li>
+			</ol>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 6º</strong> – Será assegurado aos portadores de necessidades especiais o direito de 
+				participação no processo seletivo, de acordo com as proporções estabelecidas no art. 93 da Lei 
+				Federal nº 8.213/91.
+			</p>
+		</div>
+	</div>
+
+	<!-- CAPÍTULO III - DAS ETAPAS DO PROCESSO SELETIVO -->
+	<div class="edital-section">
+		<h3>CAPÍTULO III - DAS ETAPAS DO PROCESSO SELETIVO</h3>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 7º</strong> – O Processo Seletivo compreenderá as seguintes etapas:
+			</p>
+		</div>
+		
+		{% if etapas_ordenadas %}
+		<table class="tabela-etapas">
+			<thead>
+				<tr>
+					<th>Ordem</th>
+					<th>Etapa</th>
+					<th>Data Prevista</th>
+					<th>Caráter</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for etapa in etapas_ordenadas %}
+				<tr>
+					<td>{{ etapa.ordem }}ª</td>
+					<td>{{ etapa.interview_round }}</td>
+					<td>{{ frappe.format_date(etapa.data_prevista) if etapa.data_prevista else "A definir" }}</td>
+					<td>Eliminatório e Classificatório</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% endif %}
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 8º</strong> – Conforme o Regulamento de Recrutamento, Seleção e Contratação de Pessoal, 
+				o processo seletivo poderá compreender:
+			</p>
+			<ol type="I">
+				<li>Prova de conhecimentos gerais e específicos;</li>
+				<li>Análise curricular para verificação de experiência anterior para o cargo;</li>
+				<li>Provas práticas, para os cargos que exigirem demonstração de capacidade;</li>
+				<li>Aplicação de testes psicológicos e psicométricos, quando necessários;</li>
+				<li>Dinâmicas de grupo, jogos ou provas situacionais;</li>
+				<li>Entrevista final com o requisitante.</li>
+			</ol>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Parágrafo Único</strong> – Somente serão considerados aptos para o exercício da função 
+				aquelas pessoas que cumprirem de forma satisfatória todas as etapas de seleção e que estejam de 
+				acordo com as condições propostas.
+			</p>
+		</div>
+	</div>
+
+	<!-- CAPÍTULO IV - DOS CRITÉRIOS DE AVALIAÇÃO -->
+	<div class="edital-section">
+		<h3>CAPÍTULO IV - DOS CRITÉRIOS DE AVALIAÇÃO</h3>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 9º</strong> – A nota final do candidato será calculada pela média ponderada das 
+				notas obtidas em cada etapa do processo seletivo.
+			</p>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 10</strong> – Em caso de empate na classificação final, serão utilizados os seguintes 
+				critérios de desempate, na ordem:
+			</p>
+			<ol type="I">
+				<li>Maior nota na prova de conhecimentos específicos;</li>
+				<li>Maior tempo de experiência na função;</li>
+				<li>Maior idade.</li>
+			</ol>
+		</div>
+	</div>
+
+	<!-- CAPÍTULO V - DA CONTRATAÇÃO -->
+	<div class="edital-section">
+		<h3>CAPÍTULO V - DA CONTRATAÇÃO</h3>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 11</strong> – Os candidatos aprovados na etapa final deverão entregar os documentos 
+				de contratação exigidos e passar por exame médico admissional.
+			</p>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 12</strong> – A aprovação no processo seletivo não garante contratação compulsória, 
+				tampouco confere direito subjetivo à vaga, sendo que apenas qualifica o candidato ao perfil de 
+				vaga oferecida, podendo o processo seletivo servir para cadastro de candidatos potencialmente aptos.
+			</p>
+		</div>
+	</div>
+
+	<!-- CAPÍTULO VI - DAS DISPOSIÇÕES GERAIS -->
+	<div class="edital-section">
+		<h3>CAPÍTULO VI - DAS DISPOSIÇÕES GERAIS</h3>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 13</strong> – O presente Processo Seletivo terá validade de 01 (um) ano, a contar da 
+				data de publicação do resultado final, podendo ser prorrogado por igual período.
+			</p>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 14</strong> – Todo o processo de recrutamento, seleção e contratação está devidamente 
+				documentado, com o fito de facilitar o acompanhamento, o controle e a fiscalização.
+			</p>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 15</strong> – Os casos omissos ou duvidosos na interpretação do presente Edital serão 
+				resolvidos pela Comissão de Seleção, com base nos princípios gerais de direito e no Regulamento de 
+				Recrutamento, Seleção e Contratação de Pessoal.
+			</p>
+		</div>
+		
+		<div class="artigo">
+			<p class="no-indent">
+				<strong>Art. 16</strong> – Este Edital entra em vigor na data de sua publicação.
+			</p>
+		</div>
+	</div>
+
+	<!-- CONTEÚDO ADICIONAL -->
+	{% if doc.descricao %}
+	<div class="edital-section">
+		<h3>ANEXO - INFORMAÇÕES COMPLEMENTARES</h3>
+		{{ doc.descricao }}
+	</div>
+	{% endif %}
+
+	<!-- RODAPÉ -->
+	<div class="edital-footer">
+		<p>
+			Cesário Lange/SP, {% if doc.data_publicacao %}{{ frappe.format_date(doc.data_publicacao) }}{% else %}{{ frappe.format_date(frappe.utils.today()) }}{% endif %}.
+		</p>
+		
+		<div class="assinatura">
+			<div class="linha">
+				<strong>BENEFICÊNCIA HOSPITALAR DE CESÁRIO LANGE</strong><br>
+				Diretoria
+			</div>
+		</div>
+	</div>
+</div>

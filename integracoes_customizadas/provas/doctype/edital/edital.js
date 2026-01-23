@@ -3,6 +3,27 @@
 
 frappe.ui.form.on("Edital", {
 	refresh: function(frm) {
+		// Filtro para mostrar apenas candidatos da vaga selecionada
+		frm.set_query("job_applicant", "candidatos", function() {
+			return {
+				filters: {
+					"job_title": frm.doc.job_opening
+				}
+			};
+		});
+		
+		// Filtro para etapa_atual mostrar apenas etapas do edital
+		if (frm.doc.etapas && frm.doc.etapas.length > 0) {
+			let etapas_validas = frm.doc.etapas.map(e => e.interview_round);
+			frm.set_query("etapa_atual", "candidatos", function() {
+				return {
+					filters: {
+						"name": ["in", etapas_validas]
+					}
+				};
+			});
+		}
+		
 		// Adiciona botões customizados
 		if (!frm.is_new()) {
 			// Botão Importar Candidatos
