@@ -56,7 +56,7 @@
 			"fieldtype": "Select",
 			"in_list_view": 1,
 			"label": "Status",
-			"options": "Inscrito\nAprovado\nReprovado\nEliminado"
+			"options": "Inscrito\nEm Avaliação\nAprovado\nReprovado\nEliminado\nDesistente"
 		},
 		{
 			"fieldname": "column_break_interview",

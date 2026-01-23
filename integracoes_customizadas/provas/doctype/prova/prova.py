@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+import json
 import random
 from frappe import _
 from frappe.model.document import Document
@@ -203,7 +204,7 @@ def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None,
 	
 	# Se houver prova, exclui questões já adicionadas
 	questoes_ja_adicionadas = []
-	if prova_name:
+	if prova_name and frappe.db.exists("Prova", prova_name):
 		prova = frappe.get_doc("Prova", prova_name)
 		questoes_ja_adicionadas = [q.questao for q in prova.questoes]
 	
@@ -248,7 +249,7 @@ def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None,
 
 
 @frappe.whitelist()
-def gerar_questoes_automaticas(prova_name, designation, configuracoes):
+def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=None, questoes_excluir=None):
 	"""Gera questões automaticamente baseado em configurações de disciplinas e quantidades.
 	
 	Args:
@@ -265,14 +266,19 @@ def gerar_questoes_automaticas(prova_name, designation, configuracoes):
 			- total_adicionadas: Total de questões adicionadas
 			- avisos: Lista de avisos (se houver)
 	"""
+	# Parse JSON se configuracoes vier como string
+	if isinstance(configuracoes, str):
+		configuracoes = json.loads(configuracoes)
+
+	# Parse JSON se questoes_excluir vier como string
+	if isinstance(questoes_excluir, str):
+		questoes_excluir = json.loads(questoes_excluir)
+	
 	if not designation:
 		frappe.throw(_("É necessário informar o cargo da prova para gerar questões."))
 	
 	# Obtém questões já adicionadas
-	questoes_ja_adicionadas = []
-	if prova_name:
-		prova = frappe.get_doc("Prova", prova_name)
-		questoes_ja_adicionadas = [q.questao for q in prova.questoes]
+	questoes_ja_adicionadas = questoes_excluir or []
 	
 	questoes_selecionadas = []
 	avisos = []

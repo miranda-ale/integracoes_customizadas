@@ -3,8 +3,13 @@
 
 frappe.ui.form.on("Prova", {
 	refresh: function(frm) {
-		// Adiciona botão para selecionar questões
-		if (!frm.is_new()) {
+		// Evita ações em documentos submetidos/cancelados
+		if (frm.doc.docstatus && frm.doc.docstatus !== 0) {
+			return;
+		}
+
+		// Adiciona botões quando edital estiver preenchido (mesmo em documento novo)
+		if (frm.doc.edital) {
 			frm.add_custom_button(__("Selecionar Questões"), function() {
 				frm.events.abrir_dialog_questoes(frm);
 			}, __("Ações"));
@@ -274,12 +279,17 @@ frappe.ui.form.on("Prova", {
 	},
 	
 	gerar_questoes_automaticas: function(frm, configuracoes) {
+		let questoes_existentes = [];
+		if (frm.doc.questoes && frm.doc.questoes.length > 0) {
+			questoes_existentes = frm.doc.questoes.map(q => q.questao);
+		}
+
 		frappe.call({
 			method: "integracoes_customizadas.provas.doctype.prova.prova.gerar_questoes_automaticas",
 			args: {
-				prova_name: frm.doc.name,
 				designation: frm.doc.designation,
-				configuracoes: configuracoes
+				configuracoes: configuracoes,
+				questoes_excluir: questoes_existentes
 			},
 			freeze: true,
 			freeze_message: __("Gerando questões..."),

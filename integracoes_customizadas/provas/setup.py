@@ -154,6 +154,7 @@ def after_migrate():
 	try:
 		create_interview_custom_fields()
 		create_edital_custom_fields()
+		remover_link_prova_edital_invalido()
 	except Exception as e:
 		frappe.log_error(f"Erro ao criar Custom Fields durante migração: {str(e)}")
 
@@ -164,8 +165,38 @@ def criar_custom_fields_edital():
 	try:
 		create_interview_custom_fields()
 		create_edital_custom_fields()
+		remover_link_prova_edital_invalido()
 		frappe.msgprint("Custom Fields criados com sucesso!", indicator="green", title="Sucesso")
 		return {"success": True, "message": "Custom Fields criados com sucesso"}
 	except Exception as e:
 		frappe.log_error(f"Erro ao criar Custom Fields: {str(e)}")
 		return {"success": False, "message": str(e)}
+
+
+def remover_link_prova_edital_invalido():
+	"""Remove link inválido Prova -> Edital que causa erro de coluna inexistente."""
+	try:
+		exists = frappe.db.exists(
+			"DocType Link",
+			{
+				"parent": "Prova",
+				"parenttype": "DocType",
+				"parentfield": "links",
+				"link_doctype": "Edital",
+				"link_fieldname": "edital",
+			},
+		)
+		if exists:
+			frappe.db.delete(
+				"DocType Link",
+				{
+					"parent": "Prova",
+					"parenttype": "DocType",
+					"parentfield": "links",
+					"link_doctype": "Edital",
+					"link_fieldname": "edital",
+				},
+			)
+			frappe.db.commit()
+	except Exception:
+		pass

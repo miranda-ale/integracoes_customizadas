@@ -1,5 +1,5 @@
 {%- set questoes = doc.get_questoes_completas() -%}
-{%- set interview_info = doc.get_interview_info() -%}
+{%- set edital_info = doc.get_edital_info() if doc.edital else None -%}
 
 <div class="prova-container">
 	<!-- Cabeçalho -->
@@ -10,10 +10,10 @@
 
 	<!-- Informações da Prova -->
 	<div class="prova-info">
-		{% if doc.interview %}
+		{% if doc.edital %}
 		<div class="info-item">
-			<div class="info-label">Interview</div>
-			<div class="info-value">{{ doc.interview }}</div>
+			<div class="info-label">Edital</div>
+			<div class="info-value">{{ edital_info.titulo if edital_info else doc.edital }}</div>
 		</div>
 		{% endif %}
 		<div class="info-item">
@@ -77,8 +77,8 @@
 	<!-- Rodapé -->
 	<div class="prova-footer">
 		<p>{{ doc.identificador }} | {{ doc.designation }}</p>
-		{% if doc.interview %}
-		<p>Interview: {{ doc.interview }}</p>
+		{% if doc.edital %}
+		<p>Edital: {{ edital_info.titulo if edital_info else doc.edital }}</p>
 		{% endif %}
 		<p>Gerado em {{ frappe.utils.format_datetime(frappe.utils.now()) }}</p>
 	</div>

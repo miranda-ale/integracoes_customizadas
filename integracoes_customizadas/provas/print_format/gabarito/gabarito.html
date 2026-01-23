@@ -1,5 +1,6 @@
 {%- set questoes = doc.get_questoes_completas() -%}
 {%- set gabarito = doc.get_gabarito() -%}
+{%- set edital_info = doc.get_edital_info() if doc.edital else None -%}
 {%- set questoes_objetivas = questoes | selectattr('tipo', 'equalto', 'Objetiva') | list -%}
 {%- set questoes_discursivas = questoes | selectattr('tipo', 'equalto', 'Discursiva') | list -%}
 
@@ -18,10 +19,10 @@
 
 	<!-- Informações -->
 	<div class="gabarito-info">
-		{% if doc.interview %}
+		{% if doc.edital %}
 		<div class="info-item">
-			<div class="info-label">Interview</div>
-			<div class="info-value">{{ doc.interview }}</div>
+			<div class="info-label">Edital</div>
+			<div class="info-value">{{ edital_info.titulo if edital_info else doc.edital }}</div>
 		</div>
 		{% endif %}
 		<div class="info-item">
@@ -77,7 +78,7 @@
 	<!-- Rodapé -->
 	<div class="gabarito-footer">
 		<p><strong>{{ doc.identificador }}</strong></p>
-		<p>{{ doc.designation }}{% if doc.interview %} | Interview: {{ doc.interview }}{% endif %}</p>
+		<p>{{ doc.designation }}{% if doc.edital %} | Edital: {{ edital_info.titulo if edital_info else doc.edital }}{% endif %}</p>
 		<p>Gerado em {{ frappe.utils.format_datetime(frappe.utils.now()) }}</p>
 	</div>
 </div>

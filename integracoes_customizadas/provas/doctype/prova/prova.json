@@ -1,9 +1,11 @@
 {
 	"actions": [],
+	"allow_rename": 1,
 	"autoname": "naming_series:",
 	"creation": "2026-01-22 12:00:00.000000",
 	"doctype": "DocType",
 	"engine": "InnoDB",
+	"is_submittable": 1,
 	"field_order": [
 		"section_identificacao",
 		"naming_series",
@@ -16,6 +18,7 @@
 		"data_aplicacao",
 		"duracao_minutos",
 		"total_pontos",
+		"amended_from",
 		"section_instrucoes",
 		"instrucoes",
 		"section_questoes",
@@ -102,6 +105,15 @@
 			"read_only": 1
 		},
 		{
+			"fieldname": "amended_from",
+			"fieldtype": "Link",
+			"label": "Alterada de",
+			"no_copy": 1,
+			"options": "Prova",
+			"print_hide": 1,
+			"read_only": 1
+		},
+		{
 			"fieldname": "section_instrucoes",
 			"fieldtype": "Section Break",
 			"label": "Instruções"
@@ -124,14 +136,8 @@
 			"reqd": 1
 		}
 	],
-	"links": [
-		{
-			"link_doctype": "Edital",
-			"link_fieldname": "name",
-			"group": "Edital"
-		}
-	],
-	"modified": "2026-01-23 14:00:00.000000",
+	"links": [],
+	"modified": "2026-01-23 16:00:00.000000",
 	"modified_by": "Administrator",
 	"module": "Provas",
 	"name": "Prova",
@@ -139,6 +145,8 @@
 	"owner": "Administrator",
 	"permissions": [
 		{
+			"amend": 1,
+			"cancel": 1,
 			"create": 1,
 			"delete": 1,
 			"email": 1,
@@ -148,7 +156,29 @@
 			"report": 1,
 			"role": "System Manager",
 			"share": 1,
+			"submit": 1,
 			"write": 1
+		},
+		{
+			"amend": 1,
+			"create": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "HR Manager",
+			"share": 1,
+			"submit": 1,
+			"write": 1
+		},
+		{
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "HR User"
 		}
 	],
 	"search_fields": "titulo,edital,designation,status",

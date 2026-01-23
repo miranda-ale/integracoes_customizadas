@@ -275,12 +275,13 @@ frappe.ui.form.on("Edital", {
 		frm.doc.candidatos.forEach(c => {
 			let etapa = c.etapa_atual || "Sem Etapa";
 			if (!resumo[etapa]) {
-				resumo[etapa] = { total: 0, aprovados: 0, reprovados: 0, inscritos: 0 };
+				resumo[etapa] = { total: 0, aprovados: 0, reprovados: 0, inscritos: 0, em_avaliacao: 0 };
 			}
 			resumo[etapa].total++;
 			if (c.status_candidato === "Aprovado") resumo[etapa].aprovados++;
 			else if (c.status_candidato === "Reprovado") resumo[etapa].reprovados++;
 			else if (c.status_candidato === "Inscrito") resumo[etapa].inscritos++;
+			else if (c.status_candidato === "Em Avaliação") resumo[etapa].em_avaliacao++;
 		});
 		
 		// Monta HTML do resumo
@@ -297,6 +298,7 @@ frappe.ui.form.on("Edital", {
 						<div class="panel-body">
 							<p>Total: <strong>${dados.total}</strong></p>
 							<p>Inscritos: <span class="label label-info">${dados.inscritos}</span></p>
+							<p>Em Avaliação: <span class="label label-warning">${dados.em_avaliacao}</span></p>
 							<p>Aprovados: <span class="label label-success">${dados.aprovados}</span></p>
 							<p>Reprovados: <span class="label label-danger">${dados.reprovados}</span></p>
 						</div>
@@ -316,7 +318,9 @@ frappe.ui.form.on("Edital", {
 			case "Aprovado": return "success";
 			case "Reprovado": return "danger";
 			case "Eliminado": return "danger";
+			case "Desistente": return "default";
 			case "Inscrito": return "info";
+			case "Em Avaliação": return "warning";
 			default: return "default";
 		}
 	},

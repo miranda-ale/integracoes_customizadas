@@ -13,6 +13,31 @@ class Edital(Document):
 		self.validar_datas()
 		self.validar_candidatos_duplicados()
 	
+	def on_update(self):
+		"""Sincroniza campo edital nos Job Applicants vinculados."""
+		self.sincronizar_edital_candidatos()
+	
+	def sincronizar_edital_candidatos(self):
+		"""Atualiza campo edital em todos os Job Applicants da tabela candidatos."""
+		if not self.candidatos:
+			return
+		
+		for candidato in self.candidatos:
+			if candidato.job_applicant:
+				try:
+					# Usa set_value para evitar carregar o documento inteiro
+					frappe.db.set_value(
+						"Job Applicant",
+						candidato.job_applicant,
+						"edital",
+						self.name,
+						update_modified=False
+					)
+				except Exception:
+					pass  # Campo pode não existir se Custom Field não foi criado
+		
+		frappe.db.commit()
+	
 	def validar_etapas(self):
 		"""Valida que há pelo menos uma etapa definida."""
 		if not self.etapas or len(self.etapas) == 0:
@@ -130,7 +155,7 @@ class Edital(Document):
 				try:
 					# Atualiza a etapa atual do candidato
 					candidato_item.etapa_atual = proxima_etapa
-					candidato_item.status_candidato = "Aprovado"
+					candidato_item.status_candidato = "Em Avaliação"
 					
 					# Cria Interview se solicitado
 					if criar_interview:
@@ -215,6 +240,7 @@ class Edital(Document):
 		interview.designation = interview_round_doc.designation or self.designation
 		interview.job_opening = self.job_opening
 		interview.resume_link = job_applicant_doc.resume_link
+		interview.status = "Pending"  # Status inicial explícito
 		
 		# Define data e horários da etapa se disponíveis
 		if etapa_edital:
