@@ -3,14 +3,58 @@
 
 import frappe
 from frappe import _
+from frappe.utils import sanitize_html, strip_html
 from frappe.model.document import Document
 
 
 class Questao(Document):
 	def validate(self):
+		self.set_preview_fields()
 		self.validate_alternativas()
 		self.validate_resposta_discursiva()
 		self.validate_designations_disciplina()
+
+	def set_preview_fields(self):
+		enunciado_html = sanitize_html(self.enunciado or "", always_sanitize=True)
+		preview_html_parts = [
+			"<div class='questao-preview'>",
+			f"<div class='questao-enunciado'>{enunciado_html}</div>",
+		]
+
+		preview_text_parts = [strip_html(self.enunciado or "").strip()]
+
+		if self.tipo == "Objetiva":
+			preview_html_parts.append("<div class='questao-alternativas'>")
+			preview_html_parts.append("<ol class='questao-alternativas-list'>")
+
+			alternativas = sorted(self.alternativas or [], key=lambda alt: (alt.letra or ""))
+			for alt in alternativas:
+				texto_html = sanitize_html(alt.texto or "", always_sanitize=True)
+				preview_html_parts.append(
+					f"<li><strong>{alt.letra})</strong> {texto_html}</li>"
+				)
+				texto_plain = strip_html(alt.texto or "").strip()
+				preview_text_parts.append(f"{alt.letra}) {texto_plain}".strip())
+
+			preview_html_parts.append("</ol>")
+			preview_html_parts.append("</div>")
+
+		elif self.tipo == "Discursiva":
+			resposta_html = sanitize_html(self.resposta_esperada or "", always_sanitize=True)
+			preview_html_parts.append(
+				"<div class='questao-resposta'>"
+				"<strong>Resposta esperada:</strong> "
+				f"{resposta_html}"
+				"</div>"
+			)
+			resposta_plain = strip_html(self.resposta_esperada or "").strip()
+			if resposta_plain:
+				preview_text_parts.append(f"Resposta esperada: {resposta_plain}")
+
+		preview_html_parts.append("</div>")
+
+		self.preview_html = "".join(preview_html_parts)
+		self.preview_text = "\n".join([part for part in preview_text_parts if part])
 
 	def validate_alternativas(self):
 		"""Valida alternativas para questões objetivas."""

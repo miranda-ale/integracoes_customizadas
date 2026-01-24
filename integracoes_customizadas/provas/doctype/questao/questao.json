@@ -16,6 +16,8 @@
 		"designations",
 		"section_enunciado",
 		"enunciado",
+		"preview_html",
+		"preview_text",
 		"section_alternativas",
 		"alternativas",
 		"section_resposta_discursiva",
@@ -102,6 +104,22 @@
 			"reqd": 1
 		},
 		{
+			"fieldname": "preview_html",
+			"fieldtype": "Long Text",
+			"hidden": 1,
+			"in_preview": 1,
+			"label": "Previa",
+			"read_only": 1
+		},
+		{
+			"fieldname": "preview_text",
+			"fieldtype": "Long Text",
+			"hidden": 1,
+			"in_preview": 1,
+			"label": "Previa Texto",
+			"read_only": 1
+		},
+		{
 			"depends_on": "eval:doc.tipo=='Objetiva'",
 			"fieldname": "section_alternativas",
 			"fieldtype": "Section Break",
@@ -154,5 +172,9 @@
 	"sort_field": "modified",
 	"sort_order": "DESC",
 	"states": [],
-	"track_changes": 1
+	"track_changes": 1,
+	"show_preview_popup": 1,
+	"title_field": "enunciado",
+	"show_title_field_in_link": 1,
+	"allow_import": 1
 }

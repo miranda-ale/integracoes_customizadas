@@ -105,13 +105,20 @@ frappe.ui.form.on("Prova", {
 				dialog.hide();
 			}
 		});
-		
+
+		dialog.show();
+
+		let $wrapper = dialog.$wrapper;
+		let $filterDisciplina = $wrapper.find("#filter_disciplina");
+		let $filterTipo = $wrapper.find("#filter_tipo");
+		let $questoesList = $wrapper.find("#questoes_list");
+
 		// Preenche disciplinas no filtro
 		let disciplinas = [...new Set(questoes.map(q => q.disciplina))];
 		disciplinas.forEach(disc => {
-			$("#filter_disciplina").append(`<option value="${disc}">${disc}</option>`);
+			$filterDisciplina.append(`<option value="${disc}">${disc}</option>`);
 		});
-		
+
 		// Função para renderizar questões
 		function renderizar_questoes(lista_questoes) {
 			let html = "";
@@ -142,26 +149,24 @@ frappe.ui.form.on("Prova", {
 					`;
 				});
 			}
-			$("#questoes_list").html(html);
+			$questoesList.html(html);
 		}
-		
+
 		// Renderiza questões iniciais
 		renderizar_questoes(questoes);
-		
+
 		// Filtros
-		$("#filter_disciplina, #filter_tipo").on("change", function() {
-			let disciplina = $("#filter_disciplina").val();
-			let tipo = $("#filter_tipo").val();
-			
+		$wrapper.on("change", "#filter_disciplina, #filter_tipo", function() {
+			let disciplina = $filterDisciplina.val();
+			let tipo = $filterTipo.val();
+
 			let filtradas = questoes.filter(q => {
 				return (!disciplina || q.disciplina === disciplina) &&
 					   (!tipo || q.tipo === tipo);
 			});
-			
+
 			renderizar_questoes(filtradas);
 		});
-		
-		dialog.show();
 	},
 	
 	adicionar_questoes: function(frm, questoes_selecionadas) {
@@ -273,8 +278,6 @@ frappe.ui.form.on("Prova", {
 			}
 		});
 		
-		// Adiciona uma linha inicial
-		dialog.fields_dict.configuracoes.df.data = [{}];
 		dialog.show();
 	},
 	
