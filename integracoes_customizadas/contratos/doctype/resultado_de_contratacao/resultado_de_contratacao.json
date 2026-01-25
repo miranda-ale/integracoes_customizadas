@@ -1,0 +1,149 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-25 12:25:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"status",
+		"column_break_identificacao",
+		"edital_de_contratacao",
+		"solicitacao_de_servico",
+		"fornecedor_vencedor",
+		"data_homologacao",
+		"valor_total",
+		"section_justificativa",
+		"justificativa",
+		"observacoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "RES-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "RES-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nHomologado\nCancelado",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "edital_de_contratacao",
+			"fieldtype": "Link",
+			"label": "Edital de Contratação",
+			"options": "Edital de Contratacao"
+		},
+		{
+			"fieldname": "solicitacao_de_servico",
+			"fieldtype": "Link",
+			"label": "Solicitação de Serviço",
+			"options": "Solicitacao de Servico"
+		},
+		{
+			"fieldname": "fornecedor_vencedor",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Fornecedor Vencedor",
+			"options": "Supplier",
+			"reqd": 1
+		},
+		{
+			"fieldname": "data_homologacao",
+			"fieldtype": "Date",
+			"label": "Data de Homologação"
+		},
+		{
+			"fieldname": "valor_total",
+			"fieldtype": "Currency",
+			"label": "Valor Total"
+		},
+		{
+			"fieldname": "section_justificativa",
+			"fieldtype": "Section Break",
+			"label": "Justificativa"
+		},
+		{
+			"fieldname": "justificativa",
+			"fieldtype": "Text Editor",
+			"label": "Justificativa da Escolha"
+		},
+		{
+			"fieldname": "observacoes",
+			"fieldtype": "Small Text",
+			"label": "Observações"
+		}
+	],
+	"is_submittable": 0,
+	"links": [],
+	"modified": "2026-01-25 12:25:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Resultado de Contratacao",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase User",
+			"share": 0,
+			"write": 1
+		}
+	],
+	"search_fields": "status,fornecedor_vencedor,edital_de_contratacao",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "status",
+	"track_changes": 1
+}

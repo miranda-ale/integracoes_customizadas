@@ -1,0 +1,20 @@
+<h2>Edital de Contratacao</h2>
+
+<p><strong>Status:</strong> {{ doc.status }}</p>
+<p><strong>Solicitacao de Servico:</strong> {{ doc.solicitacao_de_servico or "-" }}</p>
+<p><strong>Pesquisa de Precos:</strong> {{ doc.pesquisa_de_precos or "-" }}</p>
+
+<h3>Prazos</h3>
+<p><strong>Data de Publicacao:</strong> {{ frappe.format_date(doc.data_publicacao) if doc.data_publicacao else "-" }}</p>
+<p><strong>Prazo de Proposta:</strong> {{ frappe.format_date(doc.data_limite_proposta) if doc.data_limite_proposta else "-" }}</p>
+<p><strong>Prazo de Documentacao:</strong> {{ frappe.format_date(doc.data_limite_documentacao) if doc.data_limite_documentacao else "-" }}</p>
+
+{% if doc.descricao %}
+<h3>Descricao</h3>
+<div>{{ doc.descricao }}</div>
+{% endif %}
+
+{% if doc.observacoes %}
+<h4>Observacoes</h4>
+<p>{{ doc.observacoes }}</p>
+{% endif %}

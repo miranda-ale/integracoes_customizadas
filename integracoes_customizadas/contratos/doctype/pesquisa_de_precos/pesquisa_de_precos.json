@@ -1,0 +1,195 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-25 12:10:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"status",
+		"tipo_pesquisa",
+		"column_break_identificacao",
+		"solicitacao_de_servico",
+		"dispensada",
+		"justificativa_dispensa",
+		"section_prazos",
+		"data_abertura",
+		"data_limite_orcamento",
+		"section_fornecedores",
+		"fornecedores",
+		"section_itens",
+		"itens",
+		"section_emails",
+		"emails_enviados",
+		"section_observacoes",
+		"observacoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "PPR-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "PPR-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nEm Andamento\nConcluída\nCancelada",
+			"reqd": 1
+		},
+		{
+			"default": "Prévia",
+			"fieldname": "tipo_pesquisa",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"label": "Tipo de Pesquisa",
+			"options": "Prévia\nEfetiva",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "solicitacao_de_servico",
+			"fieldtype": "Link",
+			"label": "Solicitação de Serviço",
+			"options": "Solicitacao de Servico"
+		},
+		{
+			"fieldname": "dispensada",
+			"fieldtype": "Check",
+			"label": "Dispensada"
+		},
+		{
+			"depends_on": "eval:doc.dispensada==1",
+			"fieldname": "justificativa_dispensa",
+			"fieldtype": "Small Text",
+			"label": "Justificativa da Dispensa"
+		},
+		{
+			"fieldname": "section_prazos",
+			"fieldtype": "Section Break",
+			"label": "Prazos"
+		},
+		{
+			"fieldname": "data_abertura",
+			"fieldtype": "Date",
+			"label": "Data de Abertura"
+		},
+		{
+			"fieldname": "data_limite_orcamento",
+			"fieldtype": "Date",
+			"label": "Prazo para Envio do Orçamento"
+		},
+		{
+			"fieldname": "section_fornecedores",
+			"fieldtype": "Section Break",
+			"label": "Fornecedores Consultados"
+		},
+		{
+			"fieldname": "fornecedores",
+			"fieldtype": "Table",
+			"label": "Fornecedores",
+			"options": "Pesquisa de Precos Fornecedor"
+		},
+		{
+			"fieldname": "section_itens",
+			"fieldtype": "Section Break",
+			"label": "Itens"
+		},
+		{
+			"fieldname": "itens",
+			"fieldtype": "Table",
+			"label": "Itens da Pesquisa",
+			"options": "Pesquisa de Precos Item"
+		},
+		{
+			"fieldname": "section_emails",
+			"fieldtype": "Section Break",
+			"label": "Auditoria de E-mails"
+		},
+		{
+			"fieldname": "emails_enviados",
+			"fieldtype": "Table",
+			"label": "Registros de E-mail",
+			"options": "Pesquisa de Precos Email"
+		},
+		{
+			"fieldname": "section_observacoes",
+			"fieldtype": "Section Break",
+			"label": "Observações"
+		},
+		{
+			"fieldname": "observacoes",
+			"fieldtype": "Small Text",
+			"label": "Observações"
+		}
+	],
+	"is_submittable": 0,
+	"links": [],
+	"modified": "2026-01-25 12:10:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Pesquisa de Precos",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase User",
+			"share": 0,
+			"write": 1
+		}
+	],
+	"search_fields": "status,tipo_pesquisa,solicitacao_de_servico",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "status",
+	"track_changes": 1
+}

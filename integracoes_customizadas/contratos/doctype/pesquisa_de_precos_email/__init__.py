@@ -1,0 +1,1 @@
+from .pesquisa_de_precos_email import PesquisadePrecosEmail

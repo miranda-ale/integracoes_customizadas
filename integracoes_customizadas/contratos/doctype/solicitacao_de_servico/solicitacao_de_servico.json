@@ -1,0 +1,172 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-25 12:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"status",
+		"column_break_identificacao",
+		"solicitante",
+		"empresa",
+		"data_solicitacao",
+		"section_prazos",
+		"data_inicio",
+		"descricao_geral",
+		"section_itens",
+		"itens",
+		"section_detalhes",
+		"descricao_especifica",
+		"observacoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "SREQ-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "SREQ-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nEm Aprovação\nAprovada\nRejeitada\nCancelada",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "solicitante",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Solicitante",
+			"options": "Employee"
+		},
+		{
+			"fieldname": "empresa",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Empresa",
+			"options": "Company",
+			"reqd": 1
+		},
+		{
+			"fieldname": "data_solicitacao",
+			"fieldtype": "Date",
+			"in_list_view": 1,
+			"label": "Data da Solicitação",
+			"reqd": 1
+		},
+		{
+			"fieldname": "section_prazos",
+			"fieldtype": "Section Break",
+			"label": "Prazos"
+		},
+		{
+			"fieldname": "data_inicio",
+			"fieldtype": "Date",
+			"in_list_view": 1,
+			"label": "Data de Início"
+		},
+		{
+			"fieldname": "descricao_geral",
+			"fieldtype": "Small Text",
+			"label": "Detalhes Gerais"
+		},
+		{
+			"fieldname": "section_itens",
+			"fieldtype": "Section Break",
+			"label": "Serviços"
+		},
+		{
+			"fieldname": "itens",
+			"fieldtype": "Table",
+			"label": "Itens de Serviço",
+			"options": "Solicitacao de Servico Item",
+			"reqd": 1
+		},
+		{
+			"fieldname": "section_detalhes",
+			"fieldtype": "Section Break",
+			"label": "Descrição Específica"
+		},
+		{
+			"fieldname": "descricao_especifica",
+			"fieldtype": "Text Editor",
+			"label": "Descrição do Serviço"
+		},
+		{
+			"fieldname": "observacoes",
+			"fieldtype": "Small Text",
+			"label": "Observações"
+		}
+	],
+	"is_submittable": 1,
+	"links": [],
+	"modified": "2026-01-25 12:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Solicitacao de Servico",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase User",
+			"share": 0,
+			"write": 1
+		}
+	],
+	"search_fields": "status,solicitante,empresa",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "status",
+	"track_changes": 1
+}

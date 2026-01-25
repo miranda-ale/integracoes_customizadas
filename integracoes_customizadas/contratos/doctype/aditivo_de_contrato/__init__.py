@@ -1,0 +1,1 @@
+from .aditivo_de_contrato import AditivodeContrato

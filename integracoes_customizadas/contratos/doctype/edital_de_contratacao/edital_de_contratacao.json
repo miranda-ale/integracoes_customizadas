@@ -1,0 +1,158 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-25 12:20:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"status",
+		"column_break_identificacao",
+		"solicitacao_de_servico",
+		"pesquisa_de_precos",
+		"section_publicacao",
+		"data_publicacao",
+		"data_limite_proposta",
+		"data_limite_documentacao",
+		"documento_publicacao",
+		"section_descricao",
+		"descricao",
+		"observacoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "EDC-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "EDC-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nPublicado\nEncerrado",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "solicitacao_de_servico",
+			"fieldtype": "Link",
+			"label": "Solicitação de Serviço",
+			"options": "Solicitacao de Servico"
+		},
+		{
+			"fieldname": "pesquisa_de_precos",
+			"fieldtype": "Link",
+			"label": "Pesquisa de Preços",
+			"options": "Pesquisa de Precos"
+		},
+		{
+			"fieldname": "section_publicacao",
+			"fieldtype": "Section Break",
+			"label": "Publicação"
+		},
+		{
+			"fieldname": "data_publicacao",
+			"fieldtype": "Date",
+			"label": "Data de Publicação"
+		},
+		{
+			"fieldname": "data_limite_proposta",
+			"fieldtype": "Date",
+			"label": "Prazo de Envio da Proposta"
+		},
+		{
+			"fieldname": "data_limite_documentacao",
+			"fieldtype": "Date",
+			"label": "Prazo de Documentação"
+		},
+		{
+			"fieldname": "documento_publicacao",
+			"fieldtype": "Attach",
+			"label": "Documento de Publicação"
+		},
+		{
+			"fieldname": "section_descricao",
+			"fieldtype": "Section Break",
+			"label": "Descrição"
+		},
+		{
+			"fieldname": "descricao",
+			"fieldtype": "Text Editor",
+			"label": "Descrição do Edital"
+		},
+		{
+			"fieldname": "observacoes",
+			"fieldtype": "Small Text",
+			"label": "Observações"
+		}
+	],
+	"is_submittable": 0,
+	"links": [],
+	"modified": "2026-01-25 12:20:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Edital de Contratacao",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase User",
+			"share": 0,
+			"write": 1
+		}
+	],
+	"search_fields": "status,solicitacao_de_servico,pesquisa_de_precos",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "status",
+	"track_changes": 1
+}

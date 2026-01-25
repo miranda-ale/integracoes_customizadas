@@ -1,0 +1,41 @@
+<h2>Requisicao de Servico</h2>
+
+<p><strong>Solicitante:</strong> {{ doc.solicitante or "-" }}</p>
+<p><strong>Empresa:</strong> {{ doc.empresa or "-" }}</p>
+<p><strong>Data da Solicitacao:</strong> {{ frappe.format_date(doc.data_solicitacao) if doc.data_solicitacao else "-" }}</p>
+<p><strong>Data de Inicio:</strong> {{ frappe.format_date(doc.data_inicio) if doc.data_inicio else "-" }}</p>
+
+<h3>Detalhes Gerais</h3>
+<p>{{ doc.descricao_geral or "-" }}</p>
+
+<h3>Itens de Servico</h3>
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th>Item</th>
+			<th>Descricao</th>
+			<th>Quantidade</th>
+			<th>UOM</th>
+			<th>Valor Unitario</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in doc.itens %}
+		<tr>
+			<td>{{ item.item }}</td>
+			<td>{{ item.descricao or "" }}</td>
+			<td>{{ item.quantidade }}</td>
+			<td>{{ item.uom or "" }}</td>
+			<td>{{ item.valor_unitario or "" }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<h3>Descricao Especifica</h3>
+<p>{{ doc.descricao_especifica or "-" }}</p>
+
+{% if doc.observacoes %}
+<h4>Observacoes</h4>
+<p>{{ doc.observacoes }}</p>
+{% endif %}

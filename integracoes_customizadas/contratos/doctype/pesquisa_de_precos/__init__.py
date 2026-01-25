@@ -1,0 +1,1 @@
+from .pesquisa_de_precos import PesquisadePrecos

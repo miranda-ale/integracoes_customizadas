@@ -1,0 +1,54 @@
+{
+	"actions": [],
+	"creation": "2026-01-25 12:14:00.000000",
+	"doctype": "DocType",
+	"editable_grid": 1,
+	"engine": "InnoDB",
+	"field_order": [
+		"email",
+		"assunto",
+		"column_break_email",
+		"data_envio",
+		"observacao"
+	],
+	"fields": [
+		{
+			"fieldname": "email",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"label": "E-mail",
+			"reqd": 1
+		},
+		{
+			"fieldname": "assunto",
+			"fieldtype": "Data",
+			"label": "Assunto"
+		},
+		{
+			"fieldname": "column_break_email",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "data_envio",
+			"fieldtype": "Datetime",
+			"label": "Data de Envio"
+		},
+		{
+			"fieldname": "observacao",
+			"fieldtype": "Small Text",
+			"label": "Observação"
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-25 12:14:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Pesquisa de Precos Email",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "idx",
+	"sort_order": "ASC",
+	"states": [],
+	"track_changes": 1
+}

@@ -1,0 +1,1 @@
+from .pesquisa_de_precos_fornecedor import PesquisadePrecosFornecedor

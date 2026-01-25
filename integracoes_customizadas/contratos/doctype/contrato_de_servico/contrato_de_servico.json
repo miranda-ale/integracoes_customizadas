@@ -1,0 +1,232 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-25 12:35:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"status",
+		"column_break_identificacao",
+		"resultado_de_contratacao",
+		"solicitacao_de_servico",
+		"fornecedor",
+		"empresa",
+		"section_vigencia",
+		"data_inicio",
+		"data_fim",
+		"indice_reajuste",
+		"valor_mensal_previsto",
+		"centro_custo",
+		"section_itens",
+		"itens",
+		"section_obrigacoes",
+		"condicoes",
+		"obrigacoes",
+		"prazos",
+		"section_integracao",
+		"purchase_order",
+		"purchase_invoice",
+		"observacoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "CTR-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "CTR-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nAtivo\nEncerrado\nCancelado",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "resultado_de_contratacao",
+			"fieldtype": "Link",
+			"label": "Resultado de Contratação",
+			"options": "Resultado de Contratacao"
+		},
+		{
+			"fieldname": "solicitacao_de_servico",
+			"fieldtype": "Link",
+			"label": "Solicitação de Serviço",
+			"options": "Solicitacao de Servico"
+		},
+		{
+			"fieldname": "fornecedor",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Fornecedor",
+			"options": "Supplier",
+			"reqd": 1
+		},
+		{
+			"fieldname": "empresa",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Empresa",
+			"options": "Company",
+			"reqd": 1
+		},
+		{
+			"fieldname": "section_vigencia",
+			"fieldtype": "Section Break",
+			"label": "Vigência e Valores"
+		},
+		{
+			"fieldname": "data_inicio",
+			"fieldtype": "Date",
+			"label": "Data de Início"
+		},
+		{
+			"fieldname": "data_fim",
+			"fieldtype": "Date",
+			"label": "Data de Término"
+		},
+		{
+			"default": "IPCA",
+			"fieldname": "indice_reajuste",
+			"fieldtype": "Select",
+			"label": "Índice de Reajuste",
+			"options": "IPCA\nIGPM\nINPC\nOutro"
+		},
+		{
+			"fieldname": "valor_mensal_previsto",
+			"fieldtype": "Currency",
+			"label": "Valor Mensal Previsto"
+		},
+		{
+			"fieldname": "centro_custo",
+			"fieldtype": "Link",
+			"label": "Centro de Custo",
+			"options": "Cost Center"
+		},
+		{
+			"fieldname": "section_itens",
+			"fieldtype": "Section Break",
+			"label": "Itens do Contrato"
+		},
+		{
+			"fieldname": "itens",
+			"fieldtype": "Table",
+			"label": "Itens",
+			"options": "Contrato de Servico Item"
+		},
+		{
+			"fieldname": "section_obrigacoes",
+			"fieldtype": "Section Break",
+			"label": "Cláusulas e Condições"
+		},
+		{
+			"fieldname": "condicoes",
+			"fieldtype": "Text Editor",
+			"label": "Condições"
+		},
+		{
+			"fieldname": "obrigacoes",
+			"fieldtype": "Text Editor",
+			"label": "Obrigações"
+		},
+		{
+			"fieldname": "prazos",
+			"fieldtype": "Small Text",
+			"label": "Prazos e Penalidades"
+		},
+		{
+			"fieldname": "section_integracao",
+			"fieldtype": "Section Break",
+			"label": "Integração com Compras"
+		},
+		{
+			"fieldname": "purchase_order",
+			"fieldtype": "Link",
+			"label": "Purchase Order",
+			"options": "Purchase Order",
+			"read_only": 1
+		},
+		{
+			"fieldname": "purchase_invoice",
+			"fieldtype": "Link",
+			"label": "Purchase Invoice",
+			"options": "Purchase Invoice",
+			"read_only": 1
+		},
+		{
+			"fieldname": "observacoes",
+			"fieldtype": "Small Text",
+			"label": "Observações"
+		}
+	],
+	"is_submittable": 1,
+	"links": [],
+	"modified": "2026-01-25 12:35:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Contrato de Servico",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase User",
+			"share": 0,
+			"write": 1
+		}
+	],
+	"search_fields": "status,fornecedor,empresa",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "status",
+	"track_changes": 1
+}

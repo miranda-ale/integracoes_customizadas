@@ -1,0 +1,50 @@
+<h2>Contrato de Servico</h2>
+
+<p><strong>Fornecedor:</strong> {{ doc.fornecedor }}</p>
+<p><strong>Empresa:</strong> {{ doc.empresa }}</p>
+<p><strong>Status:</strong> {{ doc.status }}</p>
+
+<h3>Vigencia</h3>
+<p><strong>Data de Inicio:</strong> {{ frappe.format_date(doc.data_inicio) if doc.data_inicio else "-" }}</p>
+<p><strong>Data de Termino:</strong> {{ frappe.format_date(doc.data_fim) if doc.data_fim else "-" }}</p>
+<p><strong>Indice de Reajuste:</strong> {{ doc.indice_reajuste or "-" }}</p>
+<p><strong>Valor Mensal Previsto:</strong> {{ doc.valor_mensal_previsto or "-" }}</p>
+
+<h3>Itens</h3>
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th>Item</th>
+			<th>Descricao</th>
+			<th>Quantidade</th>
+			<th>UOM</th>
+			<th>Valor Unitario</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in doc.itens %}
+		<tr>
+			<td>{{ item.item }}</td>
+			<td>{{ item.descricao or "" }}</td>
+			<td>{{ item.quantidade }}</td>
+			<td>{{ item.uom or "" }}</td>
+			<td>{{ item.valor_unitario or "" }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% if doc.condicoes %}
+<h3>Condicoes</h3>
+<div>{{ doc.condicoes }}</div>
+{% endif %}
+
+{% if doc.obrigacoes %}
+<h3>Obrigacoes</h3>
+<div>{{ doc.obrigacoes }}</div>
+{% endif %}
+
+{% if doc.prazos %}
+<h4>Prazos e Penalidades</h4>
+<p>{{ doc.prazos }}</p>
+{% endif %}

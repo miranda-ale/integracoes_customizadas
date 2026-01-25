@@ -1,0 +1,1 @@
+from .edital_de_contratacao import EditaldeContratacao

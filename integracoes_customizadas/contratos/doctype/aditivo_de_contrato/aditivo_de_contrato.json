@@ -1,0 +1,138 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-25 12:40:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"section_identificacao",
+		"naming_series",
+		"status",
+		"column_break_identificacao",
+		"contrato_de_servico",
+		"tipo_aditivo",
+		"data_inicio",
+		"data_fim",
+		"valor_ajuste",
+		"section_descricao",
+		"descricao",
+		"observacoes"
+	],
+	"fields": [
+		{
+			"fieldname": "section_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação"
+		},
+		{
+			"default": "ADT-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Série",
+			"options": "ADT-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Status",
+			"options": "Rascunho\nAprovado\nCancelado",
+			"reqd": 1
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "contrato_de_servico",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Contrato de Serviço",
+			"options": "Contrato de Servico",
+			"reqd": 1
+		},
+		{
+			"default": "Prazo",
+			"fieldname": "tipo_aditivo",
+			"fieldtype": "Select",
+			"label": "Tipo de Aditivo",
+			"options": "Prazo\nValor\nCondições\nOutros",
+			"reqd": 1
+		},
+		{
+			"fieldname": "data_inicio",
+			"fieldtype": "Date",
+			"label": "Data de Início"
+		},
+		{
+			"fieldname": "data_fim",
+			"fieldtype": "Date",
+			"label": "Data de Término"
+		},
+		{
+			"fieldname": "valor_ajuste",
+			"fieldtype": "Currency",
+			"label": "Valor do Ajuste"
+		},
+		{
+			"fieldname": "section_descricao",
+			"fieldtype": "Section Break",
+			"label": "Descrição"
+		},
+		{
+			"fieldname": "descricao",
+			"fieldtype": "Text Editor",
+			"label": "Descrição do Aditivo"
+		},
+		{
+			"fieldname": "observacoes",
+			"fieldtype": "Small Text",
+			"label": "Observações"
+		}
+	],
+	"is_submittable": 0,
+	"links": [],
+	"modified": "2026-01-25 12:40:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contratos",
+	"name": "Aditivo de Contrato",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Purchase Manager",
+			"share": 1,
+			"write": 1
+		}
+	],
+	"search_fields": "status,contrato_de_servico,tipo_aditivo",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"title_field": "status",
+	"track_changes": 1
+}

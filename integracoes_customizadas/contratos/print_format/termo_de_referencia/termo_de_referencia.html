@@ -1,0 +1,61 @@
+<h2>Termo de Referencia</h2>
+
+<p><strong>Tipo de Pesquisa:</strong> {{ doc.tipo_pesquisa }}</p>
+<p><strong>Dispensada:</strong> {{ "Sim" if doc.dispensada else "Nao" }}</p>
+{% if doc.dispensada %}
+<p><strong>Justificativa:</strong> {{ doc.justificativa_dispensa }}</p>
+{% endif %}
+
+<p><strong>Data de Abertura:</strong> {{ frappe.format_date(doc.data_abertura) if doc.data_abertura else "-" }}</p>
+<p><strong>Prazo de Envio:</strong> {{ frappe.format_date(doc.data_limite_orcamento) if doc.data_limite_orcamento else "-" }}</p>
+
+<h3>Fornecedores Consultados</h3>
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th>Fornecedor</th>
+			<th>Email</th>
+			<th>Status</th>
+			<th>Valor Total</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for row in doc.fornecedores %}
+		<tr>
+			<td>{{ row.fornecedor }}</td>
+			<td>{{ row.email or "" }}</td>
+			<td>{{ row.status_fornecedor }}</td>
+			<td>{{ row.valor_total or "" }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<h3>Itens</h3>
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th>Item</th>
+			<th>Descricao</th>
+			<th>Quantidade</th>
+			<th>UOM</th>
+			<th>Valor Orcado</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in doc.itens %}
+		<tr>
+			<td>{{ item.item }}</td>
+			<td>{{ item.descricao or "" }}</td>
+			<td>{{ item.quantidade }}</td>
+			<td>{{ item.uom or "" }}</td>
+			<td>{{ item.valor_orcado or "" }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% if doc.observacoes %}
+<h4>Observacoes</h4>
+<p>{{ doc.observacoes }}</p>
+{% endif %}

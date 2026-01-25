@@ -1,0 +1,1 @@
+from .resultado_de_contratacao import ResultadodeContratacao
