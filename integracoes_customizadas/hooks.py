@@ -65,7 +65,7 @@ override_doctype_class = {
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/integracoes_customizadas/css/integracoes_customizadas.css"
-app_include_js = "/assets/integracoes_customizadas/link_preview_override.js"
+# app_include_js = "/assets/integracoes_customizadas/js/integracoes_customizadas.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/integracoes_customizadas/css/integracoes_customizadas.css"
