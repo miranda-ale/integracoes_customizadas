@@ -133,20 +133,36 @@ frappe.ui.form.on("Edital", {
 			label: e.interview_round + " (Etapa " + e.idx + ")"
 		}));
 		
-		// Monta lista de candidatos
-		let candidatos_html = "";
+		// Monta tabela de candidatos
+		let candidatos_rows_html = "";
 		frm.doc.candidatos.forEach(c => {
-			candidatos_html += `
-				<div class="checkbox" style="margin-bottom: 5px;">
-					<label>
+			candidatos_rows_html += `
+				<tr>
+					<td style="width: 32px;">
 						<input type="checkbox" class="candidato-checkbox" data-candidato="${c.job_applicant}">
+					</td>
+					<td>
 						<strong>${c.applicant_name || c.job_applicant}</strong>
-						<span class="text-muted"> - Etapa Atual: ${c.etapa_atual || "Nenhuma"}</span>
+					</td>
+					<td class="text-muted">
+						${c.etapa_atual || "Nenhuma"}
+					</td>
+					<td>
 						<span class="label label-${frm.events.get_status_color(c.status_candidato)}">${c.status_candidato}</span>
-					</label>
-				</div>
+					</td>
+				</tr>
 			`;
 		});
+		
+		if (!candidatos_rows_html) {
+			candidatos_rows_html = `
+				<tr>
+					<td colspan="4" class="text-muted">
+						${__("Nenhum candidato encontrado.")}
+					</td>
+				</tr>
+			`;
+		}
 		
 		let dialog = new frappe.ui.Dialog({
 			title: __("Avançar Candidatos de Etapa"),
@@ -194,8 +210,20 @@ frappe.ui.form.on("Edital", {
 							${__("Desmarcar Todos")}
 						</button>
 					</div>
-					<div id="candidatos_list" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d8dd; padding: 10px; border-radius: 4px;">
-						${candidatos_html}
+					<div id="candidatos_list" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d8dd; border-radius: 4px;">
+						<table class="table table-bordered table-hover" style="margin-bottom: 0;">
+							<thead>
+								<tr>
+									<th style="width: 32px;"></th>
+									<th>${__("Nome")}</th>
+									<th>${__("Etapa Atual")}</th>
+									<th>${__("Status")}</th>
+								</tr>
+							</thead>
+							<tbody>
+								${candidatos_rows_html}
+							</tbody>
+						</table>
 					</div>
 				`
 			}
