@@ -176,8 +176,33 @@ frappe.ui.form.on("Prova", {
 			proxima_ordem = Math.max(...frm.doc.questoes.map(q => q.ordem || 0)) + 1;
 		}
 		
+		let questoes_existentes = new Set();
+		if (frm.doc.questoes && frm.doc.questoes.length > 0) {
+			frm.doc.questoes.forEach(q => {
+				if (q.questao) {
+					questoes_existentes.add(q.questao);
+				}
+			});
+		}
+		
+		let questoes_filtradas = [];
+		let questoes_adicionadas = new Set();
+		(questoes_selecionadas || []).forEach(questao_name => {
+			if (!questao_name) {
+				return;
+			}
+			if (questoes_existentes.has(questao_name)) {
+				return;
+			}
+			if (questoes_adicionadas.has(questao_name)) {
+				return;
+			}
+			questoes_adicionadas.add(questao_name);
+			questoes_filtradas.push(questao_name);
+		});
+		
 		// Adiciona questões à tabela
-		questoes_selecionadas.forEach((questao_name, index) => {
+		questoes_filtradas.forEach((questao_name, index) => {
 			let row = frm.add_child("questoes");
 			row.questao = questao_name;
 			row.ordem = proxima_ordem + index;
@@ -186,7 +211,7 @@ frappe.ui.form.on("Prova", {
 		
 		frm.refresh_field("questoes");
 		frappe.show_alert({
-			message: __("{0} questão(ões) adicionada(s)", [questoes_selecionadas.length]),
+			message: __("{0} questão(ões) adicionada(s)", [questoes_filtradas.length]),
 			indicator: "green"
 		}, 3);
 	},
