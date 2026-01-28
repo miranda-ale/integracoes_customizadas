@@ -1,0 +1,64 @@
+{
+	"add_total_row": 0,
+	"columns": [],
+	"creation": "2026-01-28 00:00:00.000000",
+	"disable_prepared_report": 0,
+	"disabled": 0,
+	"docstatus": 0,
+	"doctype": "Report",
+	"filters": [
+		{
+			"fieldname": "company",
+			"fieldtype": "Link",
+			"label": "Empresa",
+			"options": "Company"
+		},
+		{
+			"fieldname": "cj_tipo",
+			"fieldtype": "Select",
+			"label": "Tipo Financeiro",
+			"options": "\nCustas\nDepósito Recursal\nHonorários\nPerícia\nAcordo\nCondenação\nOutro"
+		},
+		{
+			"fieldname": "data_inicio",
+			"fieldtype": "Date",
+			"label": "Data de Início"
+		},
+		{
+			"fieldname": "data_fim",
+			"fieldtype": "Date",
+			"label": "Data de Fim"
+		},
+		{
+			"fieldname": "cj_nivel_sigilo",
+			"fieldtype": "Select",
+			"label": "Nível de Sigilo",
+			"options": "\nPublico\nRestrito\nSigiloso"
+		}
+	],
+	"is_standard": "Yes",
+	"module": "Contencioso",
+	"name": "Custos do Contencioso por período",
+	"owner": "Administrator",
+	"prepared_report": 0,
+	"ref_doctype": "Processo Judicial",
+	"report_name": "Custos do Contencioso por período",
+	"report_type": "Script Report",
+	"roles": [
+		{
+			"role": "CJ Administrador"
+		},
+		{
+			"role": "CJ Gestor Jurídico"
+		},
+		{
+			"role": "CJ Analista Jurídico"
+		},
+		{
+			"role": "Financeiro Contencioso"
+		},
+		{
+			"role": "Visualizador Executivo"
+		}
+	]
+}

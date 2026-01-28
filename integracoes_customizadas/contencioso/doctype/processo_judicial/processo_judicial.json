@@ -1,0 +1,468 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"autoname": "naming_series:",
+	"creation": "2026-01-28 00:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"naming_series",
+		"sec_identificacao",
+		"cj_numero_cnj",
+		"cj_titulo",
+		"cj_tipo_processo",
+		"column_break_identificacao",
+		"cj_sistema_justica",
+		"cj_tribunal",
+		"cj_vara_foro",
+		"cj_classe",
+		"cj_assuntos",
+		"cj_data_distribuicao",
+		"cj_ultima_movimentacao_em",
+		"sec_status_fase",
+		"cj_estado_workflow",
+		"cj_status",
+		"cj_fase",
+		"cj_resultado_final",
+		"cj_data_encerramento",
+		"sec_gestao",
+		"company",
+		"cost_center",
+		"project",
+		"column_break_gestao",
+		"cj_area_negocio",
+		"cj_responsavel_usuario",
+		"cj_escritorio_externo",
+		"cj_nivel_sigilo",
+		"sec_trabalhista",
+		"cj_empregado_relacionado",
+		"cj_data_inicio_vinculo",
+		"cj_data_fim_vinculo",
+		"column_break_trabalhista",
+		"cj_cargo_epoca",
+		"cj_unidade_lotacao",
+		"cj_tipos_pedidos",
+		"cj_periodo_controverso_inicio",
+		"cj_periodo_controverso_fim",
+		"sec_risco_valores",
+		"cj_probabilidade_perda",
+		"cj_valor_pedido",
+		"cj_valor_estimado",
+		"column_break_risco",
+		"cj_melhor_cenario",
+		"cj_pior_cenario",
+		"cj_provisao_atual",
+		"cj_base_provisao",
+		"sec_listas",
+		"cj_partes",
+		"cj_eventos",
+		"cj_prazos",
+		"cj_audiencias",
+		"cj_documentos",
+		"cj_itens_financeiros",
+		"cj_historico_risco",
+		"cj_integracoes"
+	],
+	"fields": [
+		{
+			"default": "ProcJud-.YYYY.-.#####",
+			"fieldname": "naming_series",
+			"fieldtype": "Select",
+			"label": "Série",
+			"options": "ProcJud-.YYYY.-.#####",
+			"reqd": 1
+		},
+		{
+			"fieldname": "sec_identificacao",
+			"fieldtype": "Section Break",
+			"label": "Identificação do Processo"
+		},
+		{
+			"fieldname": "cj_numero_cnj",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"in_standard_filter": 1,
+			"label": "Número CNJ",
+			"reqd": 1,
+			"unique": 1
+		},
+		{
+			"fieldname": "cj_titulo",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"label": "Título",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cj_tipo_processo",
+			"fieldtype": "Select",
+			"label": "Tipo de Processo",
+			"options": "Trabalhista\nCível\nConsumidor\nFiscal\nOutros"
+		},
+		{
+			"fieldname": "column_break_identificacao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "cj_sistema_justica",
+			"fieldtype": "Select",
+			"label": "Sistema de Justiça",
+			"options": "JT\nJE\nJF\nTJ\nTRF\nOutros"
+		},
+		{
+			"fieldname": "cj_tribunal",
+			"fieldtype": "Data",
+			"label": "Tribunal"
+		},
+		{
+			"fieldname": "cj_vara_foro",
+			"fieldtype": "Data",
+			"label": "Vara/Foro"
+		},
+		{
+			"fieldname": "cj_classe",
+			"fieldtype": "Data",
+			"label": "Classe"
+		},
+		{
+			"fieldname": "cj_assuntos",
+			"fieldtype": "Small Text",
+			"label": "Assuntos"
+		},
+		{
+			"fieldname": "cj_data_distribuicao",
+			"fieldtype": "Date",
+			"label": "Data de Distribuição"
+		},
+		{
+			"fieldname": "cj_ultima_movimentacao_em",
+			"fieldtype": "Datetime",
+			"label": "Última Movimentação em",
+			"read_only": 1
+		},
+		{
+			"fieldname": "sec_status_fase",
+			"fieldtype": "Section Break",
+			"label": "Status e Fase"
+		},
+		{
+			"default": "Rascunho",
+			"fieldname": "cj_estado_workflow",
+			"fieldtype": "Select",
+			"hidden": 1,
+			"label": "Estado do Workflow",
+			"options": "Rascunho\nAberto\nEm Análise\nEm Andamento\nSentença\nRecursos\nExecução\nEncerrado\nArquivado"
+		},
+		{
+			"fieldname": "cj_status",
+			"fieldtype": "Select",
+			"label": "Status",
+			"options": "Ativo\nSuspenso\nArquivado\nEncerrado"
+		},
+		{
+			"fieldname": "cj_fase",
+			"fieldtype": "Select",
+			"label": "Fase",
+			"options": "Inicial\nInstrução\nSentença\nRecursos\nExecução\nEncerrado"
+		},
+		{
+			"fieldname": "cj_resultado_final",
+			"fieldtype": "Select",
+			"label": "Resultado Final",
+			"options": "Procedente\nParcialmente Procedente\nImprocedente\nAcordo\nExtinção\nOutro"
+		},
+		{
+			"fieldname": "cj_data_encerramento",
+			"fieldtype": "Date",
+			"label": "Data de Encerramento"
+		},
+		{
+			"fieldname": "sec_gestao",
+			"fieldtype": "Section Break",
+			"label": "Gestão"
+		},
+		{
+			"fieldname": "company",
+			"fieldtype": "Link",
+			"in_standard_filter": 1,
+			"label": "Empresa",
+			"options": "Company",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cost_center",
+			"fieldtype": "Link",
+			"label": "Centro de Custo",
+			"options": "Cost Center"
+		},
+		{
+			"fieldname": "project",
+			"fieldtype": "Link",
+			"label": "Projeto",
+			"options": "Project"
+		},
+		{
+			"fieldname": "column_break_gestao",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "cj_area_negocio",
+			"fieldtype": "Select",
+			"label": "Área de Negócio",
+			"options": "RH/DP\nSST\nOperações\nFinanceiro\nOutros"
+		},
+		{
+			"fieldname": "cj_responsavel_usuario",
+			"fieldtype": "Link",
+			"label": "Responsável",
+			"options": "User",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cj_escritorio_externo",
+			"fieldtype": "Link",
+			"label": "Escritório Externo",
+			"options": "Supplier"
+		},
+		{
+			"default": "Publico",
+			"fieldname": "cj_nivel_sigilo",
+			"fieldtype": "Select",
+			"label": "Nível de Sigilo",
+			"options": "Publico\nRestrito\nSigiloso"
+		},
+		{
+			"fieldname": "sec_trabalhista",
+			"fieldtype": "Section Break",
+			"label": "Trabalhista"
+		},
+		{
+			"fieldname": "cj_empregado_relacionado",
+			"fieldtype": "Link",
+			"label": "Empregado Relacionado",
+			"options": "Employee"
+		},
+		{
+			"fieldname": "cj_data_inicio_vinculo",
+			"fieldtype": "Date",
+			"label": "Data de Início do Vínculo"
+		},
+		{
+			"fieldname": "cj_data_fim_vinculo",
+			"fieldtype": "Date",
+			"label": "Data de Fim do Vínculo"
+		},
+		{
+			"fieldname": "column_break_trabalhista",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "cj_cargo_epoca",
+			"fieldtype": "Data",
+			"label": "Cargo à Época"
+		},
+		{
+			"fieldname": "cj_unidade_lotacao",
+			"fieldtype": "Data",
+			"label": "Unidade/Lotação"
+		},
+		{
+			"fieldname": "cj_tipos_pedidos",
+			"fieldtype": "Small Text",
+			"label": "Tipos de Pedidos"
+		},
+		{
+			"fieldname": "cj_periodo_controverso_inicio",
+			"fieldtype": "Date",
+			"label": "Período Controverso (Início)"
+		},
+		{
+			"fieldname": "cj_periodo_controverso_fim",
+			"fieldtype": "Date",
+			"label": "Período Controverso (Fim)"
+		},
+		{
+			"fieldname": "sec_risco_valores",
+			"fieldtype": "Section Break",
+			"label": "Risco e Valores"
+		},
+		{
+			"fieldname": "cj_probabilidade_perda",
+			"fieldtype": "Select",
+			"label": "Probabilidade de Perda",
+			"options": "Remota\nPossível\nProvável"
+		},
+		{
+			"fieldname": "cj_valor_pedido",
+			"fieldtype": "Currency",
+			"label": "Valor do Pedido"
+		},
+		{
+			"fieldname": "cj_valor_estimado",
+			"fieldtype": "Currency",
+			"label": "Valor Estimado"
+		},
+		{
+			"fieldname": "column_break_risco",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "cj_melhor_cenario",
+			"fieldtype": "Currency",
+			"label": "Melhor Cenário"
+		},
+		{
+			"fieldname": "cj_pior_cenario",
+			"fieldtype": "Currency",
+			"label": "Pior Cenário"
+		},
+		{
+			"fieldname": "cj_provisao_atual",
+			"fieldtype": "Currency",
+			"label": "Provisão Atual"
+		},
+		{
+			"fieldname": "cj_base_provisao",
+			"fieldtype": "Small Text",
+			"label": "Base da Provisão"
+		},
+		{
+			"fieldname": "sec_listas",
+			"fieldtype": "Section Break",
+			"label": "Registros Relacionados"
+		},
+		{
+			"fieldname": "cj_partes",
+			"fieldtype": "Table",
+			"label": "Partes",
+			"options": "CJ Parte"
+		},
+		{
+			"fieldname": "cj_eventos",
+			"fieldtype": "Table",
+			"label": "Eventos",
+			"options": "CJ Evento"
+		},
+		{
+			"fieldname": "cj_prazos",
+			"fieldtype": "Table",
+			"label": "Prazos",
+			"options": "CJ Prazo"
+		},
+		{
+			"fieldname": "cj_audiencias",
+			"fieldtype": "Table",
+			"label": "Audiências",
+			"options": "CJ Audiencia"
+		},
+		{
+			"fieldname": "cj_documentos",
+			"fieldtype": "Table",
+			"label": "Documentos",
+			"options": "CJ Documento"
+		},
+		{
+			"fieldname": "cj_itens_financeiros",
+			"fieldtype": "Table",
+			"label": "Itens Financeiros",
+			"options": "CJ Item Financeiro"
+		},
+		{
+			"fieldname": "cj_historico_risco",
+			"fieldtype": "Table",
+			"label": "Histórico de Risco",
+			"options": "CJ Snapshot de Risco"
+		},
+		{
+			"fieldname": "cj_integracoes",
+			"fieldtype": "Table",
+			"label": "Integrações",
+			"options": "CJ Integracao"
+		}
+	],
+	"links": [],
+	"modified": "2026-01-28 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contencioso",
+	"name": "Processo Judicial",
+	"naming_rule": "By \"Naming Series\" field",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "CJ Administrador",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "CJ Gestor Jurídico",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 0,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "CJ Analista Jurídico",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 0,
+			"delete": 0,
+			"email": 0,
+			"export": 0,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "CJ Visualizador",
+			"share": 0,
+			"write": 0
+		},
+		{
+			"create": 0,
+			"delete": 0,
+			"email": 0,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Financeiro Contencioso",
+			"share": 0,
+			"write": 0
+		},
+		{
+			"create": 0,
+			"delete": 0,
+			"email": 0,
+			"export": 0,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "RH/DP Contencioso",
+			"share": 0,
+			"write": 0
+		}
+	],
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 1
+}

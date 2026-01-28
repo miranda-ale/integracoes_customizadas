@@ -1,0 +1,79 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"creation": "2026-01-28 00:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"cj_data_hora",
+		"cj_origem",
+		"cj_tipo_evento",
+		"cj_resumo",
+		"cj_detalhes",
+		"cj_id_externo",
+		"cj_gera_prazo",
+		"cj_referencia_prazo"
+	],
+	"fields": [
+		{
+			"fieldname": "cj_data_hora",
+			"fieldtype": "Datetime",
+			"in_list_view": 1,
+			"label": "Data/Hora",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cj_origem",
+			"fieldtype": "Select",
+			"label": "Origem",
+			"options": "Manual\nIntegração"
+		},
+		{
+			"fieldname": "cj_tipo_evento",
+			"fieldtype": "Select",
+			"label": "Tipo de Evento",
+			"options": "Movimento\nPublicação\nDespacho\nSentença\nAudiência\nDocumento\nOutro"
+		},
+		{
+			"fieldname": "cj_resumo",
+			"fieldtype": "Data",
+			"in_list_view": 1,
+			"label": "Resumo",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cj_detalhes",
+			"fieldtype": "Long Text",
+			"label": "Detalhes"
+		},
+		{
+			"fieldname": "cj_id_externo",
+			"fieldtype": "Data",
+			"label": "ID Externo"
+		},
+		{
+			"default": "0",
+			"fieldname": "cj_gera_prazo",
+			"fieldtype": "Check",
+			"label": "Gera Prazo"
+		},
+		{
+			"description": "Referência livre ao prazo relacionado (fase 1).",
+			"fieldname": "cj_referencia_prazo",
+			"fieldtype": "Data",
+			"label": "Referência do Prazo"
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-28 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contencioso",
+	"name": "CJ Evento",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 1
+}

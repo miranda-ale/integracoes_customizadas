@@ -1,0 +1,65 @@
+[
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "CJ Administrador",
+		"role_name": "CJ Administrador"
+	},
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "CJ Gestor Jurídico",
+		"role_name": "CJ Gestor Jurídico"
+	},
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "CJ Analista Jurídico",
+		"role_name": "CJ Analista Jurídico"
+	},
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "CJ Visualizador",
+		"role_name": "CJ Visualizador"
+	},
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "Visualizador Executivo",
+		"role_name": "Visualizador Executivo"
+	},
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "Financeiro Contencioso",
+		"role_name": "Financeiro Contencioso"
+	},
+	{
+		"desk_access": 1,
+		"disabled": 0,
+		"doctype": "Role",
+		"home_page": null,
+		"is_custom": 1,
+		"name": "RH/DP Contencioso",
+		"role_name": "RH/DP Contencioso"
+	}
+]

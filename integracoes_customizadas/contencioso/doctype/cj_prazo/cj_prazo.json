@@ -1,0 +1,80 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"creation": "2026-01-28 00:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"cj_tipo_prazo",
+		"cj_data_inicio",
+		"cj_data_vencimento",
+		"cj_responsavel_usuario",
+		"cj_status_prazo",
+		"cj_checklist",
+		"cj_concluido_em",
+		"cj_observacao_conclusao"
+	],
+	"fields": [
+		{
+			"fieldname": "cj_tipo_prazo",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"label": "Tipo de Prazo",
+			"options": "Contestação\nRecurso\nManifestação\nCustas\nDocumentos\nOutro"
+		},
+		{
+			"fieldname": "cj_data_inicio",
+			"fieldtype": "Date",
+			"label": "Data de Início"
+		},
+		{
+			"fieldname": "cj_data_vencimento",
+			"fieldtype": "Date",
+			"in_list_view": 1,
+			"label": "Data de Vencimento",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cj_responsavel_usuario",
+			"fieldtype": "Link",
+			"label": "Responsável",
+			"options": "User"
+		},
+		{
+			"default": "A Vencer",
+			"fieldname": "cj_status_prazo",
+			"fieldtype": "Select",
+			"in_list_view": 1,
+			"label": "Status do Prazo",
+			"options": "A Vencer\nVencido\nCumprido\nCancelado"
+		},
+		{
+			"fieldname": "cj_checklist",
+			"fieldtype": "Small Text",
+			"label": "Checklist"
+		},
+		{
+			"fieldname": "cj_concluido_em",
+			"fieldtype": "Datetime",
+			"label": "Concluído em",
+			"read_only": 1
+		},
+		{
+			"fieldname": "cj_observacao_conclusao",
+			"fieldtype": "Small Text",
+			"label": "Observação de Conclusão"
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-28 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contencioso",
+	"name": "CJ Prazo",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 1
+}
