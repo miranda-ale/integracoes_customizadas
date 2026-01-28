@@ -1,0 +1,67 @@
+[
+	{
+		"doctype": "Workflow State",
+		"name": "Rascunho",
+		"workflow_state_name": "Rascunho"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Aberto",
+		"workflow_state_name": "Aberto"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Em Análise",
+		"workflow_state_name": "Em Análise"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Em Andamento",
+		"workflow_state_name": "Em Andamento"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Sentença",
+		"workflow_state_name": "Sentença"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Recursos",
+		"workflow_state_name": "Recursos"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Execução",
+		"workflow_state_name": "Execução"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Encerrado",
+		"workflow_state_name": "Encerrado"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Arquivado",
+		"workflow_state_name": "Arquivado"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "A Vencer",
+		"workflow_state_name": "A Vencer"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Vencido",
+		"workflow_state_name": "Vencido"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Cumprido",
+		"workflow_state_name": "Cumprido"
+	},
+	{
+		"doctype": "Workflow State",
+		"name": "Cancelado",
+		"workflow_state_name": "Cancelado"
+	}
+]

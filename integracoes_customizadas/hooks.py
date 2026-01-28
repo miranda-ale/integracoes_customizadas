@@ -39,6 +39,10 @@ fixtures = [
         "RH/DP Contencioso",
     ]]]},
     {"dt": "Module Def", "filters": [["name", "in", ["Contencioso"]]]},
+    {"dt": "Workflow State", "filters": [["name", "in", [
+        "Rascunho", "Aberto", "Em Análise", "Em Andamento", "Sentença", "Recursos", "Execução", "Encerrado", "Arquivado",
+        "A Vencer", "Vencido", "Cumprido", "Cancelado",
+    ]]]},
     {"dt": "Workflow", "filters": [["name", "in", [
         "Processo Judicial",
         "CJ Prazo",
