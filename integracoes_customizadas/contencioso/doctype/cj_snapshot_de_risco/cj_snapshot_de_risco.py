@@ -4,5 +4,5 @@
 from frappe.model.document import Document
 
 
-class CJSnapshotDeRisco(Document):
+class CJSnapshotdeRisco(Document):
 	pass

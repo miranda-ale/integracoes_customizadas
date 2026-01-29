@@ -1,7 +1,7 @@
 """
 Script para validar fixtures antes da importação
 Execute com: bench --site [site] console
-Depois: exec(open('/home/alessandromiranda/Documentos/frappe-bench/apps/integracoes_customizadas/integracoes_customizadas/contencioso/validate_fixtures.py').read())
+Depois: exec(open(frappe.get_app_path("integracoes_customizadas", "contencioso", "validate_fixtures.py")).read())
 OU simplesmente execute: from integracoes_customizadas.contencioso.validate_fixtures import validate_all_fixtures; validate_all_fixtures()
 """
 import json

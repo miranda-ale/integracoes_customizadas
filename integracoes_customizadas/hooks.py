@@ -7,10 +7,9 @@ app_license = "mit"
 
 fixtures = [
     # Exporta o DocType (se estiver no filesystem / exportável)
+    # DocTypes do Contencioso (Processo Judicial, CJ *, etc.) NÃO estão aqui: fonte de verdade é o filesystem (doctype/*.json); fixture não os deleta no migrate.
     {"dt": "DocType", "filters": [["name", "in", [
         "Contrato de Trabalho",
-        "Processo Judicial", "CJ Parte", "CJ Evento", "CJ Prazo", "CJ Audiencia",
-        "CJ Documento", "CJ Item Financeiro", "CJ Snapshot de Risco", "CJ Integracao",
     ]]]},
 
     # Exporta Custom Fields relacionados
@@ -180,7 +179,10 @@ after_install = "integracoes_customizadas.provas.setup.after_install"
 
 # Migration
 # ---------
-after_migrate = "integracoes_customizadas.provas.setup.after_migrate"
+after_migrate = [
+	"integracoes_customizadas.provas.setup.after_migrate",
+	"integracoes_customizadas.contencioso.sync_doctype.ensure_contencioso_doctypes",
+]
 
 # Uninstallation
 # ------------

@@ -13,12 +13,33 @@ RISK_FIELDS = (
 )
 
 
+def _normalize_cnj_digits(value: str) -> str:
+	"""Return only digits from string, up to 20."""
+	if not value:
+		return ""
+	return "".join(c for c in str(value) if c.isdigit())[:20]
+
+
 class ProcessoJudicial(Document):
 	def validate(self):
+		self._normalizar_e_validar_numero_cnj()
 		self._validar_eventos_idempotencia()
 		self._atualizar_ultima_movimentacao()
 		self._validar_regras_workflow()
 		self._validar_prazos()
+
+	def _normalizar_e_validar_numero_cnj(self):
+		raw = _normalize_cnj_digits(self.cj_numero_cnj or "")
+		if not raw:
+			return
+		if len(raw) != 20:
+			frappe.throw(
+				frappe._(
+					"Número CNJ deve conter exatamente 20 dígitos (formato: NNNNNNN-DD.AAAA.J.TR.OOOO)."
+				)
+			)
+		# Store normalized (20 digits only) for API compatibility
+		self.cj_numero_cnj = raw
 
 	def before_save(self):
 		self._registrar_snapshot_risco_se_necessario()
