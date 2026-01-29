@@ -59,7 +59,7 @@ def custos_ytd():
 	return _card_value(
 		total,
 		"Currency",
-		["query-report", "Custos do Contencioso por período"],
+		["query-report", "Custos do Contencioso por periodo"],
 		{"data_inicio": ano_inicio},
 	)
 

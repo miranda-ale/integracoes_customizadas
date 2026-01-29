@@ -22,11 +22,11 @@
 	],
 	"is_standard": "Yes",
 	"module": "Contencioso",
-	"name": "Exposição e Provisão por mês",
+	"name": "Exposicao e Provisao por mes",
 	"owner": "Administrator",
 	"prepared_report": 0,
 	"ref_doctype": "Processo Judicial",
-	"report_name": "Exposição e Provisão por mês",
+	"report_name": "Exposicao e Provisao por mes",
 	"report_type": "Script Report",
 	"roles": [
 		{

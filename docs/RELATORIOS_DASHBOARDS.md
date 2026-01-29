@@ -89,11 +89,11 @@ Listas:
   - garantir filtros por Company e regras de sigilo
 
 ## 4) Implementado (Fase 1)
-Relatórios (Script Report):
+Relatórios (Script Report). Nomes sem acentos para compatibilidade com o Frappe (scrub → path do módulo):
 - **Prazos a vencer**
-- **Exposição e Provisão por mês**
+- **Exposicao e Provisao por mes** (Exposição e Provisão por mês)
 - **Processos por Status e Fase**
-- **Custos do Contencioso por período**
+- **Custos do Contencioso por periodo** (Custos do Contencioso por período)
 
 Dashboards (Desk > Dashboard):
 - **Dashboard Executivo** (cards + charts)

@@ -38,11 +38,11 @@
 	],
 	"is_standard": "Yes",
 	"module": "Contencioso",
-	"name": "Custos do Contencioso por período",
+	"name": "Custos do Contencioso por periodo",
 	"owner": "Administrator",
 	"prepared_report": 0,
 	"ref_doctype": "Processo Judicial",
-	"report_name": "Custos do Contencioso por período",
+	"report_name": "Custos do Contencioso por periodo",
 	"report_type": "Script Report",
 	"roles": [
 		{

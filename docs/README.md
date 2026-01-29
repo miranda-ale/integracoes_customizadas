@@ -68,3 +68,6 @@ Ver `docs/PLANO_TESTES.md`.
 
 ## Instalação/Upgrade
 Ver `docs/INSTALACAO.md`.
+
+## Convenções Frappe (nomeação e caminhos)
+Regras de nomeação (DocType, Report, pastas) e uso de caminhos relativos para evitar erros em migrate e em relatórios. Ver `docs/CONVENCOES_FRAPPE.md`.
