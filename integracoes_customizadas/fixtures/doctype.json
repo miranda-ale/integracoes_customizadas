@@ -2067,5 +2067,33 @@
   "track_views": 0,
   "translated_doctype": 0,
   "website_search_field": null
+ },
+ {
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2026-01-28 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": ["cj_data_hora_snapshot", "cj_probabilidade_perda", "cj_valor_estimado", "cj_provisao", "cj_base", "cj_usuario"],
+  "fields": [
+   {"fieldname": "cj_data_hora_snapshot", "fieldtype": "Datetime", "in_list_view": 1, "label": "Data/Hora do Snapshot", "reqd": 1, "read_only": 1},
+   {"fieldname": "cj_probabilidade_perda", "fieldtype": "Select", "in_list_view": 1, "label": "Probabilidade de Perda", "options": "Remota\nPossível\nProvável", "read_only": 1},
+   {"fieldname": "cj_valor_estimado", "fieldtype": "Currency", "in_list_view": 1, "label": "Valor Estimado", "read_only": 1},
+   {"fieldname": "cj_provisao", "fieldtype": "Currency", "in_list_view": 1, "label": "Provisão", "read_only": 1},
+   {"fieldname": "cj_base", "fieldtype": "Small Text", "label": "Base", "read_only": 1},
+   {"fieldname": "cj_usuario", "fieldtype": "Link", "label": "Usuário", "options": "User", "read_only": 1}
+  ],
+  "istable": 1,
+  "links": [],
+  "modified": "2026-01-28 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Contencioso",
+  "name": "CJ Snapshot de Risco",
+  "owner": "Administrator",
+  "permissions": [{"amend": 1, "cancel": 1, "create": 1, "delete": 1, "email": 1, "export": 1, "import": 1, "print": 1, "read": 1, "report": 1, "role": "System Manager", "select": 1, "share": 1, "submit": 1, "write": 1}],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
  }
 ]

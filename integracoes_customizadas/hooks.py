@@ -7,7 +7,11 @@ app_license = "mit"
 
 fixtures = [
     # Exporta o DocType (se estiver no filesystem / exportável)
-    {"dt": "DocType", "filters": [["name", "in", ["Contrato de Trabalho"]]]},
+    {"dt": "DocType", "filters": [["name", "in", [
+        "Contrato de Trabalho",
+        "Processo Judicial", "CJ Parte", "CJ Evento", "CJ Prazo", "CJ Audiencia",
+        "CJ Documento", "CJ Item Financeiro", "CJ Snapshot de Risco", "CJ Integracao",
+    ]]]},
 
     # Exporta Custom Fields relacionados
     {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation", "Contrato de Trabalho"]]]},
