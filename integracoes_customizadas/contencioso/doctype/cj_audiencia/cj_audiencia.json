@@ -1,0 +1,87 @@
+{
+	"actions": [],
+	"allow_rename": 1,
+	"creation": "2026-01-28 00:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"cj_data_hora",
+		"cj_modalidade",
+		"cj_local",
+		"cj_link",
+		"cj_participantes",
+		"cj_resultado",
+		"cj_ata"
+	],
+	"fields": [
+		{
+			"fieldname": "cj_data_hora",
+			"fieldtype": "Datetime",
+			"in_list_view": 1,
+			"label": "Data/Hora",
+			"reqd": 1
+		},
+		{
+			"fieldname": "cj_modalidade",
+			"fieldtype": "Select",
+			"label": "Modalidade",
+			"options": "Presencial\nTelepresencial"
+		},
+		{
+			"fieldname": "cj_local",
+			"fieldtype": "Data",
+			"label": "Local"
+		},
+		{
+			"fieldname": "cj_link",
+			"fieldtype": "Data",
+			"label": "Link"
+		},
+		{
+			"fieldname": "cj_participantes",
+			"fieldtype": "Small Text",
+			"label": "Participantes"
+		},
+		{
+			"fieldname": "cj_resultado",
+			"fieldtype": "Select",
+			"label": "Resultado",
+			"options": "Sem acordo\nAcordo\nAdiada\nInstrução\nOutro"
+		},
+		{
+			"fieldname": "cj_ata",
+			"fieldtype": "Attach",
+			"label": "Ata"
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-01-28 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Contencioso",
+	"name": "CJ Audiencia",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"amend": 1,
+			"cancel": 1,
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"import": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "System Manager",
+			"select": 1,
+			"share": 1,
+			"submit": 1,
+			"write": 1
+		}
+	],
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 1
+}

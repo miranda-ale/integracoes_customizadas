@@ -1,0 +1,1 @@
+"""Integrações (stub) do contencioso."""
