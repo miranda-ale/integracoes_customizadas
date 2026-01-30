@@ -53,24 +53,24 @@ def validate_all_fixtures():
                 
                 elif doctype == "Dashboard":
                 # Verificar se charts e cards referenciados existem
-                charts = doc_dict.get("charts", [])
-                cards = doc_dict.get("cards", [])
-                
-                for chart_link in charts:
-                    chart_name = chart_link.get("chart")
-                    if chart_name and not frappe.db.exists("Dashboard Chart", chart_name):
-                        # Aviso apenas, não erro - será criado durante a importação
-                        warning_msg = f"Dashboard '{name}' referencia Chart '{chart_name}' que ainda não existe (será criado durante importação)"
-                        warnings.append(warning_msg)
-                        print(f"  ⚠ AVISO: {warning_msg}")
-                
-                for card_link in cards:
-                    card_name = card_link.get("card")
-                    if card_name and not frappe.db.exists("Number Card", card_name):
-                        # Aviso apenas, não erro - será criado durante a importação se number_card.json vier antes
-                        warning_msg = f"Dashboard '{name}' referencia Number Card '{card_name}' que ainda não existe (será criado durante importação se number_card.json vier antes)"
-                        warnings.append(warning_msg)
-                        print(f"  ⚠ AVISO: {warning_msg}")
+	                charts = doc_dict.get("charts", [])
+	                cards = doc_dict.get("cards", [])
+	                
+	                for chart_link in charts:
+	                    chart_name = chart_link.get("chart")
+	                    if chart_name and not frappe.db.exists("Dashboard Chart", chart_name):
+	                        # Aviso apenas, não erro - será criado durante a importação
+	                        warning_msg = f"Dashboard '{name}' referencia Chart '{chart_name}' que ainda não existe (será criado durante importação)"
+	                        warnings.append(warning_msg)
+	                        print(f"  ⚠ AVISO: {warning_msg}")
+	                
+	                for card_link in cards:
+	                    card_name = card_link.get("card")
+	                    if card_name and not frappe.db.exists("Number Card", card_name):
+	                        # Aviso apenas, não erro - será criado durante a importação se number_card.json vier antes
+	                        warning_msg = f"Dashboard '{name}' referencia Number Card '{card_name}' que ainda não existe (será criado durante importação se number_card.json vier antes)"
+	                        warnings.append(warning_msg)
+	                        print(f"  ⚠ AVISO: {warning_msg}")
                 
                 elif doctype == "Number Card":
                     method = doc_dict.get("method")
