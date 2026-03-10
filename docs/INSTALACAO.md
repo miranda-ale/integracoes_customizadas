@@ -1,36 +1,24 @@
-# Instalação e Upgrade — Submódulo Contencioso (PT-BR)
-
-> Este módulo vive dentro do app `integracoes_customizadas`.
+# Instalação e Upgrade — Integrações Customizadas (PT-BR)
 
 ## 1) Instalação (app já existe)
+
 - Garantir que o app `integracoes_customizadas` esteja instalado no site.
-- Após adicionar DocTypes/Workflows/Reports:
+- Após alterações em DocTypes/Reports:
   - `bench --site <site> migrate`
   - `bench --site <site> clear-cache`
   - `bench restart`
 
 ## 2) Deploy / Upgrade
+
 - `git pull` no repositório do app
 - `bench --site <site> migrate`
 - `bench --site <site> clear-cache`
 - `bench restart`
 
-## 3) Fixtures (recomendado)
-Incluir fixtures para:
-- Roles do módulo
-- Workflows
-- Workspace (atalhos do módulo)
-- Reports e Dashboards
-- Module Def (Contencioso)
-- Number Cards e Dashboard Charts
+## 3) Fixtures
 
-> Boas práticas:
-- Versionar fixtures no repositório
-- Evitar fixtures “genéricas” que afetem outros módulos
+As fixtures versionadas cobrem os DocTypes e recursos exportados por este app (Contrato de Trabalho, Custom Fields, etc.).
 
-## 4) Scheduler
-- Jobs devem ser desativados por padrão no stub de integração.
-- Job de prazos pode ser ativado conforme a política interna (em produção, com monitoramento).
+## 4) Módulo Contencioso / Processos Judiciais
 
-## 5) Configurações opcionais
-- `contencioso_integracao_ativa = true` em `site_config.json` para habilitar o stub (controlado).
+Processos judiciais e contencioso passaram para o app **Jurídico**. Para instalação e configuração desse módulo, use o app `juridico` (ex.: `bench install-app juridico`).

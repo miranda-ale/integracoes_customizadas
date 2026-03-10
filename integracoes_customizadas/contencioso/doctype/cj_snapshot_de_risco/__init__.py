@@ -1,1 +1,0 @@
-from .cj_snapshot_de_risco import CJSnapshotdeRisco

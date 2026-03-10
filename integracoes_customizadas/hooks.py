@@ -7,7 +7,7 @@ app_license = "mit"
 
 fixtures = [
     # Exporta o DocType (se estiver no filesystem / exportável)
-    # DocTypes do Contencioso (Processo Judicial, CJ *, etc.) NÃO estão aqui: fonte de verdade é o filesystem (doctype/*.json); fixture não os deleta no migrate.
+    # DocTypes exportados por este app (fonte de verdade é o filesystem doctype/*.json).
     {"dt": "DocType", "filters": [["name", "in", [
         "Contrato de Trabalho",
     ]]]},
@@ -31,59 +31,11 @@ fixtures = [
     {"dt": "Notification", "filters": [["document_type", "=", "Contrato de Trabalho"]]},
 
     {"dt": "Custom Field", "filters": [["name", "in", ["Interview-prova"]]]},
-    {"dt": "Report", "filters": [["ref_doctype", "=", "Processo Judicial"]]},
-    {"dt": "Role", "filters": [["name", "in", [
-        "CJ Administrador",
-        "CJ Gestor Jurídico",
-        "CJ Analista Jurídico",
-        "CJ Visualizador",
-        "Visualizador Executivo",
-        "Financeiro Contencioso",
-        "RH/DP Contencioso",
-    ]]]},
-    {"dt": "Module Def", "filters": [["name", "in", ["Contencioso"]]]},
-    {"dt": "Workflow State", "filters": [["name", "in", [
-        "Rascunho", "Aberto", "Em Análise", "Em Andamento", "Sentença", "Recursos", "Execução", "Encerrado", "Arquivado",
-        "A Vencer", "Vencido", "Cumprido", "Cancelado",
-    ]]]},
-    {"dt": "Workflow", "filters": [["name", "in", [
-        "Processo Judicial",
-        "CJ Prazo",
-    ]]]},
-    {"dt": "Workspace", "filters": [["name", "in", ["Contencioso"]]]},
-    {"dt": "Number Card", "filters": [["name", "in", [
-        "CJ Total Processos Ativos",
-        "CJ Provisão Atual",
-        "CJ Exposição Estimada",
-        "CJ Prazos Próximos 7 Dias",
-        "CJ Prazos Próximos 15 Dias",
-        "CJ Prazos Próximos 30 Dias",
-        "CJ Custos YTD",
-        "CJ Audiências Futuras 30 Dias",
-    ]]]},
-    {"dt": "Dashboard Chart", "filters": [["name", "in", [
-        "CJ Provisão por Mês",
-        "CJ Processos por Status",
-        "CJ Processos por Fase",
-        "CJ Custos por Mês",
-    ]]]},
-    {"dt": "Dashboard", "filters": [["name", "in", [
-        "Dashboard Executivo",
-        "Dashboard Jurídico",
-    ]]]},
-    {"dt": "Notification", "filters": [["name", "in", [
-        "Prazo Judicial D-10",
-        "Prazo Judicial D-5",
-        "Prazo Judicial D-1",
-        "Prazo Judicial Vencido",
-    ]]]},
-    
 ]
 
 scheduler_events = {
     "daily": [
         "integracoes_customizadas.contratos.utils.processar_alertas_contratos",
-        "integracoes_customizadas.contencioso.prazos.atualizar_prazos_vencidos",
     ]
 }
 
@@ -181,7 +133,6 @@ after_install = "integracoes_customizadas.provas.setup.after_install"
 # ---------
 after_migrate = [
 	"integracoes_customizadas.provas.setup.after_migrate",
-	"integracoes_customizadas.contencioso.sync_doctype.ensure_contencioso_doctypes",
 ]
 
 # Uninstallation
@@ -216,13 +167,8 @@ after_migrate = [
 # -----------
 # Permissions evaluated in scripted ways
 
-permission_query_conditions = {
-	"Processo Judicial": "integracoes_customizadas.contencioso.permissions.processo_judicial_query_conditions",
-}
-
-has_permission = {
-	"Processo Judicial": "integracoes_customizadas.contencioso.permissions.processo_judicial_has_permission",
-}
+# permission_query_conditions = {}
+# has_permission = {}
 
 # Document Events
 # ---------------

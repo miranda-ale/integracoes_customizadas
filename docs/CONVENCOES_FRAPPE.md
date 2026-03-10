@@ -33,18 +33,18 @@ O Frappe monta o path do módulo Python do Report com **`scrub(report_name)`**:
 
 O path resultante é usado em `importlib.import_module(...)`. Nomes de módulo em Python devem ser **ASCII**. Se o nome do Report tiver acentos, o path terá caracteres não-ASCII e ocorrerá **`ModuleNotFoundError`**.
 
-- **Regra:** O **nome** e **report_name** dos Script Reports devem ser **somente ASCII** (sem acentos). O nome da pasta do report já segue o padrão sem acentos (ex.: `exposicao_e_provisao_por_mes`, `custos_do_contencioso_por_periodo`).
+- **Regra:** O **nome** e **report_name** dos Script Reports devem ser **somente ASCII** (sem acentos). O nome da pasta do report já segue o padrão sem acentos (ex.: `exposicao_e_provisao_por_mes`, `custos_do_processo_por_periodo`).
 
 | Nome com acento (evitar)           | Nome correto (ASCII)              |
 |------------------------------------|-----------------------------------|
 | Exposição e Provisão por mês       | Exposicao e Provisao por mes      |
-| Custos do Contencioso por período | Custos do Contencioso por periodo |
+| Custos do Processo por período | Custos do Processo por periodo |
 
 Na documentação ou na UI, pode-se exibir o texto com acentos em parênteses ou em docs separados; no banco e no código, usar sempre o nome ASCII.
 
 ### 1.3 Pastas e arquivos (DocTypes, Reports)
 
-- **Pastas** de DocType e Report: sempre em **minúsculas**, **underscore** no lugar de espaços, **sem acentos** (ex.: `cj_snapshot_de_risco`, `custos_do_contencioso_por_periodo`).
+- **Pastas** de DocType e Report: sempre em **minúsculas**, **underscore** no lugar de espaços, **sem acentos** (ex.: `cj_snapshot_de_risco`, `custos_do_processo_por_periodo`).
 - O nome do arquivo `.json` e do `.py` deve coincidir com o nome da pasta (padrão do Frappe).
 
 ---
@@ -62,12 +62,12 @@ frappe.get_app_path("nome_do_app", "segmento1", "segmento2", "arquivo.json")
 - O primeiro argumento é o **nome do app** (ex.: `integracoes_customizadas`).
 - Os demais são **segmentos relativos à raiz do app**. A raiz do app em termos de `get_app_path` é o diretório onde está o pacote Python do app (ex.: `.../apps/integracoes_customizadas/integracoes_customizadas/`). **Não** duplique o nome do pacote nos segmentos.
 
-Exemplo **correto** (contencioso, doctype, módulo, JSON):
+Exemplo **correto** (módulo do app, doctype, JSON):
 
 ```python
 path = frappe.get_app_path(
     "integracoes_customizadas",
-    "contencioso",
+    "nome_do_modulo",
     "doctype",
     module_name,
     f"{module_name}.json",
@@ -81,7 +81,7 @@ Exemplo **incorreto** (segmento duplicado faz o path apontar para pasta inexiste
 path = frappe.get_app_path(
     "integracoes_customizadas",
     "integracoes_customizadas",  # duplicado
-    "contencioso",
+    "nome_do_modulo",
     "doctype",
     module_name,
     f"{module_name}.json",
