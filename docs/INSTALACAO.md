@@ -17,7 +17,7 @@
 
 ## 3) Fixtures
 
-As fixtures versionadas cobrem os DocTypes e recursos exportados por este app (Contrato de Trabalho, Custom Fields, etc.).
+As fixtures versionadas cobrem os recursos exportados por este app (Custom Fields em Employee, Designation, etc.).
 
 ## 4) Módulo Contencioso / Processos Judiciais
 

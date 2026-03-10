@@ -5,7 +5,6 @@
 Este app adiciona ao ERPNext/Frappe módulos de integrações customizadas, incluindo:
 
 - **Integracoes Customizadas** e **Provas** (e outros módulos mantidos neste app)
-- **Contrato de Trabalho** (DocType, alertas de vencimento, etc.)
 
 ## Contencioso / Processos Judiciais
 
