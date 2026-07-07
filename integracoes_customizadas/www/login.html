@@ -10,10 +10,12 @@
 	#bhcl-login input:focus { outline: 2px solid #14b8a6; outline-offset: -1px; }
 
 	#bhcl-login .nav-link:hover { color: #0d9488 !important; }
+	#bhcl-login .nav-link-light:hover { color: #ffffff !important; }
 	#bhcl-login .btn-suporte:hover { background: #e7f8f5; }
 	#bhcl-login .btn-entrar:hover { background: linear-gradient(90deg,#0d6a63,#0c877a) !important; }
 	#bhcl-login .btn-sso:hover { background: #f8fafc; }
 	#bhcl-login .footer-link:hover { color: #0d9488; }
+	#bhcl-login .footer-link-light:hover { color: #ffffff !important; }
 	#bhcl-login .banner-close:hover { background: #d4f1ea; }
 	#bhcl-login .institucional-link:hover { color: #0f766e; }
 </style>
@@ -28,9 +30,9 @@
 		<span class="banner-close" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#0f766e;font-size:14px;cursor:pointer">✕</span>
 	</div>
 
-	<div style="display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:#ffffff;border-bottom:1px solid #e8eceb">
+	<div style="display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:linear-gradient(to right,#0c7d70 0%,#0c7d70 52%,#ffffff 52%,#ffffff 100%);box-shadow:0 1px 4px rgba(0,0,0,0.06)">
 		<div style="display:flex;align-items:center;gap:28px">
-			<a href="#" class="nav-link" style="font-size:14px;color:#475569;font-weight:500">Trabalhe Conosco</a>
+			<a href="#" class="nav-link-light" style="font-size:14px;color:rgba(255,255,255,0.92);font-weight:500">Trabalhe Conosco</a>
 		</div>
 		<div style="display:flex;align-items:center;gap:26px">
 			<a href="#" class="nav-link" style="font-size:14px;color:#475569;font-weight:500">Institucional</a>
@@ -120,13 +122,15 @@
 		</div>
 	</div>
 
-	<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:#f4f6f5;border-top:1px solid #e8eceb">
+	<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:linear-gradient(to right,#0c9e8c 0%,#0c9e8c 52%,#ffffff 52%,#ffffff 100%);box-shadow:0 -1px 4px rgba(0,0,0,0.05)">
 		<div style="display:flex;gap:22px">
-			<a href="#" class="footer-link" style="font-size:13px;color:#475569">Termos de Uso</a>
-			<a href="#" class="footer-link" style="font-size:13px;color:#475569">Política de Privacidade</a>
+			<a href="#" class="footer-link-light" style="font-size:13px;color:rgba(255,255,255,0.92)">Termos de Uso</a>
+			<a href="#" class="footer-link-light" style="font-size:13px;color:rgba(255,255,255,0.92)">Política de Privacidade</a>
 		</div>
-		<span style="font-size:13px;color:#64748b">Avenida São Paulo, 340 Vila Brasil, Cesário Lange - SP — CEP 18285-000</span>
-		<span style="font-size:13px;color:#94a3b8;font-style:italic">Desenvolvido por A.M.S.</span>
+		<div style="display:flex;align-items:center;gap:24px">
+			<span style="font-size:13px;color:#64748b">Avenida São Paulo, 340 Vila Brasil, Cesário Lange - SP — CEP 18285-000</span>
+			<span style="font-size:13px;color:#94a3b8;font-style:italic">Desenvolvido por A.M.S.</span>
+		</div>
 	</div>
 </div>
 {% endblock %}
