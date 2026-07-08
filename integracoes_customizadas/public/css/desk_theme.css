@@ -194,7 +194,62 @@
 #page-Workspaces {
 	background: #f4f7f6;
 }
+/*
+ * O conteudo do workspace fica dentro de um painel branco com borda
+ * (.layout-main-section, confirmado no CSS compilado) que cobria o
+ * fundo acima — por isso a cor "nao aparecia". Pintamos o proprio
+ * painel e tiramos a borda dele, como no esboco (conteudo direto
+ * sobre o fundo, sem moldura).
+ */
+#page-Workspaces .layout-main-section {
+	background: #f4f7f6;
+	border: none;
+}
 #page-Workspaces .widget {
 	background: #ffffff;
+}
+
+/*
+ * Titulo da pagina ("Inicio"/"Gestor"): como no esboco — maior, mais
+ * escuro, tracking levemente negativo. Classe .title-area .title-text
+ * confirmada no CSS compilado.
+ */
+.title-area .title-text {
+	font-size: 24px;
+	font-weight: var(--weight-bold);
+	color: #1e293b;
+	letter-spacing: -0.3px;
+}
+
+/*
+ * Contraste no navbar teal: icones (sino, toggle) e texto "Ajuda" em
+ * branco — o padrao cinza-escuro do Frappe some sobre o #15afa4.
+ * Avatar com gradiente teal e borda branca, como o "GC" do esboco.
+ * Variaveis --icon-stroke/--avatar-frame-* sao as que os proprios
+ * componentes ja consomem (confirmado no CSS compilado).
+ */
+.navbar {
+	--icon-stroke: #ffffff;
+	--avatar-frame-bg: linear-gradient(135deg, #0f766e, #14a795);
+	--avatar-frame-color: #ffffff;
+}
+.navbar .nav-link,
+.navbar .dropdown-toggle {
+	color: #ffffff;
+}
+.navbar .avatar .standard-image {
+	background: linear-gradient(135deg, #0f766e, #14a795);
+	color: #ffffff;
+	font-weight: var(--weight-semibold);
+	border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+/*
+ * Badge dos atalhos ("2096 Ativos"): mint + teal do esboco, no lugar
+ * do verde padrao do Frappe.
+ */
+.shortcut-widget-box .indicator-pill {
+	background: #e7f8f5;
+	color: #0f766e;
 }
 
