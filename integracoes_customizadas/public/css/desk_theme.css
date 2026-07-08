@@ -337,7 +337,7 @@
 
 
 /*
- * Rodape fixo institucional: teal da identidade (#15afa4), texto
+ * Rodape fixo institucional: teal da identidade (#0f7b72), texto
  * branco centralizado. Feito com pseudo-elemento do body (CSS puro,
  * sem tocar em template). z-index 5 fica abaixo do page-head (6) e de
  * modais do Frappe (1050+), entao dialogs continuam por cima. O
@@ -351,7 +351,7 @@ body::after {
 	left: 0;
 	right: 0;
 	height: 32px;
-	background: #15afa4;
+	background: #0f7b72;
 	color: #ffffff;
 	display: flex;
 	align-items: center;
