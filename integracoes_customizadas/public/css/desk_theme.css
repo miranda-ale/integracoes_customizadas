@@ -294,3 +294,42 @@
 	color: #0f766e;
 }
 
+/*
+ * Atalhos em linha unica: o grid padrao (minmax 300px) quebrava os 5
+ * cards em duas linhas. Com minmax menor + auto-fit, os 5 cabem lado a
+ * lado em telas largas, como no esboco. :has() escopa so o grupo que
+ * contem atalhos, sem afetar os grids de modulos.
+ */
+#page-Workspaces .grid-col-3:has(.shortcut-widget-box),
+#page-Workspaces .grid-col-2:has(.shortcut-widget-box),
+#page-Workspaces .grid-col-1:has(.shortcut-widget-box) {
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+/*
+ * Botoes Editar/+ Novo do workspace: no Frappe ficam num
+ * .workspace-footer no fim do conteudo; no esboco ficam no topo, a
+ * direita do titulo. Reposicionados via fixed logo abaixo do navbar
+ * (mesma faixa do titulo, que e sticky). "Novo" ganha o teal da marca
+ * (.btn-new-workspace, classe confirmada no workspace.js do Frappe).
+ */
+#page-Workspaces .workspace-footer {
+	position: fixed;
+	top: calc(var(--navbar-height) + 13px);
+	right: 32px;
+	z-index: 7;
+	height: auto;
+}
+#page-Workspaces .workspace-footer .btn {
+	height: 36px;
+	padding: 0 16px;
+	border-radius: 9px;
+}
+#page-Workspaces .workspace-footer .btn-new-workspace {
+	background: linear-gradient(90deg, #0f766e, #0d9488) !important;
+	color: #ffffff !important;
+	--icon-stroke: #ffffff;
+	font-weight: var(--weight-semibold);
+	border: none !important;
+}
+
