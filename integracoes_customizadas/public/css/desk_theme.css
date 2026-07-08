@@ -1,0 +1,134 @@
+/*
+ * BHCL Next — Design Tokens (Fase 1)
+ * Sobrescreve as CSS custom properties que o proprio Frappe v15 ja usa
+ * (frappe/public/scss/common/css_variables.scss, espresso/_colors.scss,
+ * espresso/_shadows.scss, espresso/_borders.scss). Nao redefine nada
+ * fora desse contrato — qualquer componente nativo do Frappe que ja
+ * consome essas variaveis (botoes, inputs, cards, badges, sidebar)
+ * herda a mudanca automaticamente, sem sobrescrever seletores internos.
+ */
+
+:root,
+[data-theme="light"] {
+	/* ---------- Marca ---------- */
+	--primary: #0d9488;
+	--primary-color: #0d9488;
+	--brand-color: #0d9488;
+	--btn-primary: #0d9488;
+	--border-primary: #0d9488;
+
+	/* ---------- Radius: levemente mais arredondado ---------- */
+	--border-radius-tiny: 4px;
+	--border-radius-sm: 8px;
+	--border-radius: 10px;
+	--border-radius-md: 12px;
+	--border-radius-lg: 14px;
+	--border-radius-xl: 18px;
+	--border-radius-2xl: 22px;
+
+	/* ---------- Sombras: mais suaves ---------- */
+	--shadow-sm: 0px 1px 2px rgba(16, 24, 40, 0.06);
+	--shadow-base: 0px 1px 3px rgba(16, 24, 40, 0.08), 0px 1px 2px rgba(16, 24, 40, 0.04);
+	--shadow-md: 0px 2px 4px rgba(16, 24, 40, 0.06), 0px 4px 8px rgba(16, 24, 40, 0.06);
+	--card-shadow: var(--shadow-sm);
+
+	/* ---------- Foco: alinhado a marca ---------- */
+	--focus-default: 0px 0px 0px 2px rgba(13, 148, 136, 0.35);
+
+	/* ---------- Tipografia ---------- */
+	--weight-regular: 400;
+}
+
+/*
+ * Topbar: pedido explicito do Gregory, codigo colado por ele.
+ * --navbar-height sincronizado com a mesma altura (78px) pra reduzir o
+ * risco ja visto antes (calc() em outro lugar do Frappe usando essa
+ * variavel pra reservar espaco pro conteudo — se ficar fora de sincronia
+ * com a altura real do .navbar, corta botoes no rodape da pagina).
+ */
+:root {
+	--navbar-height: 78px;
+}
+.navbar-home img.app-logo {
+	width: auto !important;
+	max-height: 52px !important;
+}
+.navbar {
+	height: 78px;
+	background: #15afa4;
+	border-bottom: 1px solid var(--border-color);
+	padding: 0;
+}
+
+/*
+ * Sidebar: revertido pra branco (padrao do Frappe). A cor teal de
+ * fundo foi removida a pedido — ficou so o restante da Fase 1 (cor da
+ * marca em botoes/links, radius, sombras), sem fundo colorido na
+ * sidebar nem no topbar.
+ */
+.desk-sidebar .standard-sidebar-item.selected {
+	font-weight: var(--weight-semibold);
+}
+
+/*
+ * Confirmado via DevTools: o elemento real e uma unica div com as
+ * duas classes juntas, <div class="container page-body">, nao um
+ * .container filho dentro de .page-body. O Bootstrap trava max-width
+ * em 1290px a partir de 1200px de viewport (desk_bundle.css, dentro
+ * de @media). Especificidade de duas classes already vence sem
+ * precisar de !important, mas mantemos por seguranca.
+ */
+.page-body.container,
+.page-head .container {
+	max-width: 100% !important;
+	padding-left: 32px;
+	padding-right: 32px;
+}
+
+/*
+ * Cards da Home (Workspace): classes confirmadas no CSS compilado do
+ * Frappe (frappe/public/scss) antes de aplicar, nao adivinhadas.
+ * .widget = card generico (usado por shortcuts e links-widget).
+ * .widget.shortcut-widget-box = cards de "Seus Atalhos".
+ * .widget.links-widget-box = grupos de "Modulos e Relatorios".
+ * .link-item = cada link dentro de um links-widget-box.
+ * Estilo aproxima do esboco em home_next_bhcl.html, sem mexer em
+ * estrutura/logica — so cor, borda, espacamento, sombra.
+ */
+.widget {
+	border: 1px solid var(--border-color);
+}
+.widget.shortcut-widget-box {
+	padding: 14px 16px !important;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.widget.shortcut-widget-box:hover {
+	border-color: #99e0d4;
+	box-shadow: 0 4px 14px rgba(13, 148, 136, 0.1) !important;
+}
+.widget.links-widget-box {
+	padding: 18px 20px !important;
+}
+.widget.links-widget-box .widget-head {
+	padding-bottom: 10px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid var(--border-color);
+	position: relative;
+}
+.widget.links-widget-box .widget-head .widget-label .widget-title {
+	padding-left: 16px;
+}
+.widget.links-widget-box .widget-head .widget-label .widget-title::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 4px;
+	width: 8px;
+	height: 8px;
+	border-radius: 3px;
+	background: linear-gradient(135deg, #0f766e, #2cc9b4);
+}
+.widget.links-widget-box .link-item:hover .link-content {
+	color: #0f766e;
+}
+
