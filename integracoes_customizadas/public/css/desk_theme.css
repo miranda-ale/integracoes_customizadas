@@ -61,13 +61,29 @@
 }
 
 /*
- * Sidebar: revertido pra branco (padrao do Frappe). A cor teal de
- * fundo foi removida a pedido — ficou so o restante da Fase 1 (cor da
- * marca em botoes/links, radius, sombras), sem fundo colorido na
- * sidebar nem no topbar.
+ * Sidebar: seguindo o esboco home_next_bhcl.html — fundo claro
+ * (#fbfdfc) com borda a direita, itens arredondados, e o item ativo
+ * com fundo mint (#e7f8f5) e texto/icone teal. So cor e espacamento,
+ * nenhuma largura/altura forcada (licao das tentativas anteriores).
  */
+.layout-side-section {
+	background: #fbfdfc;
+	border-right: 1px solid #e5eae8;
+	padding-top: 16px;
+}
+.desk-sidebar .standard-sidebar-item {
+	border-radius: 9px;
+}
+.desk-sidebar .standard-sidebar-item:hover {
+	background-color: #eef4f2;
+}
 .desk-sidebar .standard-sidebar-item.selected {
 	font-weight: var(--weight-semibold);
+	background-color: #e7f8f5;
+	--icon-stroke: #0d9488;
+}
+.desk-sidebar .standard-sidebar-item.selected .sidebar-item-label {
+	color: #0f766e;
 }
 
 /*
@@ -130,5 +146,55 @@
 }
 .widget.links-widget-box .link-item:hover .link-content {
 	color: #0f766e;
+}
+
+/*
+ * Botoes: seguindo o esboco — "Novo" com gradiente teal e semibold,
+ * "Editar" (btn-default) branco com borda. Classes .btn-primary e
+ * .btn-default sao as padrao do Frappe/Bootstrap, usadas em todo o
+ * sistema, entao a mudanca vale globalmente (intencional: consistencia).
+ */
+.btn-primary {
+	background: linear-gradient(90deg, #0f766e, #0d9488) !important;
+	font-weight: var(--weight-semibold);
+}
+.btn-primary:hover {
+	background: linear-gradient(90deg, #0d6a63, #0c877a) !important;
+}
+.btn-default {
+	background: #ffffff;
+	border: 1px solid #dbe2e8 !important;
+}
+.btn-default:hover {
+	background: #f6f9f8 !important;
+}
+
+/*
+ * Busca do topbar: input arredondado e claro, como no esboco. O navbar
+ * atual e teal (#15afa4, escolha do Gregory), entao o input branco
+ * destaca bem em cima dele. .search-bar/#navbar-search confirmados no
+ * CSS compilado do Frappe.
+ */
+.navbar .search-bar input,
+.navbar #navbar-search {
+	height: 40px;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.92);
+	font-size: 13.5px;
+}
+
+/*
+ * Fundo da area de conteudo dos Workspaces: cinza-esverdeado claro
+ * (#f4f7f6) do esboco, pra os cards brancos se destacarem. Escopado ao
+ * container dos Workspaces (#page-Workspaces, ID confirmado via
+ * DevTools) pra nao afetar formularios/listagens, que esperam fundo
+ * branco.
+ */
+#page-Workspaces {
+	background: #f4f7f6;
+}
+#page-Workspaces .widget {
+	background: #ffffff;
 }
 
