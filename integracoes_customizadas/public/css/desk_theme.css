@@ -295,15 +295,17 @@
 }
 
 /*
- * Atalhos em linha unica: o grid padrao (minmax 300px) quebrava os 5
- * cards em duas linhas. Com minmax menor + auto-fit, os 5 cabem lado a
- * lado em telas largas, como no esboco. :has() escopa so o grupo que
- * contem atalhos, sem afetar os grids de modulos.
+ * Atalhos em linha unica: cada atalho e um bloco separado do editor
+ * (.ce-block) que recebe classe col-3 do Bootstrap (25% -> 4 por
+ * linha) via set_col_class() em workspace/blocks/block.js — nao e CSS
+ * grid (a primeira tentativa mirou .grid-col-* e nao fez nada).
+ * Em telas largas, 20% -> 5 por linha, como no esboco.
  */
-#page-Workspaces .grid-col-3:has(.shortcut-widget-box),
-#page-Workspaces .grid-col-2:has(.shortcut-widget-box),
-#page-Workspaces .grid-col-1:has(.shortcut-widget-box) {
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+@media (min-width: 1200px) {
+	#page-Workspaces .ce-block:has(.shortcut-widget-box) {
+		flex: 0 0 20%;
+		max-width: 20%;
+	}
 }
 
 /*
