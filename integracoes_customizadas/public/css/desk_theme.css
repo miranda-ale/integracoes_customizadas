@@ -68,9 +68,21 @@
 	width: auto !important;
 	max-height: 62px !important;
 }
+/*
+ * O conteudo do navbar tambem fica preso num .container Bootstrap de
+ * 1290px centralizado (mesmo problema do corpo da pagina, visto no
+ * DevTools) — por isso logo/busca/icones se aglomeravam no meio.
+ * Liberando: logo encosta na esquerda, icones na direita, busca
+ * centralizada no espaco restante (margin auto), como no esboco.
+ */
+.navbar > .container {
+	max-width: 100% !important;
+	padding: 0 24px !important;
+}
 .navbar .search-bar {
 	flex: 1;
 	max-width: 520px;
+	margin: 0 auto;
 }
 
 /*
