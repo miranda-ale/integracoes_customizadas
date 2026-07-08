@@ -259,9 +259,12 @@
 .navbar .dropdown-toggle {
 	color: #475569;
 }
-.navbar .avatar .standard-image {
-	background: linear-gradient(135deg, #0f766e, #14a795);
-	color: #ffffff;
+.navbar .avatar .standard-image,
+.navbar .avatar .avatar-frame {
+	/* !important: o Frappe atribui uma cor por usuario via estilo inline
+	 * (era o roxo aparecendo por baixo do gradiente) */
+	background: linear-gradient(135deg, #0f766e, #14a795) !important;
+	color: #ffffff !important;
 	font-weight: var(--weight-semibold);
 	border: none;
 }
