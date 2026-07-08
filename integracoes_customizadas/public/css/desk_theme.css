@@ -40,24 +40,37 @@
 }
 
 /*
- * Topbar: pedido explicito do Gregory, codigo colado por ele.
- * --navbar-height sincronizado com a mesma altura (78px) pra reduzir o
- * risco ja visto antes (calc() em outro lugar do Frappe usando essa
- * variavel pra reservar espaco pro conteudo — se ficar fora de sincronia
- * com a altura real do .navbar, corta botoes no rodape da pagina).
+ * Topbar: fiel ao esboco home_next_bhcl.html — fundo BRANCO (nao teal),
+ * 76px, borda inferior #e5eae8, logo direto sobre o branco (62px, sem
+ * cartao), busca centralizada cinza-clara arredondada, icones escuros.
+ * --navbar-height sincronizado com a altura real (76px) pra nao cortar
+ * conteudo/botoes que calculam espaco a partir dessa variavel.
  */
 :root {
-	--navbar-height: 78px;
+	--navbar-height: 76px;
+}
+.navbar {
+	height: 76px;
+	background: #ffffff;
+	border-bottom: 1px solid #e5eae8;
+	padding: 0;
+}
+.navbar-home {
+	display: inline-flex !important;
+	align-items: center;
+	margin: 0;
+	padding: 0 12px;
+	background: transparent;
+	border-radius: 0;
+	box-shadow: none;
 }
 .navbar-home img.app-logo {
 	width: auto !important;
-	max-height: 52px !important;
+	max-height: 62px !important;
 }
-.navbar {
-	height: 78px;
-	background: #15afa4;
-	border-bottom: 1px solid var(--border-color);
-	padding: 0;
+.navbar .search-bar {
+	flex: 1;
+	max-width: 520px;
 }
 
 /*
@@ -170,18 +183,18 @@
 }
 
 /*
- * Busca do topbar: input arredondado e claro, como no esboco. O navbar
- * atual e teal (#15afa4, escolha do Gregory), entao o input branco
- * destaca bem em cima dele. .search-bar/#navbar-search confirmados no
- * CSS compilado do Frappe.
+ * Busca do topbar: fiel ao esboco — cinza-clara (#f6f9f8) com borda
+ * #e5eae8, arredondada, sobre o navbar branco. .search-bar/#navbar-search
+ * confirmados no CSS compilado do Frappe.
  */
 .navbar .search-bar input,
 .navbar #navbar-search {
 	height: 40px;
-	border: 1px solid rgba(255, 255, 255, 0.35);
+	border: 1px solid #e5eae8;
 	border-radius: 10px;
-	background: rgba(255, 255, 255, 0.92);
+	background: #f6f9f8;
 	font-size: 13.5px;
+	color: #1e293b;
 }
 
 /*
@@ -222,26 +235,39 @@
 }
 
 /*
- * Contraste no navbar teal: icones (sino, toggle) e texto "Ajuda" em
- * branco — o padrao cinza-escuro do Frappe some sobre o #15afa4.
- * Avatar com gradiente teal e borda branca, como o "GC" do esboco.
- * Variaveis --icon-stroke/--avatar-frame-* sao as que os proprios
- * componentes ja consomem (confirmado no CSS compilado).
+ * Icones e texto do navbar (sino, "Ajuda"): escuros (#475569), como no
+ * esboco sobre fundo branco. Avatar mantem o gradiente teal com texto
+ * branco ("GC" do esboco). Variaveis --icon-stroke/--avatar-frame-*
+ * sao as que os proprios componentes ja consomem.
  */
 .navbar {
-	--icon-stroke: #ffffff;
-	--avatar-frame-bg: linear-gradient(135deg, #0f766e, #14a795);
-	--avatar-frame-color: #ffffff;
+	--icon-stroke: #475569;
 }
 .navbar .nav-link,
 .navbar .dropdown-toggle {
-	color: #ffffff;
+	color: #475569;
 }
 .navbar .avatar .standard-image {
 	background: linear-gradient(135deg, #0f766e, #14a795);
 	color: #ffffff;
 	font-weight: var(--weight-semibold);
-	border: 1.5px solid rgba(255, 255, 255, 0.85);
+	border: none;
+}
+
+/*
+ * Botao do menu (hamburger) ao lado do titulo: quadradinho branco com
+ * borda e cantos arredondados, como no esboco. .sidebar-toggle-btn
+ * confirmado no CSS compilado.
+ */
+.page-head .sidebar-toggle-btn {
+	width: 34px;
+	height: 34px;
+	align-items: center;
+	justify-content: center;
+	background: #ffffff;
+	border: 1px solid #e5eae8;
+	border-radius: 9px;
+	--icon-stroke: #475569;
 }
 
 /*
