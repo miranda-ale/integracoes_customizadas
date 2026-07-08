@@ -1,0 +1,365 @@
+/*
+ * BHCL Next — Design Tokens (Fase 1)
+ * Sobrescreve as CSS custom properties que o proprio Frappe v15 ja usa
+ * (frappe/public/scss/common/css_variables.scss, espresso/_colors.scss,
+ * espresso/_shadows.scss, espresso/_borders.scss). Nao redefine nada
+ * fora desse contrato — qualquer componente nativo do Frappe que ja
+ * consome essas variaveis (botoes, inputs, cards, badges, sidebar)
+ * herda a mudanca automaticamente, sem sobrescrever seletores internos.
+ */
+
+:root,
+[data-theme="light"] {
+	/* ---------- Marca ---------- */
+	--primary: #0d9488;
+	--primary-color: #0d9488;
+	--brand-color: #0d9488;
+	--btn-primary: #0d9488;
+	--border-primary: #0d9488;
+
+	/* ---------- Radius: levemente mais arredondado ---------- */
+	--border-radius-tiny: 4px;
+	--border-radius-sm: 8px;
+	--border-radius: 10px;
+	--border-radius-md: 12px;
+	--border-radius-lg: 14px;
+	--border-radius-xl: 18px;
+	--border-radius-2xl: 22px;
+
+	/* ---------- Sombras: mais suaves ---------- */
+	--shadow-sm: 0px 1px 2px rgba(16, 24, 40, 0.06);
+	--shadow-base: 0px 1px 3px rgba(16, 24, 40, 0.08), 0px 1px 2px rgba(16, 24, 40, 0.04);
+	--shadow-md: 0px 2px 4px rgba(16, 24, 40, 0.06), 0px 4px 8px rgba(16, 24, 40, 0.06);
+	--card-shadow: var(--shadow-sm);
+
+	/* ---------- Foco: alinhado a marca ---------- */
+	--focus-default: 0px 0px 0px 2px rgba(13, 148, 136, 0.35);
+
+	/* ---------- Tipografia ---------- */
+	--weight-regular: 400;
+}
+
+/*
+ * Topbar: fiel ao esboco home_next_bhcl.html — fundo BRANCO (nao teal),
+ * 76px, borda inferior #e5eae8, logo direto sobre o branco (62px, sem
+ * cartao), busca centralizada cinza-clara arredondada, icones escuros.
+ * --navbar-height sincronizado com a altura real (76px) pra nao cortar
+ * conteudo/botoes que calculam espaco a partir dessa variavel.
+ */
+:root {
+	--navbar-height: 76px;
+}
+.navbar {
+	height: 76px;
+	background: #ffffff;
+	border-bottom: 1px solid #e5eae8;
+	padding: 0;
+}
+.navbar-home {
+	display: inline-flex !important;
+	align-items: center;
+	margin: 0;
+	padding: 0 12px;
+	background: transparent;
+	border-radius: 0;
+	box-shadow: none;
+}
+.navbar-home img.app-logo {
+	width: auto !important;
+	max-height: 62px !important;
+}
+/*
+ * O conteudo do navbar tambem fica preso num .container Bootstrap de
+ * 1290px centralizado (mesmo problema do corpo da pagina, visto no
+ * DevTools) — por isso logo/busca/icones se aglomeravam no meio.
+ * Liberando: logo encosta na esquerda, icones na direita, busca
+ * centralizada no espaco restante (margin auto), como no esboco.
+ */
+.navbar > .container {
+	max-width: 100% !important;
+	padding: 0 24px !important;
+}
+.navbar .search-bar {
+	flex: 1;
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+/*
+ * Sidebar: seguindo o esboco home_next_bhcl.html — fundo claro
+ * (#fbfdfc) com borda a direita, itens arredondados, e o item ativo
+ * com fundo mint (#e7f8f5) e texto/icone teal. So cor e espacamento,
+ * nenhuma largura/altura forcada (licao das tentativas anteriores).
+ */
+.layout-side-section {
+	background: #fbfdfc;
+	border-right: 1px solid #e5eae8;
+	padding-top: 16px;
+}
+.desk-sidebar .standard-sidebar-item {
+	border-radius: 9px;
+}
+.desk-sidebar .standard-sidebar-item:hover {
+	background-color: #eef4f2;
+}
+.desk-sidebar .standard-sidebar-item.selected {
+	font-weight: var(--weight-semibold);
+	background-color: #e7f8f5;
+	--icon-stroke: #0d9488;
+}
+.desk-sidebar .standard-sidebar-item.selected .sidebar-item-label {
+	color: #0f766e;
+}
+
+/*
+ * Confirmado via DevTools: o elemento real e uma unica div com as
+ * duas classes juntas, <div class="container page-body">, nao um
+ * .container filho dentro de .page-body. O Bootstrap trava max-width
+ * em 1290px a partir de 1200px de viewport (desk_bundle.css, dentro
+ * de @media). Especificidade de duas classes already vence sem
+ * precisar de !important, mas mantemos por seguranca.
+ */
+.page-body.container,
+.page-head .container {
+	max-width: 100% !important;
+	padding-left: 32px;
+	padding-right: 32px;
+}
+
+/*
+ * Cards da Home (Workspace): classes confirmadas no CSS compilado do
+ * Frappe (frappe/public/scss) antes de aplicar, nao adivinhadas.
+ * .widget = card generico (usado por shortcuts e links-widget).
+ * .widget.shortcut-widget-box = cards de "Seus Atalhos".
+ * .widget.links-widget-box = grupos de "Modulos e Relatorios".
+ * .link-item = cada link dentro de um links-widget-box.
+ * Estilo aproxima do esboco em home_next_bhcl.html, sem mexer em
+ * estrutura/logica — so cor, borda, espacamento, sombra.
+ */
+.widget {
+	border: 1px solid var(--border-color);
+}
+.widget.shortcut-widget-box {
+	padding: 14px 16px !important;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.widget.shortcut-widget-box:hover {
+	border-color: #99e0d4;
+	box-shadow: 0 4px 14px rgba(13, 148, 136, 0.1) !important;
+}
+.widget.links-widget-box {
+	padding: 18px 20px !important;
+}
+.widget.links-widget-box .widget-head {
+	padding-bottom: 10px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid var(--border-color);
+	position: relative;
+}
+.widget.links-widget-box .widget-head .widget-label .widget-title {
+	padding-left: 16px;
+}
+.widget.links-widget-box .widget-head .widget-label .widget-title::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 4px;
+	width: 8px;
+	height: 8px;
+	border-radius: 3px;
+	background: linear-gradient(135deg, #0f766e, #2cc9b4);
+}
+.widget.links-widget-box .link-item:hover .link-content {
+	color: #0f766e;
+}
+
+/*
+ * Botoes: seguindo o esboco — "Novo" com gradiente teal e semibold,
+ * "Editar" (btn-default) branco com borda. Classes .btn-primary e
+ * .btn-default sao as padrao do Frappe/Bootstrap, usadas em todo o
+ * sistema, entao a mudanca vale globalmente (intencional: consistencia).
+ */
+.btn-primary {
+	background: linear-gradient(90deg, #0f766e, #0d9488) !important;
+	font-weight: var(--weight-semibold);
+}
+.btn-primary:hover {
+	background: linear-gradient(90deg, #0d6a63, #0c877a) !important;
+}
+.btn-default {
+	background: #ffffff;
+	border: 1px solid #dbe2e8 !important;
+}
+.btn-default:hover {
+	background: #f6f9f8 !important;
+}
+
+/*
+ * Busca do topbar: fiel ao esboco — cinza-clara (#f6f9f8) com borda
+ * #e5eae8, arredondada, sobre o navbar branco. .search-bar/#navbar-search
+ * confirmados no CSS compilado do Frappe.
+ */
+.navbar .search-bar input,
+.navbar #navbar-search {
+	height: 40px;
+	border: 1px solid #e5eae8;
+	border-radius: 10px;
+	background: #f6f9f8;
+	font-size: 13.5px;
+	color: #1e293b;
+}
+
+/*
+ * Fundo da area de conteudo dos Workspaces: cinza-esverdeado claro
+ * (#f4f7f6) do esboco, pra os cards brancos se destacarem. Escopado ao
+ * container dos Workspaces (#page-Workspaces, ID confirmado via
+ * DevTools) pra nao afetar formularios/listagens, que esperam fundo
+ * branco.
+ */
+#page-Workspaces {
+	background: #f4f7f6;
+}
+/*
+ * O conteudo do workspace fica dentro de um painel branco com borda
+ * (.layout-main-section, confirmado no CSS compilado) que cobria o
+ * fundo acima — por isso a cor "nao aparecia". Pintamos o proprio
+ * painel e tiramos a borda dele, como no esboco (conteudo direto
+ * sobre o fundo, sem moldura).
+ */
+#page-Workspaces .layout-main-section {
+	background: #f4f7f6;
+	border: none;
+}
+#page-Workspaces .widget {
+	background: #ffffff;
+}
+
+/*
+ * Titulo da pagina ("Inicio"/"Gestor"): como no esboco — maior, mais
+ * escuro, tracking levemente negativo. Classe .title-area .title-text
+ * confirmada no CSS compilado.
+ */
+.title-area .title-text {
+	font-size: 24px;
+	font-weight: var(--weight-bold);
+	color: #1e293b;
+	letter-spacing: -0.3px;
+}
+
+/*
+ * Icones e texto do navbar (sino, "Ajuda"): escuros (#475569), como no
+ * esboco sobre fundo branco. Avatar mantem o gradiente teal com texto
+ * branco ("GC" do esboco). Variaveis --icon-stroke/--avatar-frame-*
+ * sao as que os proprios componentes ja consomem.
+ */
+.navbar {
+	--icon-stroke: #475569;
+}
+.navbar .nav-link,
+.navbar .dropdown-toggle {
+	color: #475569;
+}
+.navbar .avatar .standard-image,
+.navbar .avatar .avatar-frame {
+	/* !important: o Frappe atribui uma cor por usuario via estilo inline
+	 * (era o roxo aparecendo por baixo do gradiente) */
+	background: linear-gradient(135deg, #0f766e, #14a795) !important;
+	color: #ffffff !important;
+	font-weight: var(--weight-semibold);
+	border: none;
+}
+
+/*
+ * Botao do menu (hamburger) ao lado do titulo: quadradinho branco com
+ * borda e cantos arredondados, como no esboco. .sidebar-toggle-btn
+ * confirmado no CSS compilado.
+ */
+.page-head .sidebar-toggle-btn {
+	width: 34px;
+	height: 34px;
+	align-items: center;
+	justify-content: center;
+	background: #ffffff;
+	border: 1px solid #e5eae8;
+	border-radius: 9px;
+	--icon-stroke: #475569;
+}
+
+/*
+ * Badge dos atalhos ("2096 Ativos"): mint + teal do esboco, no lugar
+ * do verde padrao do Frappe.
+ */
+.shortcut-widget-box .indicator-pill {
+	background: #e7f8f5;
+	color: #0f766e;
+}
+
+/*
+ * Atalhos em linha unica: cada atalho e um bloco separado do editor
+ * (.ce-block) que recebe classe col-3 do Bootstrap (25% -> 4 por
+ * linha) via set_col_class() em workspace/blocks/block.js — nao e CSS
+ * grid (a primeira tentativa mirou .grid-col-* e nao fez nada).
+ * Em telas largas, 20% -> 5 por linha, como no esboco.
+ */
+@media (min-width: 1200px) {
+	#page-Workspaces .ce-block:has(.shortcut-widget-box) {
+		flex: 0 0 20%;
+		max-width: 20%;
+	}
+}
+
+/*
+ * Botoes Editar/+ Novo do workspace: no Frappe ficam num
+ * .workspace-footer no fim do conteudo; no esboco ficam no topo, a
+ * direita do titulo. Reposicionados via fixed logo abaixo do navbar
+ * (mesma faixa do titulo, que e sticky). "Novo" ganha o teal da marca
+ * (.btn-new-workspace, classe confirmada no workspace.js do Frappe).
+ */
+#page-Workspaces .workspace-footer {
+	position: fixed;
+	top: calc(var(--navbar-height) + 13px);
+	right: 32px;
+	z-index: 7;
+	height: auto;
+}
+#page-Workspaces .workspace-footer .btn {
+	height: 36px;
+	padding: 0 16px;
+	border-radius: 9px;
+}
+#page-Workspaces .workspace-footer .btn-new-workspace {
+	background: linear-gradient(90deg, #0f766e, #0d9488) !important;
+	color: #ffffff !important;
+	--icon-stroke: #ffffff;
+	font-weight: var(--weight-semibold);
+	border: none !important;
+}
+
+
+/*
+ * Rodape fixo institucional: teal da identidade (#0f7b72), texto
+ * branco centralizado. Feito com pseudo-elemento do body (CSS puro,
+ * sem tocar em template). z-index 5 fica abaixo do page-head (6) e de
+ * modais do Frappe (1050+), entao dialogs continuam por cima. O
+ * padding-bottom no container da pagina evita que o fim do conteudo
+ * fique escondido atras do rodape.
+ */
+body::after {
+	content: "Avenida São Paulo, 340 Vila Brasil, Cesário Lange - SP — CEP 18285-000 - Desenvolvido por A.M.S.";
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 32px;
+	background: #0f7b72;
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12.5px;
+	letter-spacing: 0.01em;
+	z-index: 5;
+}
+.content.page-container {
+	padding-bottom: 36px;
+}
