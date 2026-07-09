@@ -92,8 +92,6 @@ override_doctype_class = {
     "Contrato de Trabalho": "integracoes_customizadas.doctype.contrato_de_trabalho.contrato_de_trabalho.ContratoDeTrabalho"
 }
 
-
-
 # Apps
 # ------------------
 
@@ -215,8 +213,6 @@ after_migrate = [
 # -----------
 # Permissions evaluated in scripted ways
 
-# Processo Judicial: filtro por nivel de sigilo (contencioso)
-# Buying/Stock/Selling: filtro por User Permission de Item Group (list + open)
 _ITEM_GROUP_QUERY = "integracoes_customizadas.permissions.item_group_access.permission_query_conditions"
 _ITEM_GROUP_PERM = "integracoes_customizadas.permissions.item_group_access.has_permission"
 
@@ -384,4 +380,3 @@ has_permission = {
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-
