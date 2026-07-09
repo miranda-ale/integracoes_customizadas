@@ -114,7 +114,6 @@ override_doctype_class = {
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/integracoes_customizadas/css/desk_theme.css"
 # app_include_js = "/assets/integracoes_customizadas/js/desk_theme.js"  # desativado: so servia pro experimento de topbar teal, revertido
 
 # include js, css files in header of web template
