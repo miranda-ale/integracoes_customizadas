@@ -215,12 +215,52 @@ after_migrate = [
 # -----------
 # Permissions evaluated in scripted ways
 
+# Processo Judicial: filtro por nivel de sigilo (contencioso)
+# Buying/Stock/Selling: filtro por User Permission de Item Group (list + open)
+_ITEM_GROUP_QUERY = "integracoes_customizadas.permissions.item_group_access.permission_query_conditions"
+_ITEM_GROUP_PERM = "integracoes_customizadas.permissions.item_group_access.has_permission"
+
 permission_query_conditions = {
 	"Processo Judicial": "integracoes_customizadas.contencioso.permissions.processo_judicial_query_conditions",
+	# Buying
+	"Material Request": _ITEM_GROUP_QUERY,
+	"Request for Quotation": _ITEM_GROUP_QUERY,
+	"Supplier Quotation": _ITEM_GROUP_QUERY,
+	"Purchase Order": _ITEM_GROUP_QUERY,
+	"Purchase Receipt": _ITEM_GROUP_QUERY,
+	"Purchase Invoice": _ITEM_GROUP_QUERY,
+	# Selling
+	"Quotation": _ITEM_GROUP_QUERY,
+	"Sales Order": _ITEM_GROUP_QUERY,
+	"Delivery Note": _ITEM_GROUP_QUERY,
+	"Sales Invoice": _ITEM_GROUP_QUERY,
+	# Stock / Manufacturing
+	"Stock Entry": _ITEM_GROUP_QUERY,
+	"Pick List": _ITEM_GROUP_QUERY,
+	"Stock Reconciliation": _ITEM_GROUP_QUERY,
+	"BOM": _ITEM_GROUP_QUERY,
+	"Work Order": _ITEM_GROUP_QUERY,
+	"Asset Capitalization": _ITEM_GROUP_QUERY,
 }
 
 has_permission = {
 	"Processo Judicial": "integracoes_customizadas.contencioso.permissions.processo_judicial_has_permission",
+	"Material Request": _ITEM_GROUP_PERM,
+	"Request for Quotation": _ITEM_GROUP_PERM,
+	"Supplier Quotation": _ITEM_GROUP_PERM,
+	"Purchase Order": _ITEM_GROUP_PERM,
+	"Purchase Receipt": _ITEM_GROUP_PERM,
+	"Purchase Invoice": _ITEM_GROUP_PERM,
+	"Quotation": _ITEM_GROUP_PERM,
+	"Sales Order": _ITEM_GROUP_PERM,
+	"Delivery Note": _ITEM_GROUP_PERM,
+	"Sales Invoice": _ITEM_GROUP_PERM,
+	"Stock Entry": _ITEM_GROUP_PERM,
+	"Pick List": _ITEM_GROUP_PERM,
+	"Stock Reconciliation": _ITEM_GROUP_PERM,
+	"BOM": _ITEM_GROUP_PERM,
+	"Work Order": _ITEM_GROUP_PERM,
+	"Asset Capitalization": _ITEM_GROUP_PERM,
 }
 
 # Document Events
