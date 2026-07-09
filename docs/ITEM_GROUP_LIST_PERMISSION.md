@@ -2,7 +2,12 @@
 
 **Data:** 2026-07-09  
 **App:** `integracoes_customizadas`  
-**Módulo:** `permissions/item_group_access.py`
+**Módulo:** `permissions/item_group_access.py`  
+**Release:** tag **`v1.5.0`** em `develop` (commit `742b4f1`)  
+**Repo:** https://github.com/miranda-ale/integracoes_customizadas  
+
+> Junto com esta tag, o tema/login/traduções foram removidos deste app  
+> (migrados para `bhcl_theme` / https://github.com/still-pulse/theme_bhcl_erp_next `v0.2.0`).
 
 ## Problema
 
