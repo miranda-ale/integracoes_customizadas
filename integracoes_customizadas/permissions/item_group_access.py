@@ -1,24 +1,48 @@
+"""
+Restringe List View / get_list de documentos de item pela User Permission de Item Group.
+
+Problema:
+  User Permission em Item Group filtra Link fields (Item), mas a List View de
+  Material Request / Purchase Order / etc. nao herda esse filtro via child table.
+  O usuario ve documentos que nao consegue abrir.
+
+Solucao (padrao Frappe):
+  - permission_query_conditions: SQL no backend (get_list / List View)
+  - has_permission: reforca a mesma regra na abertura do documento
+
+Regra:
+  Se o usuario tem User Permission de Item Group aplicavel ao DocType, so ve
+  documentos cujos itens (todos) pertencem a grupos permitidos.
+  Documentos com qualquer item fora dos grupos permitidos ficam ocultos.
+"""
+
 from __future__ import annotations
 
 import frappe
 from frappe.permissions import get_user_permissions
 
+# parent_doctype -> (child_doctype, parentfield, item_code_field, has_item_group_on_child)
 DOC_ITEM_MAP: dict[str, tuple[str, str, str, bool]] = {
+	# Buying
 	"Material Request": ("Material Request Item", "items", "item_code", True),
 	"Request for Quotation": ("Request for Quotation Item", "items", "item_code", True),
 	"Supplier Quotation": ("Supplier Quotation Item", "items", "item_code", True),
 	"Purchase Order": ("Purchase Order Item", "items", "item_code", True),
 	"Purchase Receipt": ("Purchase Receipt Item", "items", "item_code", True),
 	"Purchase Invoice": ("Purchase Invoice Item", "items", "item_code", True),
+	# Selling
 	"Quotation": ("Quotation Item", "items", "item_code", True),
 	"Sales Order": ("Sales Order Item", "items", "item_code", True),
 	"Delivery Note": ("Delivery Note Item", "items", "item_code", True),
 	"Sales Invoice": ("Sales Invoice Item", "items", "item_code", True),
+	# Stock
 	"Stock Entry": ("Stock Entry Detail", "items", "item_code", True),
 	"Pick List": ("Pick List Item", "locations", "item_code", True),
 	"Stock Reconciliation": ("Stock Reconciliation Item", "items", "item_code", True),
+	# Manufacturing
 	"BOM": ("BOM Item", "items", "item_code", False),
 	"Work Order": ("Work Order Item", "required_items", "item_code", False),
+	# Assets
 	"Asset Capitalization": (
 		"Asset Capitalization Stock Item",
 		"stock_items",
@@ -27,7 +51,12 @@ DOC_ITEM_MAP: dict[str, tuple[str, str, str, bool]] = {
 	),
 }
 
+
 def get_allowed_item_groups(user: str | None, doctype: str) -> list[str] | None:
+	"""
+	Retorna lista de Item Groups permitidos se o usuario esta restrito.
+	Retorna None se nao ha restricao de Item Group para este DocType.
+	"""
 	user = user or frappe.session.user
 	if not user or user in ("Administrator", "Guest"):
 		return None
@@ -42,6 +71,7 @@ def get_allowed_item_groups(user: str | None, doctype: str) -> list[str] | None:
 	relevant = False
 	for p in perms:
 		app_for = p.get("applicable_for") or None
+		# applicable_for vazio = apply to all doctypes
 		if not app_for or app_for in (doctype, child_doctype, "Item", "Item Group"):
 			relevant = True
 			docname = p.get("doc")
@@ -51,14 +81,18 @@ def get_allowed_item_groups(user: str | None, doctype: str) -> list[str] | None:
 	if not relevant:
 		return None
 
+	# remove duplicatas preservando ordem (descendants ja vem expandidos do core)
 	return list(dict.fromkeys(allowed))
+
 
 def _sql_in_list(values: list[str]) -> str:
 	if not values:
 		return "(NULL)"
 	return "(" + ", ".join(frappe.db.escape(v) for v in values) + ")"
 
+
 def build_item_group_query_condition(user: str | None, doctype: str) -> str:
+	"""SQL fragment for permission_query_conditions (sem AND/WHERE inicial)."""
 	if doctype not in DOC_ITEM_MAP:
 		return ""
 
@@ -66,6 +100,7 @@ def build_item_group_query_condition(user: str | None, doctype: str) -> str:
 	if allowed is None:
 		return ""
 	if not allowed:
+		# Restrito a Item Group, mas sem nenhum valor permitido - nada a listar
 		return "1=0"
 
 	child_doctype, _parentfield, item_code_field, has_ig = DOC_ITEM_MAP[doctype]
@@ -74,6 +109,7 @@ def build_item_group_query_condition(user: str | None, doctype: str) -> str:
 	in_list = _sql_in_list(allowed)
 	parenttype_sql = frappe.db.escape(doctype)
 
+	# Documento permitido se NAO existe linha com item_group fora da lista permitida.
 	if has_ig:
 		disallowed_exists = f"""
 			EXISTS (
@@ -95,6 +131,9 @@ def build_item_group_query_condition(user: str | None, doctype: str) -> str:
 						''
 					) NOT IN {in_list}
 			)
+		"""
+	else:
+		disallowed_exists = f"""
 			EXISTS (
 				SELECT 1
 				FROM {child_table} _ig_child
@@ -106,8 +145,38 @@ def build_item_group_query_condition(user: str | None, doctype: str) -> str:
 					AND IFNULL(_ig_item.item_group, '') != ''
 					AND _ig_item.item_group NOT IN {in_list}
 			)
+		"""
+
+	return f"(NOT {disallowed_exists})"
+
+
+def permission_query_conditions(user: str | None = None, doctype: str | None = None) -> str:
+	"""
 	Hook signature (Frappe v15 db_query):
 	  frappe.call(method, self.user, doctype=self.doctype)
+	"""
+	user = user or frappe.session.user
+	if not doctype:
+		return ""
+
+	try:
+		return build_item_group_query_condition(user, doctype) or ""
+	except Exception:
+		frappe.log_error(
+			title="item_group_access.permission_query_conditions",
+			message=frappe.get_traceback(),
+		)
+		# fail-closed se o usuario e restrito
+		try:
+			if get_allowed_item_groups(user, doctype) is not None:
+				return "1=0"
+		except Exception:
+			pass
+		return ""
+
+
+def has_permission(doc=None, ptype: str | None = None, user: str | None = None, **kwargs) -> bool | None:
+	"""
 	Hook signature:
 	  frappe.call(method, doc=doc, ptype=ptype, user=user, debug=debug)
 
@@ -134,6 +203,7 @@ def build_item_group_query_condition(user: str | None, doctype: str) -> str:
 	if hasattr(doc, "get"):
 		rows = doc.get(parentfield) or []
 
+	# Checagem por nome sem child em memoria
 	is_new = False
 	if hasattr(doc, "is_new"):
 		try:
