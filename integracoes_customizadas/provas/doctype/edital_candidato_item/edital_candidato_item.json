@@ -12,8 +12,7 @@
 		"etapa_atual",
 		"status_candidato",
 		"column_break_interview",
-		"interview",
-		"nota"
+		"interview"
 	],
 	"fields": [
 		{
@@ -68,12 +67,6 @@
 			"label": "Interview Atual",
 			"options": "Interview",
 			"read_only": 1
-		},
-		{
-			"fieldname": "nota",
-			"fieldtype": "Float",
-			"label": "Nota",
-			"precision": "2"
 		}
 	],
 	"istable": 1,

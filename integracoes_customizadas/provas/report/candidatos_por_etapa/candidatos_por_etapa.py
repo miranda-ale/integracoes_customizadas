@@ -57,12 +57,6 @@ def get_columns():
 			"label": _("Status"),
 			"fieldtype": "Data",
 			"width": 100
-		},
-		{
-			"fieldname": "nota",
-			"label": _("Nota"),
-			"fieldtype": "Float",
-			"width": 80
 		}
 	]
 
@@ -91,8 +85,7 @@ def get_data(filters):
 			COALESCE(ee.ordem, 0) as ordem_etapa,
 			ec.job_applicant as candidato,
 			ec.applicant_name as nome_candidato,
-			ec.status_candidato as status,
-			ec.nota as nota
+			ec.status_candidato as status
 		FROM `tabEdital` e
 		INNER JOIN `tabEdital Candidato Item` ec ON ec.parent = e.name
 		LEFT JOIN `tabEdital Etapa Item` ee ON ee.parent = e.name AND ee.interview_round = ec.etapa_atual

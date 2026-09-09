@@ -425,7 +425,6 @@ def get_candidatos_por_etapa(edital_name, etapa=None):
 			"job_applicant": candidato.job_applicant,
 			"applicant_name": candidato.applicant_name,
 			"status_candidato": candidato.status_candidato,
-			"nota": candidato.nota,
 			"interview": candidato.interview
 		})
 	
