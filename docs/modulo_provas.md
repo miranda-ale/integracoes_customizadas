@@ -168,13 +168,7 @@ Distribuição de candidatos por status (Inscrito, Aprovado, Reprovado, etc.).
 **Filtros:** Edital  
 **Gráfico:** Pizza com distribuição por status
 
-### 3. Notas dos Candidatos
-Ranking de candidatos com notas e classificação.
-
-**Filtros:** Edital  
-**Colunas:** Candidato, E-mail, Etapa, Nota, Classificação
-
-### 4. Comparativo entre Editais
+### 3. Comparativo entre Editais
 Comparação de métricas entre diferentes editais.
 
 **Métricas:** Total de candidatos, aprovados, reprovados, taxa de aprovação  
@@ -187,13 +181,9 @@ Comparação de métricas entre diferentes editais.
 O módulo cria automaticamente os seguintes Custom Fields nos DocTypes padrão:
 
 ### Interview
-- `prova`: Link para Prova (visível quando tipo = "Prova de Conhecimentos Gerais e Específicos")
 - `edital`: Link para Edital
 
 ### Job Applicant
-- `edital`: Link para Edital
-
-### Interview Round
 - `edital`: Link para Edital
 
 **Criação automática:** Os campos são criados via hook `after_migrate`, garantindo que existam após cada migração.
@@ -274,8 +264,6 @@ Gera questões automaticamente baseado em configuração de disciplinas.
 provas/
 ├── __init__.py
 ├── setup.py                    # Instalação e Custom Fields
-├── custom_field/
-│   └── interview_prova.json
 ├── doctype/
 │   ├── alternativa_questao/
 │   ├── disciplina/
@@ -294,8 +282,7 @@ provas/
 └── report/
     ├── candidatos_por_etapa/
     ├── candidatos_por_status/
-    ├── comparativo_entre_editais/
-    └── notas_dos_candidatos/
+    └── comparativo_entre_editais/
 ```
 
 ---

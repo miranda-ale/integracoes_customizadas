@@ -7,59 +7,11 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 def after_install():
 	"""Cria Custom Fields necessários para o módulo de Provas."""
-	create_interview_custom_fields()
 	create_edital_custom_fields()
 
 
-def create_interview_custom_fields():
-	"""Cria o Custom Field 'prova' no DocType Interview."""
-	try:
-		# Verifica se o DocType Interview existe
-		if not frappe.db.exists("DocType", "Interview"):
-			frappe.log_error("DocType 'Interview' não encontrado. Custom Field 'prova' não pode ser criado.")
-			return
-
-		custom_fields = {
-			"Interview": [
-				{
-					"fieldname": "prova",
-					"fieldtype": "Link",
-					"label": "Prova",
-					"options": "Prova",
-					"insert_after": "interview_round",
-					"depends_on": "eval:doc.interview_type=='Prova de Conhecimentos Gerais e Específicos'",
-					"description": "Prova vinculada a este Interview",
-				},
-				{
-					"fieldname": "edital",
-					"fieldtype": "Link",
-					"label": "Edital",
-					"options": "Edital",
-					"insert_after": "prova",
-					"description": "Edital vinculado a este Interview",
-				}
-			]
-		}
-
-		create_custom_fields(custom_fields, update=True)
-		frappe.db.commit()
-
-		# Verifica se o campo foi criado corretamente
-		custom_field_exists = frappe.db.exists(
-			"Custom Field",
-			{"dt": "Interview", "fieldname": "prova"}
-		)
-
-		if not custom_field_exists:
-			frappe.log_error("Falha ao criar Custom Field 'prova' no DocType 'Interview'.")
-
-	except Exception as e:
-		frappe.log_error(f"Erro ao criar Custom Field 'prova' no DocType 'Interview': {str(e)}")
-		raise
-
-
 def create_edital_custom_fields():
-	"""Cria Custom Fields para conexão bidirecional com Edital."""
+	"""Cria os vínculos com Edital efetivamente usados pelo recrutamento."""
 	try:
 		custom_fields = {}
 		
@@ -76,16 +28,16 @@ def create_edital_custom_fields():
 				}
 			]
 		
-		# Custom Field 'edital' em Interview Round
-		if frappe.db.exists("DocType", "Interview Round"):
-			custom_fields["Interview Round"] = [
+		# Custom Field 'edital' em Interview
+		if frappe.db.exists("DocType", "Interview"):
+			custom_fields["Interview"] = [
 				{
 					"fieldname": "edital",
 					"fieldtype": "Link",
 					"label": "Edital",
 					"options": "Edital",
-					"insert_after": "designation",
-					"description": "Edital vinculado a esta etapa",
+					"insert_after": "interview_round",
+					"description": "Edital vinculado a esta entrevista",
 				}
 			]
 		
@@ -98,39 +50,13 @@ def create_edital_custom_fields():
 		raise
 
 
-def verify_interview_custom_field():
-	"""Verifica se o Custom Field 'prova' existe no DocType Interview."""
-	if not frappe.db.exists("DocType", "Interview"):
-		return False
-
-	custom_field_exists = frappe.db.exists(
-		"Custom Field",
-		{"dt": "Interview", "fieldname": "prova"}
-	)
-
-	if not custom_field_exists:
-		# Tenta recriar o campo
-		try:
-			create_interview_custom_fields()
-		except Exception as e:
-			frappe.log_error(f"Erro ao recriar Custom Field 'prova': {str(e)}")
-			return False
-
-	return True
-
-
 def verify_edital_custom_fields():
-	"""Verifica se os Custom Fields para conexão bidirecional com Edital existem."""
+	"""Verifica os vínculos com Edital usados por candidatos e entrevistas."""
 	fields_ok = True
 	
 	# Verifica Job Applicant
 	if frappe.db.exists("DocType", "Job Applicant"):
 		if not frappe.db.exists("Custom Field", {"dt": "Job Applicant", "fieldname": "edital"}):
-			fields_ok = False
-	
-	# Verifica Interview Round
-	if frappe.db.exists("DocType", "Interview Round"):
-		if not frappe.db.exists("Custom Field", {"dt": "Interview Round", "fieldname": "edital"}):
 			fields_ok = False
 	
 	# Verifica Interview
@@ -141,7 +67,6 @@ def verify_edital_custom_fields():
 	if not fields_ok:
 		try:
 			create_edital_custom_fields()
-			create_interview_custom_fields()
 		except Exception as e:
 			frappe.log_error(f"Erro ao recriar Custom Fields para Edital: {str(e)}")
 			return False
@@ -152,7 +77,6 @@ def verify_edital_custom_fields():
 def after_migrate():
 	"""Cria Custom Fields após cada migração do banco de dados."""
 	try:
-		create_interview_custom_fields()
 		create_edital_custom_fields()
 		remover_link_prova_edital_invalido()
 	except Exception as e:
@@ -163,7 +87,6 @@ def after_migrate():
 def criar_custom_fields_edital():
 	"""Método whitelisted para criar Custom Fields manualmente via console ou API."""
 	try:
-		create_interview_custom_fields()
 		create_edital_custom_fields()
 		remover_link_prova_edital_invalido()
 		frappe.msgprint("Custom Fields criados com sucesso!", indicator="green", title="Sucesso")

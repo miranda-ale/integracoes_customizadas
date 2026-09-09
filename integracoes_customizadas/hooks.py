@@ -6,43 +6,8 @@ app_email = "alessandro.siqueira@outlook.com"
 app_license = "mit"
 
 fixtures = [
-    # Exporta o DocType (se estiver no filesystem / exportável)
-    {"dt": "DocType", "filters": [["name", "in", [
-        "Contrato de Trabalho",
-    ]]]},
-
-    # Exporta Custom Fields relacionados
-    {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation", "Contrato de Trabalho"]]]},
-
-    # Exporta Client Scripts do DocType
-    {"dt": "Client Script", "filters": [["dt", "in", ["Contrato de Trabalho"]]]},
-
-    # Exporta Print Formats do DocType (SEM duplicidade)
-    {"dt": "Print Format", "filters": [["doc_type", "=", "Contrato de Trabalho"]]},
-
-    # Exporta Property Setters (se você tiver criado/ajustado)
-    {"dt": "Property Setter", "filters": [["doc_type", "=", "Contrato de Trabalho"]]},
-
-    # Exporta Query Reports ligados ao DocType (Report do tipo "Query Report" geralmente usa ref_doctype)
-    {"dt": "Report", "filters": [["ref_doctype", "=", "Contrato de Trabalho"]]},
-
-    # Exporta Notifications do DocType
-    {"dt": "Notification", "filters": [["document_type", "=", "Contrato de Trabalho"]]},
-
-    {"dt": "Custom Field", "filters": [["name", "in", ["Interview-prova"]]]},
-    
+    {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
 ]
-
-scheduler_events = {
-    "daily": [
-        "integracoes_customizadas.contratos.utils.processar_alertas_contratos",
-    ]
-}
-
-override_doctype_class = {
-    # Corrigido: sem repetir o nome do app no import path
-    "Contrato de Trabalho": "integracoes_customizadas.doctype.contrato_de_trabalho.contrato_de_trabalho.ContratoDeTrabalho"
-}
 
 # Apps
 # ------------------
@@ -159,54 +124,6 @@ after_migrate = [
 # See frappe.core.notifications.get_notification_config
 
 # notification_config = "integracoes_customizadas.notifications.get_notification_config"
-
-# Permissions
-# -----------
-# Permissions evaluated in scripted ways
-
-_ITEM_GROUP_QUERY = "integracoes_customizadas.permissions.item_group_access.permission_query_conditions"
-_ITEM_GROUP_PERM = "integracoes_customizadas.permissions.item_group_access.has_permission"
-
-permission_query_conditions = {
-	# Buying
-	"Material Request": _ITEM_GROUP_QUERY,
-	"Request for Quotation": _ITEM_GROUP_QUERY,
-	"Supplier Quotation": _ITEM_GROUP_QUERY,
-	"Purchase Order": _ITEM_GROUP_QUERY,
-	"Purchase Receipt": _ITEM_GROUP_QUERY,
-	"Purchase Invoice": _ITEM_GROUP_QUERY,
-	# Selling
-	"Quotation": _ITEM_GROUP_QUERY,
-	"Sales Order": _ITEM_GROUP_QUERY,
-	"Delivery Note": _ITEM_GROUP_QUERY,
-	"Sales Invoice": _ITEM_GROUP_QUERY,
-	# Stock / Manufacturing
-	"Stock Entry": _ITEM_GROUP_QUERY,
-	"Pick List": _ITEM_GROUP_QUERY,
-	"Stock Reconciliation": _ITEM_GROUP_QUERY,
-	"BOM": _ITEM_GROUP_QUERY,
-	"Work Order": _ITEM_GROUP_QUERY,
-	"Asset Capitalization": _ITEM_GROUP_QUERY,
-}
-
-has_permission = {
-	"Material Request": _ITEM_GROUP_PERM,
-	"Request for Quotation": _ITEM_GROUP_PERM,
-	"Supplier Quotation": _ITEM_GROUP_PERM,
-	"Purchase Order": _ITEM_GROUP_PERM,
-	"Purchase Receipt": _ITEM_GROUP_PERM,
-	"Purchase Invoice": _ITEM_GROUP_PERM,
-	"Quotation": _ITEM_GROUP_PERM,
-	"Sales Order": _ITEM_GROUP_PERM,
-	"Delivery Note": _ITEM_GROUP_PERM,
-	"Sales Invoice": _ITEM_GROUP_PERM,
-	"Stock Entry": _ITEM_GROUP_PERM,
-	"Pick List": _ITEM_GROUP_PERM,
-	"Stock Reconciliation": _ITEM_GROUP_PERM,
-	"BOM": _ITEM_GROUP_PERM,
-	"Work Order": _ITEM_GROUP_PERM,
-	"Asset Capitalization": _ITEM_GROUP_PERM,
-}
 
 # Document Events
 # ---------------
