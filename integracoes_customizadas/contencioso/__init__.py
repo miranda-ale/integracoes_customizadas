@@ -1,1 +1,0 @@
-# Conteúdo existente do arquivo

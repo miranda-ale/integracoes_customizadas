@@ -1,1 +1,0 @@
-from .cj_item_financeiro import CJItemFinanceiro
