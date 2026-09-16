@@ -1,5 +1,31 @@
 frappe.listview_settings["Processo Judicial"] = {
 	onload(listview) {
+		const abrir_resultado = (resultado) => {
+			if (resultado.existente) {
+				frappe.show_alert({ message: __("Processo já cadastrado. Abrindo o registro existente."), indicator: "blue" });
+				frappe.set_route("Form", "Processo Judicial", resultado.name);
+				return;
+			}
+
+			frappe.model.with_doctype("Processo Judicial", () => {
+				const doc = frappe.model.get_new_doc("Processo Judicial");
+				for (const [fieldname, value] of Object.entries(resultado.doc)) {
+					if (fieldname === "assuntos" || fieldname === "movimentos") {
+						for (const linha of value || []) {
+							const child = frappe.model.add_child(doc, fieldname);
+							for (const [campo, valor] of Object.entries(linha)) {
+								if (frappe.meta.has_field(child.doctype, campo)) child[campo] = valor;
+							}
+						}
+					} else if (frappe.meta.has_field(doc.doctype, fieldname)) {
+						doc[fieldname] = value;
+					}
+				}
+				frappe.show_alert({ message: __("Consulta concluída. Revise os dados e salve o processo para cadastrá-lo."), indicator: "green" }, 8);
+				frappe.set_route("Form", doc.doctype, doc.name);
+			});
+		};
+
 		frappe.call({
 			method: "integracoes_customizadas.juridico.datajud.listar_tribunais",
 			callback(response) {
@@ -31,13 +57,24 @@ frappe.listview_settings["Processo Judicial"] = {
 							frappe.call({
 								method: "integracoes_customizadas.juridico.datajud.acompanhar_processo",
 								args: values,
+								freeze: true,
+								freeze_message: __("Consultando o DataJud. Aguarde..."),
 								callback(result) {
-									const nomes = result.message || [];
-									if (nomes.length) {
+									if (result.exc) return;
+									const ocorrencias = result.message || [];
+									if (ocorrencias.length) {
 										dialog.hide();
-										listview.refresh();
-										frappe.show_alert({ message: __("{0} ocorrência(s) acompanhada(s).", [nomes.length]), indicator: "green" });
-										frappe.set_route("Form", "Processo Judicial", nomes[0]);
+										if (ocorrencias.length === 1) {
+											abrir_resultado(ocorrencias[0]);
+										} else {
+											const escolhas = ocorrencias.map((item, indice) => ({
+												label: `${indice + 1}. ${item.existente ? item.name : item.doc.datajud_id}`,
+												value: String(indice),
+											}));
+											frappe.prompt([{ fieldname: "ocorrencia", fieldtype: "Select", label: __("Ocorrência"), options: escolhas, reqd: 1 }],
+												(selecao) => abrir_resultado(ocorrencias[Number(selecao.ocorrencia)]),
+												__("Selecione a ocorrência"), __("Abrir"));
+										}
 									} else {
 										frappe.msgprint(__("Nenhuma ocorrência encontrada para esse número e tribunal."));
 									}

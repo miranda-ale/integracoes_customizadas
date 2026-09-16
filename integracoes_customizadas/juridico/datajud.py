@@ -2,6 +2,7 @@
 
 import hashlib
 import re
+import secrets
 import time
 
 import frappe
@@ -68,9 +69,7 @@ def _numero_cnj_formatado(numero):
 
 def _registrar_assunto(codigo, nome):
 	"""Mantém o catálogo consultável usado pelas etiquetas de assuntos."""
-	identificador = str(codigo) if codigo is not None and codigo != "" else (
-		"nome-" + hashlib.sha1((nome or "").encode()).hexdigest()[:16]
-	)
+	identificador = _id_assunto(codigo, nome)
 	nome = nome or identificador
 	if frappe.db.exists("Assunto Judicial", identificador):
 		if frappe.db.get_value("Assunto Judicial", identificador, "nome") != nome:
@@ -170,9 +169,7 @@ def consultar_numero(numero, alias, chave=None):
 	return resultados
 
 
-def _espelhar_ocorrencia(identificador, fonte):
-	nome = frappe.db.exists("Processo Judicial", {"datajud_id": identificador})
-	doc = frappe.get_doc("Processo Judicial", nome) if nome else frappe.new_doc("Processo Judicial")
+def _preencher_ocorrencia(doc, identificador, fonte, *, registrar_assuntos=True):
 	doc.update({
 		"datajud_id": identificador,
 		"numero_processo": _numero_cnj_formatado(fonte.get("numeroProcesso")),
@@ -194,7 +191,10 @@ def _espelhar_ocorrencia(identificador, fonte):
 	doc.set("assuntos", [])
 	for assunto in fonte.get("assuntos") or []:
 		doc.append("assuntos", {
-			"assunto": _registrar_assunto(assunto.get("codigo"), assunto.get("nome")),
+			"assunto": (
+				_registrar_assunto(assunto.get("codigo"), assunto.get("nome"))
+				if registrar_assuntos else _id_assunto(assunto.get("codigo"), assunto.get("nome"))
+			),
 			"codigo": assunto.get("codigo"),
 			"nome": assunto.get("nome"),
 		})
@@ -209,6 +209,20 @@ def _espelhar_ocorrencia(identificador, fonte):
 			"orgao_julgador_nome": orgao_movimento.get("nomeOrgao", orgao_movimento.get("nome")),
 			"complementos_tabelados": movimento.get("complementosTabelados") or [],
 		})
+	doc._atualizar_dados_datajud()
+	return doc
+
+
+def _id_assunto(codigo, nome):
+	return str(codigo) if codigo is not None and codigo != "" else (
+		"nome-" + hashlib.sha1((nome or "").encode()).hexdigest()[:16]
+	)
+
+
+def _espelhar_ocorrencia(identificador, fonte):
+	nome = frappe.db.exists("Processo Judicial", {"datajud_id": identificador})
+	doc = frappe.get_doc("Processo Judicial", nome) if nome else frappe.new_doc("Processo Judicial")
+	_preencher_ocorrencia(doc, identificador, fonte)
 	doc.flags.from_datajud = True
 	if nome:
 		doc.save(ignore_permissions=True)
@@ -222,7 +236,23 @@ def acompanhar_processo(numero_processo, tribunal_alias):
 	_check_user()
 	numero = _numero_cnj(numero_processo)
 	ocorrencias = consultar_numero(numero, tribunal_alias)
-	return [_espelhar_ocorrencia(identificador, fonte) for identificador, fonte in ocorrencias]
+	resultados = []
+	for identificador, fonte in ocorrencias:
+		existente = frappe.db.exists("Processo Judicial", {"datajud_id": identificador})
+		if existente:
+			resultados.append({"name": existente, "existente": True})
+			continue
+		token = secrets.token_urlsafe(32)
+		frappe.cache.set_value(
+			f"datajud-rascunho:{token}", {"usuario": frappe.session.user, "fonte": fonte, "identificador": identificador},
+			expires_in_sec=24 * 60 * 60,
+		)
+		doc = _preencher_ocorrencia(
+			frappe.new_doc("Processo Judicial"), identificador, fonte, registrar_assuntos=False
+		)
+		doc.consulta_token = token
+		resultados.append({"doc": doc.as_dict(), "existente": False})
+	return resultados
 
 
 def atualizar_processos_acompanhados():
@@ -231,7 +261,10 @@ def atualizar_processos_acompanhados():
 		_chave_publica()
 	except DataJudError:
 		return
-	processos = frappe.get_all("Processo Judicial", fields=["numero_processo", "tribunal"])
+	processos = frappe.get_all(
+		"Processo Judicial", filters={"status_processo": "Em andamento"},
+		fields=["numero_processo", "tribunal"],
+	)
 	pares = {(p.numero_processo, _alias_do_tribunal(p.tribunal)) for p in processos}
 	for numero, alias in pares:
 		job_id = "datajud-" + hashlib.sha256(f"{alias}:{numero}".encode()).hexdigest()[:24]
@@ -247,11 +280,29 @@ def atualizar_processos_acompanhados():
 		)
 
 
+def _ids_em_andamento(numero, alias):
+	"""Identifica as ocorrências ainda acompanhadas desse número e tribunal."""
+	processos = frappe.get_all(
+		"Processo Judicial",
+		filters={"numero_processo": _numero_cnj_formatado(numero), "status_processo": "Em andamento"},
+		fields=["datajud_id", "tribunal"],
+	)
+	return {p.datajud_id for p in processos if _alias_do_tribunal(p.tribunal) == alias}
+
+
 def atualizar_um_processo(numero, alias):
-	"""Atualiza todas as ocorrências do par; preserva dados anteriores em caso de falha."""
+	"""Atualiza ocorrências acompanhadas; preserva dados anteriores em caso de falha."""
+	if not _ids_em_andamento(numero, alias):
+		return
 	frappe.db.savepoint("datajud_consulta")
 	try:
 		for identificador, fonte in consultar_numero(numero, alias):
+			ativos = _ids_em_andamento(numero, alias)
+			if not ativos:
+				break
+			existente = frappe.db.exists("Processo Judicial", {"datajud_id": identificador})
+			if existente and identificador not in ativos:
+				continue
 			_espelhar_ocorrencia(identificador, fonte)
 	except Exception as exc:
 		frappe.db.rollback(save_point="datajud_consulta")

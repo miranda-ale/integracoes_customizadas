@@ -12,10 +12,10 @@ NUMERO = "00008323520184013202"
 IDENTIFICADOR = f"TRF1_436_JE_16403_{NUMERO}"
 
 
-def _fonte(identificador=IDENTIFICADOR):
+def _fonte(identificador=IDENTIFICADOR, numero=NUMERO):
 	return {
 		"id": identificador,
-		"numeroProcesso": NUMERO,
+		"numeroProcesso": numero,
 		"tribunal": "TRF1",
 		"grau": "JE",
 		"nivelSigilo": 0,
@@ -97,15 +97,39 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertFalse(doc.movimentos)
 		self.assertEqual(frappe.db.count("Processo Judicial", {"datajud_id": identificador}), 1)
 
-	def test_acao_acompanhar_cria_todas_ocorrencias_e_nao_cria_sem_resultado(self):
+	def test_consulta_prepara_rascunhos_sem_gravar_processos(self):
 		fonte_um = _fonte("primeira-ocorrencia")
+		fonte_um["assuntos"] = [
+			{"codigo": 99393939, "nome": "Assunto novo um"},
+			{"codigo": 99393938, "nome": "Assunto novo dois"},
+		]
 		fonte_dois = _fonte("segunda-ocorrencia")
 		with patch.object(datajud, "_post", return_value={"hits": {"hits": [
 			{"_id": "primeira-ocorrencia", "_source": fonte_um},
 			{"_id": "segunda-ocorrencia", "_source": fonte_dois},
 		]}}), patch.object(datajud, "_chave_publica", return_value="chave"):
-			nomes = datajud.acompanhar_processo(NUMERO, "trf1")
-		self.assertEqual(nomes, ["primeira-ocorrencia", "segunda-ocorrencia"])
+			resultados = datajud.acompanhar_processo(NUMERO, "trf1")
+		self.assertEqual([item["doc"]["datajud_id"] for item in resultados], ["primeira-ocorrencia", "segunda-ocorrencia"])
+		self.assertFalse(frappe.db.exists("Processo Judicial", {"datajud_id": "primeira-ocorrencia"}))
+		self.assertFalse(frappe.db.exists("Assunto Judicial", "99393939"))
+		self.assertFalse(frappe.db.exists("Assunto Judicial", "99393938"))
+		doc = frappe.get_doc(json.loads(frappe.as_json(resultados[0]["doc"])))
+		doc.numero_processo = "alterado-no-cliente"
+		doc.risco = "Baixo"
+		doc.save()
+		self.assertEqual(doc.datajud_id, "primeira-ocorrencia")
+		self.assertEqual(doc.numero_processo, datajud._numero_cnj_formatado(NUMERO))
+		self.assertEqual(doc.risco, "Baixo")
+		self.assertTrue(frappe.db.exists("Assunto Judicial", "99393939"))
+		self.assertTrue(frappe.db.exists("Assunto Judicial", "99393938"))
+		with patch.object(datajud, "_post", return_value={"hits": {"hits": [
+			{"_id": "primeira-ocorrencia", "_source": fonte_um},
+		]}}), patch.object(datajud, "_chave_publica", return_value="chave"):
+			self.assertEqual(datajud.acompanhar_processo(NUMERO, "trf1"), [
+				{"name": "primeira-ocorrencia", "existente": True}
+			])
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(resultados[1]["doc"] | {"consulta_token": None}).save()
 		with patch.object(datajud, "_post", return_value={"hits": {"hits": []}}), patch.object(
 			datajud, "_chave_publica", return_value="chave"
 		):
@@ -134,9 +158,11 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 
 	def test_permissions_and_manual_write_blocked(self):
 		meta = frappe.get_meta("Processo Judicial")
+		self.assertTrue(meta.get_field("nome_parte").in_list_view)
+		self.assertFalse(meta.get_field("situacao_cadastro").in_list_view)
 		self.assertEqual({(p.role, p.read, p.write, p.create) for p in meta.permissions}, {
-			("Usuário Jurídico", 1, 1, 0),
-			("System Manager", 1, 1, 0),
+			("Usuário Jurídico", 1, 1, 1),
+			("System Manager", 1, 1, 1),
 		})
 		self.assertEqual(
 			[(p.role, p.read, p.write) for p in frappe.get_meta("Configurações DataJud").permissions],
@@ -199,6 +225,19 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(doc.empresa, frappe.get_all("Company", pluck="name", limit=1)[0])
 		self.assertEqual(doc.valor_causa, 1500)
 		self.assertEqual((doc.risco, doc.fase_processo), ("Médio", "Instrutória"))
+
+	def test_salvar_formulario_com_datas_serializadas_preserva_dados_datajud(self):
+		datajud._espelhar_ocorrencia(IDENTIFICADOR, _fonte())
+		doc = frappe.get_doc("Processo Judicial", IDENTIFICADOR)
+		doc = frappe.get_doc(json.loads(frappe.as_json(doc.as_dict())))
+		doc.risco = "Baixo"
+		doc.save()
+		doc.reload()
+		self.assertEqual(doc.risco, "Baixo")
+		self.assertEqual(len(doc.movimentos), 1)
+		doc.data_ajuizamento = "2099-01-01 00:00:00"
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
 
 	def test_assuntos_na_primeira_aba_com_multiselect_e_migracao(self):
 		from integracoes_customizadas.patches.backfill_assuntos_judiciais import execute
@@ -291,12 +330,114 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			patch.object(datajud.frappe, "enqueue") as enqueue,
 		):
 			datajud.atualizar_processos_acompanhados()
+			self.assertEqual(datajud.frappe.get_all.call_args.kwargs["filters"], {
+				"status_processo": "Em andamento"
+			})
 		self.assertEqual(enqueue.call_count, 2)
 		self.assertTrue(all(call.kwargs["queue"] == "long" for call in enqueue.call_args_list))
 		self.assertEqual({call.kwargs["alias"] for call in enqueue.call_args_list}, {"trf1", "tre-ac"})
 		with (
+			patch.object(datajud, "_ids_em_andamento", return_value={IDENTIFICADOR}),
 			patch.object(datajud, "consultar_numero", side_effect=datajud.DataJudError("falha")),
 			patch.object(datajud.frappe, "log_error") as log,
 		):
 			datajud.atualizar_um_processo(NUMERO, "trf1")
 		self.assertEqual(log.call_count, 1)
+
+	def test_status_manual_e_migracao(self):
+		from integracoes_customizadas.juridico.setup import after_migrate
+
+		identificador = "status-manual"
+		numero = "7" * 20
+		meta = frappe.get_meta("Processo Judicial")
+		campo = meta.get_field("status_processo")
+		self.assertEqual(campo.default, "Em andamento")
+		self.assertEqual(campo.options, "Em andamento\nEncerrado")
+		self.assertTrue(campo.in_list_view)
+		self.assertTrue(campo.in_standard_filter)
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
+		doc = frappe.get_doc("Processo Judicial", identificador)
+		self.assertEqual(doc.status_processo, "Em andamento")
+		doc.status_processo = "Encerrado"
+		doc.save()
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
+		doc.reload()
+		self.assertEqual(doc.status_processo, "Encerrado")
+		with patch.object(datajud, "consultar_numero", return_value=[
+			(identificador, _fonte(identificador, numero))
+		]):
+			self.assertEqual(datajud.acompanhar_processo(numero, "trf1"), [
+				{"name": identificador, "existente": True}
+			])
+		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Encerrado")
+		doc.status_processo = "Em andamento"
+		doc.save()
+		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Em andamento")
+		frappe.db.set_value("Processo Judicial", identificador, "status_processo", None)
+		after_migrate()
+		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Em andamento")
+
+	def test_agendamento_ignora_pares_encerrados(self):
+		numero_ativo = "2" * 20
+		numero_encerrado = "3" * 20
+		datajud._espelhar_ocorrencia("agendamento-ativo", _fonte("agendamento-ativo", numero_ativo))
+		datajud._espelhar_ocorrencia(
+			"agendamento-encerrado-mesmo-par", _fonte("agendamento-encerrado-mesmo-par", numero_ativo)
+		)
+		fonte_outro = _fonte("agendamento-encerrado-outro-par", numero_encerrado)
+		fonte_outro["tribunal"] = "TRE-AC"
+		datajud._espelhar_ocorrencia("agendamento-encerrado-outro-par", fonte_outro)
+		for nome in ("agendamento-encerrado-mesmo-par", "agendamento-encerrado-outro-par"):
+			frappe.db.set_value("Processo Judicial", nome, "status_processo", "Encerrado")
+		with patch.object(datajud, "_chave_publica", return_value="chave"), patch.object(
+			datajud.frappe, "enqueue"
+		) as enqueue:
+			datajud.atualizar_processos_acompanhados()
+		pares = [(call.kwargs["numero"], call.kwargs["alias"]) for call in enqueue.call_args_list]
+		self.assertEqual(pares.count((datajud._numero_cnj_formatado(numero_ativo), "trf1")), 1)
+		self.assertNotIn((datajud._numero_cnj_formatado(numero_encerrado), "tre-ac"), pares)
+
+	def test_trabalho_enfileirado_para_processo_encerrado_nao_consulta(self):
+		numero = "4" * 20
+		identificador = "trabalho-encerrado"
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
+		frappe.db.set_value("Processo Judicial", identificador, "status_processo", "Encerrado")
+		with patch.object(datajud, "consultar_numero") as consultar:
+			datajud.atualizar_um_processo(numero, "trf1")
+		consultar.assert_not_called()
+
+	def test_atualizacao_preserva_encerrados_e_ocorrencias_novas(self):
+		numero = "5" * 20
+		datajud._espelhar_ocorrencia("misto-ativo", _fonte("misto-ativo", numero))
+		datajud._espelhar_ocorrencia("misto-encerrado", _fonte("misto-encerrado", numero))
+		frappe.db.set_value("Processo Judicial", "misto-encerrado", "status_processo", "Encerrado")
+		fonte_ativa = _fonte("misto-ativo", numero)
+		fonte_ativa["classe"]["nome"] = "Classe atualizada"
+		fonte_encerrada = _fonte("misto-encerrado", numero)
+		fonte_encerrada["classe"]["nome"] = "Não deve ser gravada"
+		with patch.object(datajud, "consultar_numero", return_value=[
+			("misto-encerrado", fonte_encerrada), ("misto-ativo", fonte_ativa),
+			("misto-novo", _fonte("misto-novo", numero))
+		]):
+			datajud.atualizar_um_processo(numero, "trf1")
+		self.assertEqual(frappe.db.get_value("Processo Judicial", "misto-encerrado", "classe_nome"),
+			"Procedimento do Juizado")
+		self.assertEqual(frappe.db.get_value("Processo Judicial", "misto-ativo", "classe_nome"), "Classe atualizada")
+		self.assertTrue(frappe.db.exists("Processo Judicial", "misto-novo"))
+
+	def test_encerramento_durante_consulta_impede_atualizacao(self):
+		numero = "6" * 20
+		identificador = "encerrado-durante-consulta"
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
+		fonte = _fonte(identificador, numero)
+		fonte["classe"]["nome"] = "Não deve ser gravada"
+
+		def consultar(*args):
+			frappe.db.set_value("Processo Judicial", identificador, "status_processo", "Encerrado")
+			return [(identificador, fonte), ("novo-durante-consulta", _fonte("novo-durante-consulta", numero))]
+
+		with patch.object(datajud, "consultar_numero", side_effect=consultar):
+			datajud.atualizar_um_processo(numero, "trf1")
+		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "classe_nome"),
+			"Procedimento do Juizado")
+		self.assertFalse(frappe.db.exists("Processo Judicial", "novo-durante-consulta"))

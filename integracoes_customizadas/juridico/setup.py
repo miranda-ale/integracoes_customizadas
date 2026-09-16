@@ -12,6 +12,23 @@ def after_migrate():
 		pluck="name",
 	):
 		frappe.db.set_value(
-			"Custom DocPerm", name, {"create": 0, "write": 1}, update_modified=False
+			"Custom DocPerm", name, {"create": 1, "write": 1}, update_modified=False
 		)
+	if frappe.db.has_column("Processo Judicial", "status_processo"):
+		for name in frappe.get_all(
+			"Processo Judicial", filters={"status_processo": ["is", "not set"]}, pluck="name"
+		):
+			frappe.db.set_value(
+				"Processo Judicial", name, "status_processo", "Em andamento", update_modified=False
+			)
+	if frappe.db.has_column("Processo Judicial", "nome_parte"):
+		campos = {"Employee": "employee_name", "Customer": "customer_name", "Supplier": "supplier_name"}
+		for row in frappe.get_all(
+			"Processo Judicial", filters={"parte": ["is", "set"], "nome_parte": ["is", "not set"]},
+			fields=["name", "tipo_parte", "parte"],
+		):
+			if row.tipo_parte in campos:
+				nome = frappe.db.get_value(row.tipo_parte, row.parte, campos[row.tipo_parte])
+				if nome:
+					frappe.db.set_value("Processo Judicial", row.name, "nome_parte", nome, update_modified=False)
 	frappe.clear_cache(doctype="Processo Judicial")

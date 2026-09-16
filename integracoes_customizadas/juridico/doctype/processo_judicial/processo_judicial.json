@@ -8,6 +8,7 @@
     "secao_identificacao",
     "numero_processo",
     "situacao_cadastro",
+    "status_processo",
     "datajud_id",
     "coluna_identificacao",
     "tribunal",
@@ -16,6 +17,8 @@
     "secao_cadastro",
     "tipo_parte",
     "parte",
+    "nome_parte",
+    "consulta_token",
     "coluna_cadastro",
     "empresa",
     "risco",
@@ -240,13 +243,22 @@
       "fieldtype": "Select",
       "label": "Situação do Cadastro",
       "options": "Rascunho\nCadastrado",
-      "default": "Rascunho",
-      "in_list_view": 1
+      "default": "Rascunho"
+    },
+    {
+      "fieldname": "status_processo",
+      "fieldtype": "Select",
+      "label": "Status do Processo",
+      "options": "Em andamento\nEncerrado",
+      "default": "Em andamento",
+      "reqd": 1,
+      "in_list_view": 1,
+      "in_standard_filter": 1
     },
     {
       "fieldname": "secao_cadastro",
       "fieldtype": "Section Break",
-      "label": "Cadastro"
+      "label": "Partes"
     },
     {
       "fieldname": "tipo_parte",
@@ -260,6 +272,21 @@
       "label": "Parte",
       "options": "tipo_parte",
       "depends_on": "eval:doc.tipo_parte"
+    },
+    {
+      "fieldname": "nome_parte",
+      "fieldtype": "Data",
+      "label": "Nome da Parte",
+      "read_only": 1,
+      "in_list_view": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "consulta_token",
+      "fieldtype": "Data",
+      "label": "Consulta DataJud",
+      "hidden": 1,
+      "no_copy": 1
     },
     {
       "fieldname": "empresa",
@@ -349,13 +376,15 @@
       "role": "Usuário Jurídico",
       "read": 1,
       "print": 1,
-      "write": 1
+      "write": 1,
+      "create": 1
     },
     {
       "role": "System Manager",
       "read": 1,
       "print": 1,
-      "write": 1
+      "write": 1,
+      "create": 1
     }
   ],
   "sort_field": "modified",
