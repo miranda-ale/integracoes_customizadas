@@ -16,6 +16,7 @@
     "nivel_sigilo",
     "secao_cadastro",
     "tipo_parte",
+    "doctype_parte",
     "parte",
     "nome_parte",
     "consulta_token",
@@ -220,7 +221,8 @@
       "fieldtype": "Table",
       "label": "Movimentos",
       "options": "Processo Judicial Movimento",
-      "read_only": 1
+      "cannot_add_rows": 1,
+      "cannot_delete_rows": 1
     },
     {
       "fieldname": "secao_assuntos",
@@ -266,13 +268,21 @@
       "fieldname": "tipo_parte",
       "fieldtype": "Select",
       "label": "Tipo da Parte",
-      "options": "\nEmployee\nCustomer\nSupplier"
+      "options": "\nEmployee\nCustomer\nSupplier\nTerceiros",
+      "description": "Cadastre pacientes em Contatos e selecione Terceiros."
+    },
+    {
+      "fieldname": "doctype_parte",
+      "fieldtype": "Data",
+      "label": "DocType da Parte",
+      "hidden": 1,
+      "read_only": 1
     },
     {
       "fieldname": "parte",
       "fieldtype": "Dynamic Link",
       "label": "Parte",
-      "options": "tipo_parte",
+      "options": "doctype_parte",
       "depends_on": "eval:doc.tipo_parte"
     },
     {

@@ -23,3 +23,7 @@ def customer_dashboard(data):
 
 def supplier_dashboard(data):
 	return _adicionar_processos(data, "Supplier")
+
+
+def contact_dashboard(data):
+	return _adicionar_processos(data, "Terceiros")

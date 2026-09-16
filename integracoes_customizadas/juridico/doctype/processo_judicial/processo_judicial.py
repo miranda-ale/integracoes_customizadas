@@ -33,7 +33,15 @@ def _data_hora_igual(atual, anterior):
 
 
 class ProcessoJudicial(Document):
+	def _definir_doctype_parte(self):
+		self.doctype_parte = "Contact" if self.tipo_parte == "Terceiros" else self.tipo_parte
+
+	def save(self, *args, **kwargs):
+		self._definir_doctype_parte()
+		return super().save(*args, **kwargs)
+
 	def insert(self, *args, **kwargs):
+		self._definir_doctype_parte()
 		# O Frappe verifica os links antes de before_insert e validate.
 		if not self.flags.from_datajud:
 			if not kwargs.get("ignore_permissions"):
@@ -68,15 +76,15 @@ class ProcessoJudicial(Document):
 			self.situacao_cadastro = "Rascunho"
 		if not self.status_processo:
 			self.status_processo = "Em andamento"
-		if self.tipo_parte and self.tipo_parte not in ("Employee", "Customer", "Supplier"):
+		if self.tipo_parte and self.tipo_parte not in ("Employee", "Customer", "Supplier", "Terceiros"):
 			frappe.throw(_("Tipo da Parte inválido."))
-		if self.parte and (not self.tipo_parte or not frappe.db.exists(self.tipo_parte, self.parte)):
+		if self.parte and (not self.doctype_parte or not frappe.db.exists(self.doctype_parte, self.parte)):
 			frappe.throw(_("Selecione uma parte válida para o tipo informado."))
 		if self.processo_relacionado and self.processo_relacionado == self.name:
 			frappe.throw(_("Um processo não pode ser relacionado a si mesmo."))
-		campos_nome = {"Employee": "employee_name", "Customer": "customer_name", "Supplier": "supplier_name"}
+		campos_nome = {"Employee": "employee_name", "Customer": "customer_name", "Supplier": "supplier_name", "Terceiros": "full_name"}
 		self.nome_parte = (
-			frappe.db.get_value(self.tipo_parte, self.parte, campos_nome[self.tipo_parte])
+			frappe.db.get_value(self.doctype_parte, self.parte, campos_nome[self.tipo_parte])
 			if self.parte else None
 		)
 		if self.situacao_cadastro == "Cadastrado" and not (self.tipo_parte and self.parte and self.empresa):
@@ -103,7 +111,7 @@ class ProcessoJudicial(Document):
 			frappe.throw(_("Os dados retornados pelo DataJud não podem ser alterados manualmente."))
 		for tabela, campos in (
 			("assuntos", ("assunto", "codigo", "nome")),
-			("movimentos", ("codigo", "nome", "data_hora_original", "data_hora",
+			("movimentos", ("codigo", "nome", "descricao", "data_hora_original", "data_hora",
 				"orgao_julgador_codigo", "orgao_julgador_nome", "complementos_tabelados")),
 		):
 			def valores(linhas):

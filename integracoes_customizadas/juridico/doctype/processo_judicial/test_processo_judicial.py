@@ -38,6 +38,48 @@ def _fonte(identificador=IDENTIFICADOR, numero=NUMERO):
 
 
 class TestProcessoJudicialDataJud(FrappeTestCase):
+	def test_descricoes_dos_complementos_e_submovimentos(self):
+		fonte = _fonte()
+		fonte["movimentos"] = [{
+			"codigo": 26, "nome": "Distribuição", "dataHora": "2026-02-18T17:15:20.000Z",
+			"complementosTabelados": [{
+				"descricao": "tipo_de_distribuicao_redistribuicao", "nome": "sorteio"
+			}],
+			"movimentos": [{
+				"codigo": 12749, "nome": "de Instrução", "dataHora": "2026-02-18T17:15:21.000Z",
+				"complementosTabelados": [
+					{"descricao": "dirigida_por", "nome": "Juiz(a)"},
+					{"descricao": "situacao_da_audiencia", "nome": "designada"},
+				],
+			}],
+		}]
+		datajud._espelhar_ocorrencia(IDENTIFICADOR, fonte)
+		doc = frappe.get_doc("Processo Judicial", IDENTIFICADOR)
+		self.assertEqual([row.descricao for row in doc.movimentos], [
+			"Audiência de Instrução Designada", "Distribuição por sorteio"
+		])
+		movimento = doc.movimentos[0]
+		movimento.arquivo = "/private/files/audiencia.pdf"
+		doc.save()
+		datajud._espelhar_ocorrencia(IDENTIFICADOR, fonte)
+		doc.reload()
+		self.assertEqual(doc.movimentos[0].name, movimento.name)
+		self.assertEqual(doc.movimentos[0].arquivo, "/private/files/audiencia.pdf")
+		with self.assertRaises(frappe.ValidationError):
+			doc.movimentos[0].descricao = "Alterada manualmente"
+			doc.save()
+
+	def test_terceiros_usam_contatos_e_pacientes(self):
+		contato = frappe.get_doc({"doctype": "Contact", "first_name": "Paciente Jurídico"}).insert()
+		datajud._espelhar_ocorrencia(IDENTIFICADOR, _fonte())
+		doc = frappe.get_doc("Processo Judicial", IDENTIFICADOR)
+		doc.tipo_parte = "Terceiros"
+		doc.parte = contato.name
+		doc.save()
+		self.assertEqual(doc.doctype_parte, "Contact")
+		self.assertEqual(doc.nome_parte, "Paciente Jurídico")
+		self.assertIn("Cadastre pacientes em Contatos", frappe.get_meta("Processo Judicial").get_field("tipo_parte").description)
+
 	def test_endpoint_aliases_and_pagination_filter_exact_number(self):
 		self.assertIn("tre-ac", datajud.TRIBUNAIS)
 		self.assertEqual(datajud._alias_do_tribunal("TRE-AC"), "tre-ac")

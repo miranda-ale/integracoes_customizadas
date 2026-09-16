@@ -3,12 +3,17 @@ frappe.query_reports["Relação de Processos"] = {
 		{ fieldname: "company", label: __("Empresa"), fieldtype: "Link", options: "Company" },
 		{
 			fieldname: "tipo_parte", label: __("Tipo da Parte"), fieldtype: "Select",
-			options: "\nEmployee\nCustomer\nSupplier",
-			on_change: () => frappe.query_report.set_filter_value("parte", ""),
+			options: "\nEmployee\nCustomer\nSupplier\nTerceiros",
+			on_change: () => {
+				frappe.query_report.set_filter_value("parte", "");
+				const tipo = frappe.query_report.get_filter_value("tipo_parte");
+				frappe.query_report.set_filter_value("doctype_parte", tipo === "Terceiros" ? "Contact" : tipo);
+			},
 		},
+		{ fieldname: "doctype_parte", label: __("DocType da Parte"), fieldtype: "Data", hidden: 1 },
 		{
 			fieldname: "parte", label: __("Parte"), fieldtype: "Dynamic Link",
-			options: "tipo_parte", depends_on: "eval:doc.tipo_parte",
+			options: "doctype_parte", depends_on: "eval:doc.tipo_parte",
 		},
 		{
 			fieldname: "fase_processo", label: __("Fase"), fieldtype: "Select",

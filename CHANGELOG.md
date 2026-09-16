@@ -1,5 +1,10 @@
 # Histórico de alterações
 
+## v1.11.0 — mudanças desde v1.10.0
+
+- **Jurídico:** anexo por movimentação com coluna visível na tabela do processo, descrição composta a partir dos complementos tabelados e leitura de submovimentos; anexos existentes são preservados nas atualizações do DataJud.
+- **Partes:** opção Terceiros vinculada a Contatos para cadastro de pacientes, também disponível no filtro da Relação de Processos.
+
 ## v1.10.0 — mudanças desde v1.5.4
 
 - **v1.6.0 — Integração judicial:** criação do módulo Jurídico, do Workspace, dos DocTypes Processo Judicial, Assunto Judicial, Configurações DataJud, assuntos e movimentos; consulta ao DataJud por número CNJ e tribunal, registro dos dados e migrações de cadastro e permissões.

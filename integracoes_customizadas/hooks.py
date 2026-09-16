@@ -15,6 +15,7 @@ override_doctype_dashboards = {
 	"Employee": "integracoes_customizadas.juridico.dashboard.employee_dashboard",
 	"Customer": "integracoes_customizadas.juridico.dashboard.customer_dashboard",
 	"Supplier": "integracoes_customizadas.juridico.dashboard.supplier_dashboard",
+	"Contact": "integracoes_customizadas.juridico.dashboard.contact_dashboard",
 }
 
 # Apps

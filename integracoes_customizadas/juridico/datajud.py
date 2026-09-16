@@ -4,7 +4,7 @@ import hashlib
 import re
 import secrets
 import time
-from collections import Counter
+from collections import Counter, defaultdict, deque
 
 import frappe
 import requests
@@ -199,19 +199,84 @@ def _preencher_ocorrencia(doc, identificador, fonte, *, registrar_assuntos=True)
 			"codigo": assunto.get("codigo"),
 			"nome": assunto.get("nome"),
 		})
+	anteriores = defaultdict(deque)
+	for linha in doc.get("movimentos") or []:
+		anteriores[_chave_movimento(linha)].append(linha)
 	doc.set("movimentos", [])
-	for movimento in fonte.get("movimentos") or []:
+	for movimento in _iterar_movimentos(fonte.get("movimentos") or []):
 		orgao_movimento = movimento.get("orgaoJulgador") or {}
-		doc.append("movimentos", {
+		valores = {
 			"codigo": movimento.get("codigo"),
 			"nome": movimento.get("nome"),
+			"descricao": _descricao_movimento(movimento),
 			"data_hora_original": movimento.get("dataHora"),
 			"orgao_julgador_codigo": orgao_movimento.get("codigoOrgao", orgao_movimento.get("codigo")),
 			"orgao_julgador_nome": orgao_movimento.get("nomeOrgao", orgao_movimento.get("nome")),
 			"complementos_tabelados": movimento.get("complementosTabelados") or [],
-		})
+		}
+		chave = _chave_movimento(valores)
+		if anteriores[chave]:
+			linha = anteriores[chave].popleft()
+			linha.update(valores)
+			doc.append("movimentos", linha)
+		else:
+			doc.append("movimentos", valores)
 	doc._atualizar_dados_datajud()
 	return doc
+
+
+def _iterar_movimentos(movimentos):
+	"""Percorre movimentos e submovimentos na ordem recebida."""
+	for movimento in movimentos:
+		if not isinstance(movimento, dict):
+			continue
+		yield movimento
+		for campo in ("movimentos", "submovimentos"):
+			if isinstance(movimento.get(campo), list):
+				yield from _iterar_movimentos(movimento[campo])
+
+
+def _descricao_movimento(movimento):
+	nome = (movimento.get("nome") or "").strip()
+	complementos = movimento.get("complementosTabelados") or []
+	if not isinstance(complementos, list):
+		return nome
+	if nome.lower().startswith("de ") and any(
+		isinstance(item, dict) and item.get("descricao") == "situacao_da_audiencia"
+		for item in complementos
+	):
+		nome = f"Audiência {nome}"
+	partes = [nome] if nome else []
+	for item in complementos:
+		if not isinstance(item, dict) or not item.get("nome"):
+			continue
+		descricao = (item.get("descricao") or "").strip()
+		valor = str(item["nome"]).strip()
+		if descricao.startswith("tipo_de_distribuicao"):
+			partes.append(f"por {valor}")
+		elif descricao == "situacao_da_audiencia":
+			partes.append(valor.capitalize())
+		elif descricao == "dirigida_por":
+			# O responsável pela audiência não compõe o título do andamento.
+			continue
+		else:
+			rotulo = descricao.replace("_", " ") if descricao else "Complemento"
+			partes.append(f"{rotulo}: {valor}")
+	return " ".join(partes)
+
+
+def _chave_movimento(movimento):
+	complementos = movimento.get("complementos_tabelados") or []
+	if isinstance(complementos, str):
+		try:
+			complementos = frappe.parse_json(complementos)
+		except (ValueError, TypeError):
+			pass
+	return (
+		movimento.get("codigo"), movimento.get("nome"), movimento.get("data_hora_original"),
+		str(movimento.get("orgao_julgador_codigo")), movimento.get("orgao_julgador_nome"),
+		frappe.as_json(complementos),
+	)
 
 
 def _id_assunto(codigo, nome):
