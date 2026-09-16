@@ -1,13 +1,8 @@
 {
   "charts": [],
-  "content": "[{\"id\":\"juridico_numero_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total de Processos Judiciais\",\"col\":4}},{\"id\":\"juridico_numero_1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Processos em Andamento\",\"col\":4}},{\"id\":\"juridico_numero_2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Processos Encerrados\",\"col\":4}},{\"id\":\"juridico_atalho_0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processo Judicial\",\"col\":3}},{\"id\":\"juridico_atalho_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Canal de Denúncias\",\"col\":3}},{\"id\":\"juridico_atalho_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Configurações de Processos Judiciais\",\"col\":3}},{\"id\":\"juridico_atalho_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard de Processos\",\"col\":3}},{\"id\":\"juridico_caixa_0\",\"type\":\"card\",\"data\":{\"card_name\":\"Ética\",\"col\":3}},{\"id\":\"juridico_caixa_1\",\"type\":\"card\",\"data\":{\"card_name\":\"Judicial\",\"col\":3}},{\"id\":\"juridico_caixa_relatorios\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Relatórios\",\"col\":3}},{\"id\":\"juridico_caixa_configuracoes\",\"type\":\"card\",\"data\":{\"card_name\":\"Configurações\",\"col\":3}}]",
+  "content": "[{\"id\":\"juridico_numero_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total de Processos Judiciais\",\"col\":4}},{\"id\":\"juridico_numero_1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Processos em Andamento\",\"col\":4}},{\"id\":\"juridico_numero_2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Processos Encerrados\",\"col\":4}},{\"id\":\"juridico_atalho_0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processo Judicial\",\"col\":3}},{\"id\":\"juridico_atalho_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Canal de Denúncias\",\"col\":3}},{\"id\":\"juridico_atalho_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Configurações de Processos Judiciais\",\"col\":3}},{\"id\":\"juridico_atalho_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard de Processos\",\"col\":3}},{\"id\":\"juridico_caixa_0\",\"type\":\"card\",\"data\":{\"card_name\":\"Ética\",\"col\":3}},{\"id\":\"juridico_caixa_1\",\"type\":\"card\",\"data\":{\"card_name\":\"Judicial\",\"col\":3}},{\"id\":\"juridico_caixa_relatorios\",\"type\":\"card\",\"data\":{\"card_name\":\"Relatórios\",\"col\":3}},{\"id\":\"juridico_caixa_configuracoes\",\"type\":\"card\",\"data\":{\"card_name\":\"Configurações\",\"col\":3}}]",
   "creation": "2026-01-30 10:10:49.516368",
-  "custom_blocks": [
-    {
-      "custom_block_name": "Relatórios",
-      "label": "Relatórios"
-    }
-  ],
+  "custom_blocks": [],
   "docstatus": 0,
   "doctype": "Workspace",
   "for_user": "",
@@ -57,6 +52,24 @@
     {
       "hidden": 0,
       "is_query_report": 0,
+      "label": "Relatórios",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Relação de Processos",
+      "link_count": 0,
+      "link_to": "Relação de Processos",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
       "label": "Configurações",
       "link_count": 1,
       "onboard": 0,
@@ -73,7 +86,7 @@
       "type": "Link"
     }
   ],
-  "modified": "2026-09-16 16:54:19.000000",
+  "modified": "2026-09-16 17:39:16.000000",
   "modified_by": "Administrator",
   "module": "Juridico",
   "name": "Jurídico",
