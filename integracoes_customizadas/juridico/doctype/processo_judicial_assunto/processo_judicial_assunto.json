@@ -1,0 +1,47 @@
+{
+  "actions": [],
+  "creation": "2026-09-16 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "assunto",
+    "codigo",
+    "nome"
+  ],
+  "fields": [
+    {
+      "fieldname": "assunto",
+      "fieldtype": "Link",
+      "label": "Assunto",
+      "options": "Assunto Judicial",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "codigo",
+      "fieldtype": "Int",
+      "label": "Código",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "nome",
+      "fieldtype": "Small Text",
+      "label": "Nome",
+      "read_only": 1,
+      "hidden": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-09-16 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Assunto",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 0
+}

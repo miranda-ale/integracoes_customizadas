@@ -1,0 +1,43 @@
+{
+  "actions": [],
+  "creation": "2026-09-16 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": ["codigo", "nome"],
+  "fields": [
+    {
+      "fieldname": "codigo",
+      "fieldtype": "Data",
+      "label": "Código",
+      "reqd": 1,
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "nome",
+      "fieldtype": "Small Text",
+      "label": "Assunto",
+      "reqd": 1,
+      "read_only": 1,
+      "in_list_view": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-09-16 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Assunto Judicial",
+  "owner": "Administrator",
+  "permissions": [
+    {"role": "Usuário Jurídico", "read": 1},
+    {"role": "System Manager", "read": 1}
+  ],
+  "sort_field": "nome",
+  "sort_order": "ASC",
+  "states": [],
+  "autoname": "field:codigo",
+  "naming_rule": "By fieldname",
+  "title_field": "nome",
+  "show_title_field_in_link": 1,
+  "search_fields": "codigo,nome"
+}

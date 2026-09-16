@@ -1,0 +1,107 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"CKgFih3cqE\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">M\u00f3dulos e Relat\u00f3rios</span>\",\"col\":12}},{\"id\":\"bgOabSCwpt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processo Judicial\",\"col\":3}},{\"id\":\"gVU0xQhX1G\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processos por fase\",\"col\":3}},{\"id\":\"G_9qswHb-B\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Prazos a vencer\",\"col\":3}},{\"id\":\"s4yCY7NXZO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Custos do Processo\",\"col\":3}},{\"id\":\"e2_0boKRoe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Provis\u00e3o Mensal\",\"col\":3}},{\"id\":\"rsNmTCniQ5\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_9jcQxUaSu\",\"type\":\"card\",\"data\":{\"card_name\":\"Jur\u00eddico\",\"col\":4}}]",
+ "creation": "2026-01-30 10:10:49.516368",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "project",
+ "idx": 0,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "Jur\u00eddico",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Jur\u00eddico",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Canal de Den\u00fancias",
+   "link_count": 0,
+   "link_to": "Canal de Denuncias",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Processo Judicial",
+   "link_count": 0,
+   "link_to": "Processo Judicial",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Configurações DataJud",
+   "link_count": 0,
+   "link_to": "Configurações DataJud",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-09-16 16:54:13.000000",
+ "modified_by": "Administrator",
+ "module": "Juridico",
+ "name": "Jur\u00eddico",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 11.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Processos por fase",
+   "link_to": "Processos por Status e Fase",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Custos do Processo",
+   "link_to": "Custos do Contencioso por periodo",
+   "type": "Report"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "format": "{} Aberto",
+   "label": "Processo Judicial",
+   "link_to": "Processo Judicial",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Prazos a vencer",
+   "link_to": "Prazos a vencer",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Provis\u00e3o Mensal",
+   "link_to": "Exposicao e Provisao por mes",
+   "type": "Report"
+  }
+ ],
+ "title": "Jur\u00eddico"
+}

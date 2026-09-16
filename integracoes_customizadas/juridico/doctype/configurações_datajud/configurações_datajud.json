@@ -1,0 +1,19 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "field_order": ["api_key"],
+ "fields": [
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "Chave pública da API",
+   "reqd": 1
+  }
+ ],
+ "issingle": 1,
+ "module": "Juridico",
+ "name": "Configurações DataJud",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1}
+ ]
+}

@@ -7,6 +7,7 @@ app_license = "mit"
 
 fixtures = [
     {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
+    {"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
 ]
 
 # Apps
@@ -95,6 +96,7 @@ after_install = "integracoes_customizadas.provas.setup.after_install"
 # ---------
 after_migrate = [
 	"integracoes_customizadas.provas.setup.after_migrate",
+	"integracoes_customizadas.juridico.setup.after_migrate",
 ]
 
 # Uninstallation
@@ -139,6 +141,12 @@ after_migrate = [
 
 # Scheduled Tasks
 # ---------------
+
+scheduler_events = {
+	"cron": {
+		"0 3 * * 1-5": ["integracoes_customizadas.juridico.datajud.atualizar_processos_acompanhados"],
+	},
+}
 
 # scheduler_events = {
 # 	"all": [

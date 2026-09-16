@@ -1,0 +1,369 @@
+{
+  "actions": [],
+  "creation": "2026-09-16 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "aba_processo",
+    "secao_identificacao",
+    "numero_processo",
+    "situacao_cadastro",
+    "datajud_id",
+    "coluna_identificacao",
+    "tribunal",
+    "grau",
+    "nivel_sigilo",
+    "secao_cadastro",
+    "tipo_parte",
+    "parte",
+    "coluna_cadastro",
+    "empresa",
+    "risco",
+    "fase_processo",
+    "secao_classificacao",
+    "classe_nome",
+    "classe_codigo",
+    "orgao_julgador_nome",
+    "orgao_julgador_codigo",
+    "orgao_julgador_codigo_municipio_ibge",
+    "coluna_classificacao",
+    "sistema_nome",
+    "sistema_codigo",
+    "formato_nome",
+    "formato_codigo",
+    "secao_datas",
+    "data_ajuizamento",
+    "data_ajuizamento_original",
+    "coluna_datas",
+    "data_hora_ultima_atualizacao",
+    "data_hora_ultima_atualizacao_original",
+    "timestamp",
+    "timestamp_original",
+    "secao_assuntos",
+    "assuntos",
+    "aba_movimentos",
+    "secao_movimentos",
+    "movimentos",
+    "aba_financas",
+    "secao_valores",
+    "moeda",
+    "valor_causa",
+    "coluna_valores",
+    "valor_condenacao"
+  ],
+  "fields": [
+    {
+      "fieldname": "secao_identificacao",
+      "fieldtype": "Section Break",
+      "label": "Identificação"
+    },
+    {
+      "fieldname": "datajud_id",
+      "fieldtype": "Data",
+      "label": "ID DataJud",
+      "reqd": 1,
+      "unique": 1,
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "numero_processo",
+      "fieldtype": "Data",
+      "label": "Número do Processo",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "tribunal",
+      "fieldtype": "Data",
+      "label": "Tribunal",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "grau",
+      "fieldtype": "Data",
+      "label": "Grau",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "nivel_sigilo",
+      "fieldtype": "Int",
+      "label": "Nível de Sigilo",
+      "read_only": 1
+    },
+    {
+      "fieldname": "secao_classificacao",
+      "fieldtype": "Section Break",
+      "label": "Classificação"
+    },
+    {
+      "fieldname": "orgao_julgador_codigo",
+      "fieldtype": "Int",
+      "label": "Código do Órgão Julgador",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "orgao_julgador_nome",
+      "fieldtype": "Small Text",
+      "label": "Órgão Julgador",
+      "read_only": 1
+    },
+    {
+      "fieldname": "orgao_julgador_codigo_municipio_ibge",
+      "fieldtype": "Int",
+      "label": "Código Município IBGE",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "classe_codigo",
+      "fieldtype": "Int",
+      "label": "Código da Classe",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "classe_nome",
+      "fieldtype": "Small Text",
+      "label": "Classe",
+      "read_only": 1
+    },
+    {
+      "fieldname": "sistema_codigo",
+      "fieldtype": "Int",
+      "label": "Código do Sistema",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "sistema_nome",
+      "fieldtype": "Small Text",
+      "label": "Sistema",
+      "read_only": 1
+    },
+    {
+      "fieldname": "formato_codigo",
+      "fieldtype": "Int",
+      "label": "Código do Formato",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "formato_nome",
+      "fieldtype": "Small Text",
+      "label": "Formato",
+      "read_only": 1
+    },
+    {
+      "fieldname": "secao_datas",
+      "fieldtype": "Section Break",
+      "label": "Datas da DataJud"
+    },
+    {
+      "fieldname": "data_ajuizamento_original",
+      "fieldtype": "Data",
+      "label": "dataAjuizamento (original)",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "data_ajuizamento",
+      "fieldtype": "Datetime",
+      "label": "Data de Ajuizamento",
+      "read_only": 1
+    },
+    {
+      "fieldname": "data_hora_ultima_atualizacao_original",
+      "fieldtype": "Data",
+      "label": "dataHoraUltimaAtualizacao (original)",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "data_hora_ultima_atualizacao",
+      "fieldtype": "Datetime",
+      "label": "Última Atualização",
+      "read_only": 1
+    },
+    {
+      "fieldname": "timestamp_original",
+      "fieldtype": "Data",
+      "label": "@timestamp (original)",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "timestamp",
+      "fieldtype": "Datetime",
+      "label": "Timestamp",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "secao_movimentos",
+      "fieldtype": "Section Break",
+      "label": "Movimentos"
+    },
+    {
+      "fieldname": "movimentos",
+      "fieldtype": "Table",
+      "label": "Movimentos",
+      "options": "Processo Judicial Movimento",
+      "read_only": 1
+    },
+    {
+      "fieldname": "secao_assuntos",
+      "fieldtype": "Section Break",
+      "label": "Assuntos"
+    },
+    {
+      "fieldname": "assuntos",
+      "fieldtype": "Table MultiSelect",
+      "label": "Assuntos do Processo",
+      "options": "Processo Judicial Assunto",
+      "read_only": 1,
+      "description": "Assuntos informados pelo DataJud."
+    },
+    {
+      "fieldname": "aba_processo",
+      "fieldtype": "Tab Break",
+      "label": "Processo"
+    },
+    {
+      "fieldname": "situacao_cadastro",
+      "fieldtype": "Select",
+      "label": "Situação do Cadastro",
+      "options": "Rascunho\nCadastrado",
+      "default": "Rascunho",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "secao_cadastro",
+      "fieldtype": "Section Break",
+      "label": "Cadastro"
+    },
+    {
+      "fieldname": "tipo_parte",
+      "fieldtype": "Select",
+      "label": "Tipo da Parte",
+      "options": "\nEmployee\nCustomer\nSupplier"
+    },
+    {
+      "fieldname": "parte",
+      "fieldtype": "Dynamic Link",
+      "label": "Parte",
+      "options": "tipo_parte",
+      "depends_on": "eval:doc.tipo_parte"
+    },
+    {
+      "fieldname": "empresa",
+      "fieldtype": "Link",
+      "label": "Empresa Responsável",
+      "options": "Company"
+    },
+    {
+      "fieldname": "aba_movimentos",
+      "fieldtype": "Tab Break",
+      "label": "Movimentos"
+    },
+    {
+      "fieldname": "aba_financas",
+      "fieldtype": "Tab Break",
+      "label": "Finanças"
+    },
+    {
+      "fieldname": "valor_causa",
+      "fieldtype": "Currency",
+      "label": "Valor da Causa",
+      "options": "moeda"
+    },
+    {
+      "fieldname": "valor_condenacao",
+      "fieldtype": "Currency",
+      "label": "Valor da Condenação",
+      "options": "moeda"
+    },
+    {
+      "fieldname": "moeda",
+      "fieldtype": "Link",
+      "label": "Moeda",
+      "options": "Currency",
+      "fetch_from": "empresa.default_currency",
+      "read_only": 1
+    },
+    {
+      "fieldname": "coluna_identificacao",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "coluna_cadastro",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "coluna_classificacao",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "coluna_datas",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "coluna_valores",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "risco",
+      "fieldtype": "Select",
+      "label": "Risco",
+      "options": "\nBaixo\nMédio\nAlto",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "fase_processo",
+      "fieldtype": "Select",
+      "label": "Fase do Processo",
+      "options": "\nPostulatória\nInstrutória\nDecisória\nRecursal\nExecução",
+      "in_standard_filter": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "secao_valores",
+      "fieldtype": "Section Break",
+      "label": "Valores"
+    }
+  ],
+  "links": [],
+  "modified": "2026-09-16 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "role": "Usuário Jurídico",
+      "read": 1,
+      "print": 1,
+      "write": 1
+    },
+    {
+      "role": "System Manager",
+      "read": 1,
+      "print": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "autoname": "field:datajud_id",
+  "naming_rule": "By fieldname",
+  "title_field": "numero_processo",
+  "search_fields": "datajud_id,numero_processo,tribunal,grau",
+  "track_changes": 0
+}

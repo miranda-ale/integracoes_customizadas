@@ -1,0 +1,75 @@
+{
+  "actions": [],
+  "creation": "2026-09-16 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "codigo",
+    "nome",
+    "data_hora_original",
+    "data_hora",
+    "orgao_julgador_codigo",
+    "orgao_julgador_nome",
+    "complementos_tabelados"
+  ],
+  "fields": [
+    {
+      "fieldname": "codigo",
+      "fieldtype": "Int",
+      "label": "Código",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "nome",
+      "fieldtype": "Small Text",
+      "label": "Nome",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "data_hora_original",
+      "fieldtype": "Data",
+      "label": "dataHora (original)",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "data_hora",
+      "fieldtype": "Datetime",
+      "label": "Data e Hora",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "orgao_julgador_codigo",
+      "fieldtype": "Data",
+      "label": "Código do Órgão Julgador",
+      "read_only": 1
+    },
+    {
+      "fieldname": "orgao_julgador_nome",
+      "fieldtype": "Small Text",
+      "label": "Órgão Julgador",
+      "read_only": 1
+    },
+    {
+      "fieldname": "complementos_tabelados",
+      "fieldtype": "JSON",
+      "label": "complementosTabelados",
+      "read_only": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-09-16 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Movimento",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 0
+}
