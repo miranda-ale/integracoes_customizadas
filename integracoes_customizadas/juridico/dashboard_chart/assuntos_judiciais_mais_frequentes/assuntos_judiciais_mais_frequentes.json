@@ -1,0 +1,18 @@
+{
+  "doctype": "Dashboard Chart",
+  "name": "Assuntos Judiciais mais Frequentes",
+  "chart_name": "Assuntos Judiciais mais Frequentes",
+  "module": "Juridico",
+  "is_standard": 1,
+  "is_public": 1,
+  "chart_type": "Custom",
+  "document_type": "Processo Judicial",
+  "source": "Assuntos Judiciais",
+  "filters_json": "[]",
+  "number_of_groups": 0,
+  "timeseries": 0,
+  "type": "Bar",
+  "y_axis": [],
+  "creation": "2026-09-16 16:54:14.000000",
+  "modified": "2026-09-16 16:54:14.000000"
+}

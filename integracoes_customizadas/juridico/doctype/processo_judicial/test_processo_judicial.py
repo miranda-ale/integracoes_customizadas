@@ -268,8 +268,9 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertTrue(movimento_meta.get_field("data_hora_original").hidden)
 		self.assertTrue(movimento_meta.get_field("data_hora").in_list_view)
 
-	def test_system_manager_ve_processo_e_configuracoes_no_workspace(self):
+	def test_system_manager_ve_indicadores_e_dashboard_juridico(self):
 		from frappe.desk.desktop import Workspace
+		from frappe.desk.doctype.dashboard.dashboard import get_permitted_cards, get_permitted_charts
 
 		usuario = "datajud-workspace-test@example.com"
 		frappe.get_doc({
@@ -284,16 +285,30 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		try:
 			frappe.set_user(usuario)
 			workspace = Workspace({"name": "Jurídico"})
-			self.assertIn("Processo Judicial", [item["link_to"] for item in workspace.get_shortcuts()])
-			self.assertIn("Configurações DataJud", [
-				item["link_to"] for card in workspace.get_links() for item in card["links"]
-			])
+			blocos = frappe.parse_json(workspace.doc.content)
+			self.assertEqual([block["type"] for block in blocos],
+				["number_card"] * 3 + ["shortcut"] * 4 + ["card", "card", "custom_block", "card"])
+			self.assertEqual(len(workspace.get_number_cards()), 3)
+			self.assertTrue({
+				"Processo Judicial", "Configurações DataJud", "Processos Judiciais"
+			}.issubset({item["link_to"] for item in workspace.get_shortcuts()}))
+			caixas = {card["label"]: card["links"] for card in workspace.get_links()}
+			self.assertTrue({"Ética", "Judicial", "Configurações"}.issubset(caixas))
+			self.assertEqual(caixas["Ética"][0]["link_to"], "Canal de Denuncias")
+			self.assertEqual(caixas["Judicial"][0]["link_to"], "Processo Judicial")
+			self.assertEqual(caixas["Configurações"][0]["label"], "Configurações de Processos Judiciais")
+			self.assertEqual(caixas["Configurações"][0]["link_to"], "Configurações DataJud")
+			self.assertIn("Relatórios", [block.custom_block_name for block in workspace.get_custom_blocks()])
+			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
+			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
+			self.assertTrue(frappe.has_permission("Processo Judicial", "read"))
 			frappe.get_single("Configurações DataJud").validate()
 		finally:
 			frappe.set_user(usuario_original)
 
-	def test_usuario_juridico_nao_ve_configuracoes_no_workspace(self):
+	def test_usuario_juridico_ve_indicadores_sem_acesso_as_configuracoes(self):
 		from frappe.desk.desktop import Workspace
+		from frappe.desk.doctype.dashboard.dashboard import get_permitted_cards, get_permitted_charts
 
 		usuario = "datajud-juridico-test@example.com"
 		frappe.get_doc({
@@ -308,9 +323,18 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		try:
 			frappe.set_user(usuario)
 			workspace = Workspace({"name": "Jurídico"})
-			self.assertNotIn("Configurações DataJud", [
-				item["link_to"] for card in workspace.get_links() for item in card["links"]
-			])
+			self.assertEqual(len(workspace.get_number_cards()), 3)
+			atalhos = {item["link_to"] for item in workspace.get_shortcuts()}
+			self.assertIn("Processo Judicial", atalhos)
+			self.assertIn("Processos Judiciais", atalhos)
+			self.assertNotIn("Configurações DataJud", atalhos)
+			caixas = {card["label"] for card in workspace.get_links()}
+			self.assertIn("Judicial", caixas)
+			self.assertNotIn("Configurações", caixas)
+			self.assertIn("Relatórios", [block.custom_block_name for block in workspace.get_custom_blocks()])
+			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
+			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
+			self.assertFalse(frappe.has_permission("Configurações DataJud", "read"))
 		finally:
 			frappe.set_user(usuario_original)
 

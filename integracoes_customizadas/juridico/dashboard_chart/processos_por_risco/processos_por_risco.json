@@ -1,0 +1,20 @@
+{
+  "doctype": "Dashboard Chart",
+  "name": "Processos por Risco",
+  "chart_name": "Processos por Risco",
+  "module": "Juridico",
+  "is_standard": 1,
+  "is_public": 1,
+  "chart_type": "Group By",
+  "document_type": "Processo Judicial",
+  "group_by_based_on": "risco",
+  "group_by_type": "Count",
+  "filters_json": "[]",
+  "dynamic_filters_json": "[]",
+  "number_of_groups": 0,
+  "timeseries": 0,
+  "type": "Donut",
+  "y_axis": [],
+  "creation": "2026-09-16 16:54:14.000000",
+  "modified": "2026-09-16 16:54:14.000000"
+}

@@ -8,6 +8,7 @@ app_license = "mit"
 fixtures = [
     {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
     {"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
+    {"dt": "Custom HTML Block", "filters": [["name", "in", ["Relatórios"]]]},
 ]
 
 override_doctype_dashboards = {

@@ -1,0 +1,12 @@
+[
+  {
+    "doctype": "Custom HTML Block",
+    "name": "Relatórios",
+    "owner": "Administrator",
+    "private": 0,
+    "html": "<p style=\"color: var(--text-muted); margin: 0;\">Os relatórios serão adicionados aqui.</p>",
+    "script": "",
+    "style": "",
+    "roles": []
+  }
+]

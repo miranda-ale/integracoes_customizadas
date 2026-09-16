@@ -1,107 +1,130 @@
 {
- "charts": [],
- "content": "[{\"id\":\"CKgFih3cqE\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">M\u00f3dulos e Relat\u00f3rios</span>\",\"col\":12}},{\"id\":\"bgOabSCwpt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processo Judicial\",\"col\":3}},{\"id\":\"gVU0xQhX1G\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processos por fase\",\"col\":3}},{\"id\":\"G_9qswHb-B\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Prazos a vencer\",\"col\":3}},{\"id\":\"s4yCY7NXZO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Custos do Processo\",\"col\":3}},{\"id\":\"e2_0boKRoe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Provis\u00e3o Mensal\",\"col\":3}},{\"id\":\"rsNmTCniQ5\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_9jcQxUaSu\",\"type\":\"card\",\"data\":{\"card_name\":\"Jur\u00eddico\",\"col\":4}}]",
- "creation": "2026-01-30 10:10:49.516368",
- "custom_blocks": [],
- "docstatus": 0,
- "doctype": "Workspace",
- "for_user": "",
- "hide_custom": 0,
- "icon": "project",
- "idx": 0,
- "indicator_color": "",
- "is_hidden": 0,
- "label": "Jur\u00eddico",
- "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Jur\u00eddico",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Canal de Den\u00fancias",
-   "link_count": 0,
-   "link_to": "Canal de Denuncias",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Processo Judicial",
-   "link_count": 0,
-   "link_to": "Processo Judicial",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Configurações DataJud",
-   "link_count": 0,
-   "link_to": "Configurações DataJud",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  }
- ],
- "modified": "2026-09-16 16:54:13.000000",
- "modified_by": "Administrator",
- "module": "Juridico",
- "name": "Jur\u00eddico",
- "number_cards": [],
- "owner": "Administrator",
- "parent_page": "",
- "public": 1,
- "quick_lists": [],
- "roles": [],
- "sequence_id": 11.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Processos por fase",
-   "link_to": "Processos por Status e Fase",
-   "type": "Report"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Custos do Processo",
-   "link_to": "Custos do Contencioso por periodo",
-   "type": "Report"
-  },
-  {
-   "color": "Orange",
-   "doc_view": "List",
-   "format": "{} Aberto",
-   "label": "Processo Judicial",
-   "link_to": "Processo Judicial",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Prazos a vencer",
-   "link_to": "Prazos a vencer",
-   "type": "Report"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Provis\u00e3o Mensal",
-   "link_to": "Exposicao e Provisao por mes",
-   "type": "Report"
-  }
- ],
- "title": "Jur\u00eddico"
+  "charts": [],
+  "content": "[{\"id\":\"juridico_numero_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total de Processos Judiciais\",\"col\":4}},{\"id\":\"juridico_numero_1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Processos em Andamento\",\"col\":4}},{\"id\":\"juridico_numero_2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Processos Encerrados\",\"col\":4}},{\"id\":\"juridico_atalho_0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processo Judicial\",\"col\":3}},{\"id\":\"juridico_atalho_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Canal de Denúncias\",\"col\":3}},{\"id\":\"juridico_atalho_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Configurações de Processos Judiciais\",\"col\":3}},{\"id\":\"juridico_atalho_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard de Processos\",\"col\":3}},{\"id\":\"juridico_caixa_0\",\"type\":\"card\",\"data\":{\"card_name\":\"Ética\",\"col\":3}},{\"id\":\"juridico_caixa_1\",\"type\":\"card\",\"data\":{\"card_name\":\"Judicial\",\"col\":3}},{\"id\":\"juridico_caixa_relatorios\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Relatórios\",\"col\":3}},{\"id\":\"juridico_caixa_configuracoes\",\"type\":\"card\",\"data\":{\"card_name\":\"Configurações\",\"col\":3}}]",
+  "creation": "2026-01-30 10:10:49.516368",
+  "custom_blocks": [
+    {
+      "custom_block_name": "Relatórios",
+      "label": "Relatórios"
+    }
+  ],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": "",
+  "hide_custom": 0,
+  "icon": "project",
+  "idx": 0,
+  "indicator_color": "",
+  "is_hidden": 0,
+  "label": "Jurídico",
+  "links": [
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Ética",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Canal de Denúncias",
+      "link_count": 0,
+      "link_to": "Canal de Denuncias",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Judicial",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Processo Judicial",
+      "link_count": 0,
+      "link_to": "Processo Judicial",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Configurações",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Configurações de Processos Judiciais",
+      "link_count": 0,
+      "link_to": "Configurações DataJud",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    }
+  ],
+  "modified": "2026-09-16 16:54:19.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Jurídico",
+  "number_cards": [
+    {
+      "number_card_name": "Total de Processos Judiciais",
+      "label": "Total de Processos Judiciais"
+    },
+    {
+      "number_card_name": "Processos em Andamento",
+      "label": "Processos em Andamento"
+    },
+    {
+      "number_card_name": "Processos Encerrados",
+      "label": "Processos Encerrados"
+    }
+  ],
+  "owner": "Administrator",
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [],
+  "roles": [],
+  "sequence_id": 11.0,
+  "shortcuts": [
+    {
+      "label": "Processo Judicial",
+      "link_to": "Processo Judicial",
+      "type": "DocType",
+      "color": "Orange",
+      "doc_view": "List"
+    },
+    {
+      "label": "Canal de Denúncias",
+      "link_to": "Canal de Denuncias",
+      "type": "DocType",
+      "color": "Grey",
+      "doc_view": "List"
+    },
+    {
+      "label": "Configurações de Processos Judiciais",
+      "link_to": "Configurações DataJud",
+      "type": "DocType",
+      "color": "Grey",
+      "doc_view": "List"
+    },
+    {
+      "label": "Dashboard de Processos",
+      "link_to": "Processos Judiciais",
+      "type": "Dashboard",
+      "color": "Blue"
+    }
+  ],
+  "title": "Jurídico"
 }
