@@ -441,3 +441,96 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "classe_nome"),
 			"Procedimento do Juizado")
 		self.assertFalse(frappe.db.exists("Processo Judicial", "novo-durante-consulta"))
+
+	def test_busca_manual_atualiza_apenas_ocorrencia_aberta_inclusive_encerrada(self):
+		numero = "8" * 20
+		identificador = "busca-manual-encerrado"
+		outro = "busca-manual-outro"
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
+		datajud._espelhar_ocorrencia(outro, _fonte(outro, numero))
+		frappe.db.set_value("Processo Judicial", identificador, "status_processo", "Encerrado")
+		fonte = _fonte(identificador, numero)
+		fonte["movimentos"].append({
+			"codigo": 51, "nome": "Conclusão", "dataHora": "2023-07-22T10:00:00.000Z"
+		})
+		fonte["classe"]["nome"] = "Classe atualizada"
+		with patch.object(datajud, "consultar_numero", return_value=[
+			(outro, _fonte(outro, numero)), (identificador, fonte),
+		]):
+			resultado = datajud.buscar_andamentos(identificador)
+		self.assertEqual(resultado, {"novos_andamentos": 1, "total_andamentos": 2})
+		doc = frappe.get_doc("Processo Judicial", identificador)
+		self.assertEqual(doc.status_processo, "Encerrado")
+		self.assertEqual(doc.classe_nome, "Classe atualizada")
+		self.assertEqual(len(frappe.get_doc("Processo Judicial", outro).movimentos), 1)
+		with patch.object(datajud, "consultar_numero", return_value=[(identificador, fonte)]):
+			self.assertEqual(datajud.buscar_andamentos(identificador)["novos_andamentos"], 0)
+
+	def test_busca_manual_sem_ocorrencia_preserva_dados(self):
+		identificador = "busca-manual-ausente"
+		numero = "9" * 20
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
+		with patch.object(datajud, "consultar_numero", return_value=[]):
+			with self.assertRaises(frappe.ValidationError):
+				datajud.buscar_andamentos(identificador)
+		self.assertEqual(len(frappe.get_doc("Processo Judicial", identificador).movimentos), 1)
+
+	def test_conexoes_das_partes_filtram_o_tipo_correto(self):
+		from frappe.desk.notifications import get_dynamic_link_filters
+
+		for tipo_parte in ("Employee", "Customer", "Supplier"):
+			with self.subTest(tipo_parte=tipo_parte):
+				dados = frappe.get_meta(tipo_parte).get_dashboard_data()
+				self.assertIn("Processo Judicial", [
+					item for grupo in dados.transactions for item in grupo["items"]
+				])
+				self.assertEqual(dados.non_standard_fieldnames["Processo Judicial"], "parte")
+				self.assertEqual(get_dynamic_link_filters("Processo Judicial", dados, "parte"), {
+					"tipo_parte": tipo_parte
+				})
+
+	def test_conexao_do_colaborador_localiza_seus_processos(self):
+		from frappe.desk.notifications import get_open_count
+
+		colaborador = frappe.get_doc({
+			"doctype": "Employee",
+			"naming_series": "EMP-",
+			"first_name": "Colaborador Jurídico",
+			"company": frappe.get_all("Company", pluck="name", limit=1)[0],
+			"gender": frappe.get_all("Gender", pluck="name", limit=1)[0],
+			"date_of_birth": "1990-05-08",
+			"date_of_joining": "2020-01-01",
+			"status": "Active",
+		}).insert(ignore_mandatory=True)
+		identificador = "processo-colaborador-conexao"
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, "3" * 20))
+		processo = frappe.get_doc("Processo Judicial", identificador)
+		processo.tipo_parte = "Employee"
+		processo.parte = colaborador.name
+		processo.save()
+		conexoes = get_open_count("Employee", colaborador.name)["count"]["external_links_found"]
+		self.assertIn({"doctype": "Processo Judicial", "count": 1, "open_count": 0}, conexoes)
+
+	def test_processo_relacionado_aparece_nas_conexoes_e_resiste_ao_datajud(self):
+		from frappe.desk.notifications import get_open_count
+
+		origem = "processo-relacionado-origem"
+		destino = "processo-relacionado-destino"
+		datajud._espelhar_ocorrencia(origem, _fonte(origem, "1" * 20))
+		datajud._espelhar_ocorrencia(destino, _fonte(destino, "2" * 20))
+		doc = frappe.get_doc("Processo Judicial", origem)
+		doc.processo_relacionado = origem
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		doc.reload()
+		doc.processo_relacionado = destino
+		doc.save()
+		datajud._espelhar_ocorrencia(origem, _fonte(origem, "1" * 20))
+		self.assertEqual(frappe.db.get_value("Processo Judicial", origem, "processo_relacionado"), destino)
+		meta = frappe.get_meta("Processo Judicial")
+		self.assertTrue(meta.get_field("aba_conexoes").show_dashboard)
+		self.assertEqual(meta.get_field("processo_relacionado").options, "Processo Judicial")
+		campos = [campo.fieldname for campo in meta.fields]
+		self.assertGreater(campos.index("processo_relacionado"), campos.index("aba_conexoes"))
+		conexoes = get_open_count("Processo Judicial", destino)["count"]["external_links_found"]
+		self.assertIn({"doctype": "Processo Judicial", "count": 1, "open_count": 0}, conexoes)

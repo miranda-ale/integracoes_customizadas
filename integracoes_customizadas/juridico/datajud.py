@@ -4,6 +4,7 @@ import hashlib
 import re
 import secrets
 import time
+from collections import Counter
 
 import frappe
 import requests
@@ -253,6 +254,37 @@ def acompanhar_processo(numero_processo, tribunal_alias):
 		doc.consulta_token = token
 		resultados.append({"doc": doc.as_dict(), "existente": False})
 	return resultados
+
+
+def _assinaturas_movimentos(doc):
+	return Counter(
+		(
+			movimento.codigo, movimento.nome, movimento.data_hora_original,
+			movimento.orgao_julgador_codigo, movimento.orgao_julgador_nome,
+			movimento.complementos_tabelados,
+		)
+		for movimento in doc.movimentos
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def buscar_andamentos(processo):
+	"""Consulta e atualiza somente a ocorrência aberta, mesmo se estiver encerrada."""
+	_check_user()
+	doc = frappe.get_doc("Processo Judicial", processo)
+	doc.check_permission("write")
+	alias = _alias_do_tribunal(doc.tribunal)
+	if not alias:
+		frappe.throw(_("Tribunal não consta na lista de endpoints do DataJud."))
+	ocorrencias = consultar_numero(doc.numero_processo, alias)
+	fonte = next((fonte for identificador, fonte in ocorrencias if identificador == doc.datajud_id), None)
+	if fonte is None:
+		frappe.throw(_("A ocorrência deste processo não foi encontrada no DataJud."))
+	anteriores = _assinaturas_movimentos(doc)
+	_espelhar_ocorrencia(doc.datajud_id, fonte)
+	atualizado = frappe.get_doc("Processo Judicial", processo)
+	novos = sum((_assinaturas_movimentos(atualizado) - anteriores).values())
+	return {"novos_andamentos": novos, "total_andamentos": len(atualizado.movimentos)}
 
 
 def atualizar_processos_acompanhados():

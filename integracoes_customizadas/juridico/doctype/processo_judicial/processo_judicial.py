@@ -72,6 +72,8 @@ class ProcessoJudicial(Document):
 			frappe.throw(_("Tipo da Parte inválido."))
 		if self.parte and (not self.tipo_parte or not frappe.db.exists(self.tipo_parte, self.parte)):
 			frappe.throw(_("Selecione uma parte válida para o tipo informado."))
+		if self.processo_relacionado and self.processo_relacionado == self.name:
+			frappe.throw(_("Um processo não pode ser relacionado a si mesmo."))
 		campos_nome = {"Employee": "employee_name", "Customer": "customer_name", "Supplier": "supplier_name"}
 		self.nome_parte = (
 			frappe.db.get_value(self.tipo_parte, self.parte, campos_nome[self.tipo_parte])

@@ -100,7 +100,7 @@ frappe.listview_settings["Processo Judicial"] = {
 					});
 				};
 				listview.set_primary_action = () => {
-					listview.page.set_primary_action(__("Acompanhar processo"), abrir_dialogo, "add");
+					listview.page.set_primary_action(__("Adicionar Processo"), abrir_dialogo, "add");
 				};
 				listview.set_primary_action();
 			},

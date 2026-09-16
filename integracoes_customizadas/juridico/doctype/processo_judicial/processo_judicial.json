@@ -52,7 +52,9 @@
     "moeda",
     "valor_causa",
     "coluna_valores",
-    "valor_condenacao"
+    "valor_condenacao",
+    "aba_conexoes",
+    "processo_relacionado"
   ],
   "fields": [
     {
@@ -295,6 +297,13 @@
       "options": "Company"
     },
     {
+      "fieldname": "processo_relacionado",
+      "fieldtype": "Link",
+      "label": "Processo Relacionado",
+      "options": "Processo Judicial",
+      "no_copy": 1
+    },
+    {
       "fieldname": "aba_movimentos",
       "fieldtype": "Tab Break",
       "label": "Movimentos"
@@ -363,6 +372,12 @@
       "fieldname": "secao_valores",
       "fieldtype": "Section Break",
       "label": "Valores"
+    },
+    {
+      "fieldname": "aba_conexoes",
+      "fieldtype": "Tab Break",
+      "label": "Conexões",
+      "show_dashboard": 1
     }
   ],
   "links": [],
