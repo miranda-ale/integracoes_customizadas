@@ -1,0 +1,185 @@
+<style>
+	.mapa-precos { font-size: 8.5pt; color: #1f272e; hyphens: auto; -webkit-hyphens: auto; }
+	.mapa-precos.denso { font-size: 7pt; }
+	.mapa-precos h2 { margin: 0 0 2px; font-size: 15pt; text-align: center; }
+	.mapa-precos .sub { text-align: center; color: #6c7680; margin-bottom: 8px; }
+	.mapa-precos table.cards { width: 100%; border-collapse: separate; border-spacing: 6px 0; margin: 6px -6px 10px; }
+	.mapa-precos table.cards td { border: 1px solid #d1d8dd; border-radius: 4px; padding: 6px 8px; text-align: center; background: #f8f9fa; }
+	.mapa-precos .card-label { display: block; font-size: 7.5pt; text-transform: uppercase; color: #6c7680; }
+	.mapa-precos .card-value { display: block; font-size: 12pt; font-weight: 700; }
+	.mapa-precos .card-value.green { color: #137333; }
+	.mapa-precos .card-value.red { color: #c5221f; }
+	.mapa-precos .card-value.orange { color: #b06000; }
+	.mapa-precos .comparativo { display: flex; gap: 10px; align-items: stretch; margin-bottom: 10px; }
+	.mapa-precos table.fornecedores { width: 100%; border-collapse: collapse; margin-bottom: 0; flex: 1 1 55%; }
+	.mapa-precos table.fornecedores th, .mapa-precos table.fornecedores td { border: 1px solid #d1d8dd; padding: 3px 6px; text-align: left; }
+	.mapa-precos table.fornecedores th { background: #eef1f4; }
+	.mapa-precos table.fornecedores td:first-child, .mapa-precos table.fornecedores th:first-child { text-align: center; width: 36px; }
+	.mapa-precos .grafico { flex: 1 1 45%; border: 1px solid #d1d8dd; border-radius: 4px; padding: 4px 6px; background: #fcfcfb; }
+	.mapa-precos .grafico-titulo { font-size: 7.5pt; text-transform: uppercase; color: #6c7680; text-align: center; margin-bottom: 2px; }
+	.mapa-precos .grafico-media { text-align: center; font-size: 7pt; color: #6c7680; margin-top: 3px; }
+	.mapa-precos .grafico-media .traco { display: inline-block; width: 12px; border-top: 1px dashed #b3b2ab; vertical-align: middle; margin-right: 3px; }
+	.mapa-precos table.mapa { width: 100%; border-collapse: collapse; table-layout: fixed; }
+	.mapa-precos table.mapa th { background: #eef1f4; border: 1px solid #c5ccd3; padding: 4px 3px; text-align: center; vertical-align: middle; height: 34px; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; line-height: 1.15; }
+	.mapa-precos table.mapa td { border: 1px solid #d1d8dd; padding: 3px 4px; vertical-align: middle; word-wrap: break-word; overflow-wrap: anywhere; }
+	.mapa-precos td.num { text-align: right; white-space: nowrap; overflow: hidden; }
+	.mapa-precos td.menor { background: #e6f4ea; color: #137333; font-weight: 700; }
+	.mapa-precos tr.total td { background: #f1f3f4; font-weight: 700; border-top: 2px solid #5f6b76; }
+	.mapa-precos .legenda { margin-top: 6px; color: #6c7680; font-size: 7.5pt; }
+	.mapa-precos .legenda .chip { display: inline-block; width: 10px; height: 10px; background: #e6f4ea; border: 1px solid #137333; vertical-align: middle; margin-right: 3px; }
+</style>
+
+{% var resumo = (report.raw_data && report.raw_data.report_summary) || []; %}
+{% var ehMoeda = function (c) { return c.fieldtype === "Currency"; }; %}
+
+{% var fixas = { item_name: 17, description: 17, qty: 4, average: 9 };
+   var somaFixas = 0, nProp = 0;
+   for (var i = 0; i < columns.length; i++) {
+	   if (fixas[columns[i].fieldname]) somaFixas += fixas[columns[i].fieldname]; else nProp++;
+   }
+   var larguraProp = nProp ? (100 - somaFixas) / nProp : 0; %}
+<div class="mapa-precos {%= nProp > 4 ? "denso" : "" %}" lang="pt-BR">
+	<h2>{%= __(report.report_name) %}</h2>
+	<div class="sub">
+		{% if (filters.request_for_quotation) { %}{%= __("Request for Quotation") %}: <strong>{%= filters.request_for_quotation %}</strong>{% } %}
+		{% if (filters.company) { %} &middot; {%= __("Company") %}: {%= filters.company %}{% } %}
+	</div>
+
+	{% if (resumo.length) { %}
+	<table class="cards">
+		<tr>
+		{% for (var s = 0; s < resumo.length; s++) { %}
+			<td>
+				<span class="card-label">{%= __(resumo[s].label) %}</span>
+				<span class="card-value {%= (resumo[s].indicator || "").toLowerCase() %}">
+					{%= frappe.format(resumo[s].value, { fieldtype: resumo[s].datatype }, { only_value: true }) %}
+				</span>
+			</td>
+		{% } %}
+		</tr>
+	</table>
+	{% } %}
+
+	{% var fornecedores = columns.filter(function (c) { return c.supplier_number && c.metric === "rate"; }); %}
+	{% var barras = fornecedores.filter(function (c) { return !c.discarded; }).map(function (c) {
+		   var linhaTotal = data.length ? data[data.length - 1] : null;
+		   return { numero: c.supplier_number, valor: linhaTotal ? flt(linhaTotal[c.fieldname]) : 0 };
+	   });
+	   var mediaBarras = barras.length ? barras.reduce(function (a, b) { return a + b.valor; }, 0) / barras.length : 0;
+	   var menorBarra = barras.length ? Math.min.apply(null, barras.map(function (b) { return b.valor; })) : 0;
+	   var maiorBarra = barras.length ? Math.max.apply(null, barras.map(function (b) { return b.valor; }).concat([mediaBarras])) : 0;
+	   var chartW = 240, chartH = 108, pad = { top: 14, right: 6, bottom: 18, left: 6 };
+	   var plotW = chartW - pad.left - pad.right, plotH = chartH - pad.top - pad.bottom;
+	   var nBarras = barras.length, gapBarras = 10;
+	   var largBarra = nBarras ? Math.min(28, Math.max(8, (plotW - gapBarras * (nBarras - 1)) / nBarras)) : 0;
+	   var totalBarras = nBarras ? nBarras * largBarra + (nBarras - 1) * gapBarras : 0;
+	   var inicioX = pad.left + Math.max(0, (plotW - totalBarras) / 2); %}
+	{% if (fornecedores.length) { %}
+	<div class="comparativo">
+	<table class="fornecedores">
+		<thead>
+			<tr><th>{%= __("Nº") %}</th><th>{%= __("Fornecedor") %}</th><th>{%= __("CNPJ") %}</th></tr>
+		</thead>
+		<tbody>
+		{% for (var f = 0; f < fornecedores.length; f++) { %}
+			<tr>
+				<td>{%= fornecedores[f].supplier_number %}</td>
+				<td>{%= fornecedores[f].label %}</td>
+				<td>{%= fornecedores[f].supplier_tax_id || "-" %}</td>
+			</tr>
+		{% } %}
+		</tbody>
+	</table>
+	{% if (barras.length) { %}
+	<div class="grafico">
+		<div class="grafico-titulo">{%= __("Comparativo de Valores") %}</div>
+		<svg viewBox="0 0 {%= chartW %} {%= chartH %}" style="width:100%;height:auto;display:block;overflow:visible;" role="img" aria-label="{%= __('Gráfico comparativo do valor total de cada proposta, com a média entre elas') %}">
+			<line x1="{%= pad.left %}" y1="{%= (chartH - pad.bottom).toFixed(1) %}" x2="{%= chartW - pad.right %}" y2="{%= (chartH - pad.bottom).toFixed(1) %}" stroke="#c3c2b7" stroke-width="1"></line>
+			{% var mediaY = (chartH - pad.bottom) - (maiorBarra ? (mediaBarras / maiorBarra) * plotH : 0); %}
+			<line x1="{%= pad.left %}" y1="{%= mediaY.toFixed(1) %}" x2="{%= chartW - pad.right %}" y2="{%= mediaY.toFixed(1) %}" stroke="#b3b2ab" stroke-width="1" stroke-dasharray="3,2"></line>
+			{% for (var b = 0; b < barras.length; b++) {
+				var barra = barras[b];
+				var x = inicioX + b * (largBarra + gapBarras);
+				var h = maiorBarra ? (barra.valor / maiorBarra) * plotH : 0;
+				var y = (chartH - pad.bottom) - h;
+				var ehMenor = barra.valor === menorBarra;
+				var cor = ehMenor ? "#8fca9f" : "#9cc0ea";
+				var borda = ehMenor ? "#5fa877" : "#6b96cc";
+			%}
+				<rect x="{%= x.toFixed(1) %}" y="{%= y.toFixed(1) %}" width="{%= largBarra.toFixed(1) %}" height="{%= h.toFixed(1) %}" rx="3" fill="{%= cor %}" stroke="{%= borda %}" stroke-width="1"></rect>
+				<text x="{%= (x + largBarra / 2).toFixed(1) %}" y="{%= (y - 3).toFixed(1) %}" text-anchor="middle" font-size="6" fill="#6c7680">{%= format_currency(barra.valor, null, 0) %}</text>
+				<text x="{%= (x + largBarra / 2).toFixed(1) %}" y="{%= (chartH - pad.bottom + 10).toFixed(1) %}" text-anchor="middle" font-size="6.5" fill="#6c7680">{%= barra.numero %}</text>
+			{% } %}
+		</svg>
+		<div class="grafico-media"><span class="traco"></span>{%= __("Média") %}: {%= format_currency(mediaBarras, null, 0) %}</div>
+	</div>
+	{% } %}
+	</div>
+	{% } %}
+
+	<table class="mapa">
+		<colgroup>
+		{% for (var i = 0; i < columns.length; i++) { %}
+			<col style="width: {%= (fixas[columns[i].fieldname] || larguraProp).toFixed(2) %}%;">
+		{% } %}
+		</colgroup>
+		{% var grupos = [];
+		   for (var i = 0; i < columns.length; i++) {
+			   var c = columns[i];
+			   var ultimo = grupos.length ? grupos[grupos.length - 1] : null;
+			   if (c.supplier_number && ultimo && ultimo.supplier_number === c.supplier_number) {
+				   ultimo.cols.push(c);
+			   } else {
+				   grupos.push({ supplier_number: c.supplier_number, cols: [c] });
+			   }
+		   } %}
+		<thead>
+			<tr>
+			{% for (var g = 0; g < grupos.length; g++) { var grupo = grupos[g]; %}
+				{% if (grupo.supplier_number && grupo.cols.length > 1) { %}
+					<th colspan="{%= grupo.cols.length %}">{%= grupo.supplier_number %}</th>
+				{% } else if (grupo.supplier_number) { %}
+					<th rowspan="2">{%= grupo.supplier_number %}</th>
+				{% } else { %}
+					<th rowspan="2">{%= grupo.cols[0].label %}</th>
+				{% } %}
+			{% } %}
+			</tr>
+			<tr>
+			{% for (var g = 0; g < grupos.length; g++) { var grupo = grupos[g]; %}
+				{% if (grupo.supplier_number && grupo.cols.length > 1) { %}
+					{% for (var k = 0; k < grupo.cols.length; k++) { %}
+						<th>{%= grupo.cols[k].metric_label %}</th>
+					{% } %}
+				{% } %}
+			{% } %}
+			</tr>
+		</thead>
+		<tbody>
+		{% for (var r = 0; r < data.length; r++) { %}
+			{% var row = data[r]; var menores = row.lowest_fields || []; %}
+			<tr class="{%= row.is_total ? "total" : "" %}">
+			{% for (var i = 0; i < columns.length; i++) {
+				var c = columns[i];
+				var v = row[c.fieldname];
+				var vazio = v === null || v === undefined || v === "";
+				var cls = [];
+				if (["Currency", "Float", "Percent", "Int"].includes(c.fieldtype)) cls.push("num");
+				if (menores.includes(c.fieldname)) cls.push("menor");
+			%}
+				<td class="{%= cls.join(" ") %}">
+				{% if (!vazio) { %}
+					{% if (menores.includes(c.fieldname)) { %}&#9660; {% } %}
+					{% if (c.fieldtype === "Currency") { %}{%= format_currency(v) %}
+					{% } else if (c.fieldtype === "Percent") { %}{%= flt(v, 1) %}%
+					{% } else { %}{%= v %}{% } %}
+				{% } %}
+				</td>
+			{% } %}
+			</tr>
+		{% } %}
+		</tbody>
+	</table>
+
+	<div class="legenda"><span class="chip"></span>{%= __("Menor preço válido (propostas canceladas/paralisadas não entram no cálculo)") %}</div>
+</div>
