@@ -1,7 +1,7 @@
 import re
 import frappe
 from xml.etree.ElementTree import Element, SubElement, tostring
-from frappe.utils import getdate, add_days, nowdate, strip_html, now_datetime
+from frappe.utils import getdate, strip_html
 
 # Regras fixas do layout WA
 LAYOUT = "WA"
@@ -13,10 +13,6 @@ HORA_VENCIMENTO_FIXA = "14:00"
 
 # Limites conforme documentação
 MAX_VARCHAR_4000 = 4000
-
-def _make_requisicao_10_digits() -> str:
-    # YYMMDDHHMM => 10 dígitos, somente números
-    return now_datetime().strftime("%y%m%d%H%M")
 
 def _fmt_date_ddmmyyyy(d) -> str:
     if not d:
@@ -81,25 +77,38 @@ def _sanitize_varchar_4000(text: str) -> str:
     return txt
 
 @frappe.whitelist()
-def export_material_request_bionexo_xml(material_request: str):
-    doc = frappe.get_doc("Material Request", material_request)
+def export_request_for_quotation_bionexo_xml(request_for_quotation: str):
+    """Exporta uma Request for Quotation submetida no layout XML da Bionexo."""
+    doc = frappe.get_doc("Request for Quotation", request_for_quotation)
 
     if doc.docstatus != 1:
-        frappe.throw("Somente é permitido exportar Material Request submetido (docstatus=1).")
+        frappe.throw("Somente é permitido exportar Solicitação de Orçamento submetida (docstatus=1).")
 
     if not doc.items:
-        frappe.throw("Material Request sem itens. Nada a exportar.")
+        frappe.throw("Solicitação de Orçamento sem itens. Nada a exportar.")
 
-    # Regras solicitadas
-    requisicao = _make_requisicao_10_digits()
-    titulo_pdc = (doc.title or "").strip()
-    if not titulo_pdc:
-        frappe.throw("Material Request sem título (title). Preencha o campo Título para exportar ao Bionexo.")
+    # O layout Bionexo possui apenas uma Requisição no cabeçalho. Uma RFQ
+    # agrupadora não pode ser exportada sem ambiguidade quando referenciar mais
+    # de uma Solicitação de Compras.
+    material_requests = sorted({item.material_request for item in doc.items if item.material_request})
+    if not material_requests:
+        frappe.throw(
+            "A Solicitação de Orçamento deve possuir uma Solicitação de Compras vinculada em seus itens."
+        )
+    if len(material_requests) > 1:
+        frappe.throw(
+            "A Solicitação de Orçamento deve referenciar uma única Solicitação de Compras para exportação Bionexo."
+        )
+    if not doc.schedule_date:
+        frappe.throw("Preencha a Data Necessária (schedule_date) antes de exportar ao Bionexo.")
+
+    requisicao = material_requests[0]
+    titulo_pdc = doc.name
 
     observacao = doc.name  # doc.name preservado aqui
     termo = _sanitize_varchar_4000(doc.terms or "")
 
-    data_vencimento = _fmt_date_ddmmyyyy(add_days(nowdate(), 2))
+    data_vencimento = _fmt_date_ddmmyyyy(doc.schedule_date)
     hora_vencimento = HORA_VENCIMENTO_FIXA
 
     # --- XML conforme layout WA ---
@@ -117,6 +126,9 @@ def export_material_request_bionexo_xml(material_request: str):
     SubElement(cab, "Termo").text = termo
     SubElement(cab, "Tipo_Cotacao").text = TIPO_COTACAO_FIXO
     SubElement(cab, "Cod_Estoque").text = COD_ESTOQUE_FIXO
+    campo_extra = SubElement(cab, "Campo_Extra")
+    SubElement(campo_extra, "Nome").text = "registro_interno_ERP"
+    SubElement(campo_extra, "Valor").text = requisicao
 
     itens_req = SubElement(pedido, "Itens_Requisicao")
 

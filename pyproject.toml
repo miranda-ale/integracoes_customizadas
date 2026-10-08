@@ -8,7 +8,9 @@ requires-python = ">=3.11"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
-    # "frappe~=16.0.0" # Installed and managed by bench.
+    # "frappe~=15.0.0" # Installed and managed by bench.
+    # "erpnext~=15.0.0" # Required app (see required_apps in hooks.py); installed and managed by bench.
+    # "hrms~=15.0.0" # Required app (Provas module uses Job Applicant/Interview Round/Shift Type); installed and managed by bench.
 ]
 
 [build-system]
@@ -19,9 +21,15 @@ build-backend = "flit_core.buildapi"
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
 
+# Frappe/bench-level app dependencies (enforced on install by bench/Frappe Cloud).
+[tool.bench.frappe-dependencies]
+frappe = ">=15.0.0,<16.0.0"
+erpnext = ">=15.0.0,<16.0.0"
+hrms = ">=15.0.0,<16.0.0"
+
 [tool.ruff]
 line-length = 110
-target-version = "py314"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = [
