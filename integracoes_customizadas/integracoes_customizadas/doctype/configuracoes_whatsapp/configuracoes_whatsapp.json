@@ -1,0 +1,15 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "field_order": ["server_url", "api_key", "instance_name", "connection_html"],
+ "fields": [
+  {"fieldname": "server_url", "fieldtype": "Data", "label": "URL da Evolution API", "reqd": 1, "description": "Endereço base do servidor Evolution API v2."},
+  {"fieldname": "api_key", "fieldtype": "Password", "label": "Chave da API", "reqd": 1},
+  {"fieldname": "instance_name", "fieldtype": "Data", "label": "Nome da instância", "reqd": 1},
+  {"fieldname": "connection_html", "fieldtype": "HTML", "label": "Conexão"}
+ ],
+ "issingle": 1,
+ "module": "Integracoes Customizadas",
+ "name": "Configuracoes WhatsApp",
+ "permissions": [{"role": "System Manager", "read": 1, "write": 1}]
+}

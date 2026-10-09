@@ -98,14 +98,19 @@ doctype_js = {"Request for Quotation": "public/js/request_for_quotation.js"}
 # ------------
 
 # before_install = "integracoes_customizadas.install.before_install"
-after_install = "integracoes_customizadas.provas.setup.after_install"
+after_install = "integracoes_customizadas.setup.after_install"
 
 # Migration
 # ---------
 after_migrate = [
 	"integracoes_customizadas.provas.setup.after_migrate",
 	"integracoes_customizadas.juridico.setup.after_migrate",
+	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
 ]
+
+override_doctype_class = {
+	"Notification": "integracoes_customizadas.whatsapp.notification.WhatsAppNotification",
+}
 
 # Uninstallation
 # ------------
