@@ -1,15 +1,124 @@
 {
  "actions": [],
  "doctype": "DocType",
- "field_order": ["server_url", "api_key", "instance_name", "connection_html"],
+ "field_order": [
+  "ativo",
+  "modo_info",
+  "server_url",
+  "api_key",
+  "instance_name",
+  "connection_html",
+  "limites_section",
+  "timeout_conexao_s",
+  "timeout_leitura_s",
+  "delay_min_s",
+  "delay_max_s",
+  "verificar_numero_antes",
+  "webhook_section",
+  "webhook_habilitado",
+  "webhook_segredo"
+ ],
  "fields": [
-  {"fieldname": "server_url", "fieldtype": "Data", "label": "URL da Evolution API", "reqd": 1, "description": "Endereço base do servidor Evolution API v2."},
-  {"fieldname": "api_key", "fieldtype": "Password", "label": "Chave da API", "reqd": 1},
-  {"fieldname": "instance_name", "fieldtype": "Data", "label": "Nome da instância", "reqd": 1},
-  {"fieldname": "connection_html", "fieldtype": "HTML", "label": "Conexão"}
+  {
+   "fieldname": "ativo",
+   "fieldtype": "Check",
+   "label": "Conector ativo",
+   "default": "1"
+  },
+  {
+   "fieldname": "modo_info",
+   "fieldtype": "HTML",
+   "label": "Modo",
+   "options": "<p class=\"text-muted\">Modo: Baileys (não oficial). O canal é de melhor esforço e pode cair sem aviso.</p>"
+  },
+  {
+   "fieldname": "server_url",
+   "fieldtype": "Data",
+   "label": "URL da Evolution API",
+   "reqd": 1,
+   "description": "Endereço base do servidor Evolution API v2."
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "Chave da API",
+   "reqd": 1
+  },
+  {
+   "fieldname": "instance_name",
+   "fieldtype": "Data",
+   "label": "Nome da instância",
+   "reqd": 1
+  },
+  {
+   "fieldname": "connection_html",
+   "fieldtype": "HTML",
+   "label": "Conexão"
+  },
+  {
+   "fieldname": "limites_section",
+   "fieldtype": "Section Break",
+   "label": "Tempos e limites",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "timeout_conexao_s",
+   "fieldtype": "Int",
+   "label": "Timeout de conexão (s)",
+   "default": "5"
+  },
+  {
+   "fieldname": "timeout_leitura_s",
+   "fieldtype": "Int",
+   "label": "Timeout de leitura (s)",
+   "default": "15"
+  },
+  {
+   "fieldname": "delay_min_s",
+   "fieldtype": "Int",
+   "label": "Intervalo mínimo entre envios (s)",
+   "default": "2",
+   "description": "Só para envios não prioritários."
+  },
+  {
+   "fieldname": "delay_max_s",
+   "fieldtype": "Int",
+   "label": "Intervalo máximo entre envios (s)",
+   "default": "6"
+  },
+  {
+   "fieldname": "verificar_numero_antes",
+   "fieldtype": "Check",
+   "label": "Verificar número antes de enviar",
+   "default": "1"
+  },
+  {
+   "fieldname": "webhook_section",
+   "fieldtype": "Section Break",
+   "label": "Webhook (reservado)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "webhook_habilitado",
+   "fieldtype": "Check",
+   "label": "Webhook habilitado",
+   "default": "0",
+   "description": "Reservado: o recebimento de eventos ainda não está implementado."
+  },
+  {
+   "fieldname": "webhook_segredo",
+   "fieldtype": "Password",
+   "label": "Segredo do webhook"
+  }
  ],
  "issingle": 1,
  "module": "Integracoes Customizadas",
  "name": "Configuracoes WhatsApp",
- "permissions": [{"role": "System Manager", "read": 1, "write": 1}]
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1
+  }
+ ]
 }

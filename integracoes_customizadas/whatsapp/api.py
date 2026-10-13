@@ -20,6 +20,8 @@ def get_settings():
 		frappe.throw(_("Configure a URL e o nome da instância do WhatsApp."))
 	if not settings.get_password("api_key", raise_exception=False):
 		frappe.throw(_("Configure a chave da Evolution API."))
+	if settings.get("ativo") in (0, "0"):  # None = configuração anterior ao campo; tratada como ativa
+		frappe.throw(_("O conector WhatsApp está desativado."))
 	return settings
 
 

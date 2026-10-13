@@ -1,5 +1,9 @@
 # Histórico de alterações
 
+## Não lançado
+
+- **WhatsApp:** conector estável da Evolution API v2 (`whatsapp/conector.py`: `estado_conexao`, `verificar_numero`, `enviar_texto`, `normalizar_numero_br`) com espaçamento entre envios, timeouts configuráveis e sem retry em envio; novos campos em Configuracoes WhatsApp (ativo, timeouts, intervalo, verificação prévia, webhook reservado). Preparado o hook `evolution_webhook_handlers` e o endpoint de webhook, ainda desligado (HTTP 501).
+
 ## v1.11.0 — mudanças desde v1.10.0
 
 - **Jurídico:** anexo por movimentação com coluna visível na tabela do processo, descrição composta a partir dos complementos tabelados e leitura de submovimentos; anexos existentes são preservados nas atualizações do DataJud.

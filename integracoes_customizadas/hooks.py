@@ -98,6 +98,10 @@ doctype_js = {"Request for Quotation": "public/js/request_for_quotation.js"}
 # ------------
 
 # before_install = "integracoes_customizadas.install.before_install"
+# Handlers de eventos de status normalizados da Evolution API (ver whatsapp/webhook.py). Outros apps
+# registram aqui; o recebimento dos webhooks ainda não está implementado.
+evolution_webhook_handlers = []
+
 after_install = "integracoes_customizadas.setup.after_install"
 
 # Migration
