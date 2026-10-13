@@ -78,11 +78,11 @@ def _sanitize_varchar_4000(text: str) -> str:
 
 @frappe.whitelist()
 def export_request_for_quotation_bionexo_xml(request_for_quotation: str):
-    """Exporta uma Request for Quotation submetida no layout XML da Bionexo."""
+    """Exporta uma Request for Quotation não cancelada no layout XML da Bionexo."""
     doc = frappe.get_doc("Request for Quotation", request_for_quotation)
 
-    if doc.docstatus != 1:
-        frappe.throw("Somente é permitido exportar Solicitação de Orçamento submetida (docstatus=1).")
+    if doc.docstatus == 2:
+        frappe.throw("Não é permitido exportar Solicitação de Orçamento cancelada.")
 
     if not doc.items:
         frappe.throw("Solicitação de Orçamento sem itens. Nada a exportar.")
