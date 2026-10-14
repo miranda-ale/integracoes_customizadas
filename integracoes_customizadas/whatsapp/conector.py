@@ -186,7 +186,12 @@ def enviar_texto(numero, texto, *, prioridade="normal") -> dict:
 			_aguardar_espaco(settings)
 		else:
 			frappe.cache.set_value(CHAVE_ULTIMO_ENVIO, time.time(), expires_in_sec=3600)
-		dados = _requisicao("POST", "message/sendText/{instancia}", json={"number": destino, "text": texto})
+		# linkPreview: a Evolution lê o Open Graph da primeira URL do texto e monta o cartão de prévia.
+		dados = _requisicao(
+			"POST",
+			"message/sendText/{instancia}",
+			json={"number": destino, "text": texto, "linkPreview": True},
+		)
 	except (EvolutionIndisponivel, EnvioRejeitado, NumeroInvalido) as exc:
 		_registrar_erro("WhatsApp: falha no envio", exc, destino)
 		raise

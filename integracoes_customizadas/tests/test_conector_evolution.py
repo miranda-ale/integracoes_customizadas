@@ -166,7 +166,9 @@ class TestEnviarTexto(Base):
 		r = conector.enviar_texto("(11) 99999-1234", "olá", prioridade="alta")
 		self.assertEqual(r, {"ok": True, "message_id": "3EB0ABC", "status": "PENDING", "erro": None})
 		envio = req.call_args_list[1]
-		self.assertEqual(envio.kwargs["json"], {"number": "5511999991234", "text": "olá"})
+		self.assertEqual(
+			envio.kwargs["json"], {"number": "5511999991234", "text": "olá", "linkPreview": True}
+		)
 		self.assertTrue(envio.args[1].endswith("/message/sendText/bhcl"))
 
 	@patch.object(conector.requests, "request")
