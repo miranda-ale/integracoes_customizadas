@@ -247,6 +247,38 @@ class TestEnviarTexto(Base):
 				conector.enviar_texto("11999991234", "x")
 
 
+class TestEnviarDocumento(Base):
+	@patch.object(conector.requests, "request")
+	def test_envia_pdf_em_base64_como_documento(self, req):
+		req.side_effect = [
+			resposta(200, [{"exists": True, "number": "5511999991234"}]),
+			resposta(201, {"key": {"id": "DOC1"}, "status": "PENDING"}),
+		]
+		with patch.object(conector.random, "uniform", return_value=0.0):
+			r = conector.enviar_documento("11999991234", b"%PDF-1.7", "comprovante.pdf", "legenda")
+		self.assertEqual((r["ok"], r["message_id"]), (True, "DOC1"))
+		envio = req.call_args_list[1]
+		self.assertTrue(envio.args[1].endswith("/message/sendMedia/bhcl"))
+		self.assertEqual(
+			envio.kwargs["json"],
+			{
+				"number": "5511999991234",
+				"mediatype": "document",
+				"mimetype": "application/pdf",
+				"media": "JVBERi0xLjc=",
+				"fileName": "comprovante.pdf",
+				"caption": "legenda",
+			},
+		)
+
+	@patch.object(conector.requests, "request")
+	def test_falha_levanta_a_mesma_excecao_do_texto(self, req):
+		req.side_effect = [resposta(200, [{"exists": True, "number": "5511999991234"}]), requests.Timeout()]
+		with self.assertRaises(EvolutionIndisponivel):
+			conector.enviar_documento("11999991234", b"%PDF", "a.pdf")
+		self.assertEqual(req.call_count, 2)
+
+
 EVENTO = {"message_id": "A1", "status": "entregue", "ocorrido_em": datetime(2026, 10, 13), "bruto": {}}
 
 

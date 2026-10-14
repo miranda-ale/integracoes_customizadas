@@ -1,12 +1,13 @@
 """Conector estável da Evolution API v2 (modo Baileys) para outros apps.
 
-API pública: `estado_conexao`, `verificar_numero`, `enviar_texto` e `normalizar_numero_br`.
+API pública: `estado_conexao`, `verificar_numero`, `enviar_texto`, `enviar_documento` e `normalizar_numero_br`.
 O modo Baileys não é oficial: o canal é "melhor esforço" e pode cair sem aviso, então toda falha
 vira uma exceção própria que o chamador trata como caso normal (ex.: fallback para outro canal).
 
 Não há retry em envio (evita mensagem/OTP duplicado); só GET idempotente tenta uma segunda vez.
 """
 
+import base64
 import random
 import re
 import time
@@ -166,12 +167,8 @@ def _aguardar_espaco(settings):
 		time.sleep(horario - agora)
 
 
-def enviar_texto(numero, texto, *, prioridade="normal") -> dict:
-	"""Envia texto. `prioridade="alta"` (OTP) não aguarda o espaçamento.
-
-	Sucesso → `{"ok": True, "message_id", "status", "erro": None}`. Falhas levantam `NumeroInvalido`,
-	`EvolutionIndisponivel` ou `EnvioRejeitado` (já registradas em log sem chave, texto ou número completo).
-	"""
+def _enviar_mensagem(numero, caminho, corpo, prioridade):
+	"""Normaliza/verifica o número, respeita o espaçamento e faz o POST (sem retry). Ver `enviar_texto`."""
 	settings = _settings()
 	destino = normalizar_numero_br(numero)
 	if not destino:
@@ -186,12 +183,7 @@ def enviar_texto(numero, texto, *, prioridade="normal") -> dict:
 			_aguardar_espaco(settings)
 		else:
 			frappe.cache.set_value(CHAVE_ULTIMO_ENVIO, time.time(), expires_in_sec=3600)
-		# linkPreview: a Evolution lê o Open Graph da primeira URL do texto e monta o cartão de prévia.
-		dados = _requisicao(
-			"POST",
-			"message/sendText/{instancia}",
-			json={"number": destino, "text": texto, "linkPreview": True},
-		)
+		dados = _requisicao("POST", caminho, json={"number": destino, **corpo})
 	except (EvolutionIndisponivel, EnvioRejeitado, NumeroInvalido) as exc:
 		_registrar_erro("WhatsApp: falha no envio", exc, destino)
 		raise
@@ -202,3 +194,33 @@ def enviar_texto(numero, texto, *, prioridade="normal") -> dict:
 		"status": dados.get("status") or "PENDING",
 		"erro": None,
 	}
+
+
+def enviar_texto(numero, texto, *, prioridade="normal") -> dict:
+	"""Envia texto. `prioridade="alta"` (OTP) não aguarda o espaçamento.
+
+	Sucesso → `{"ok": True, "message_id", "status", "erro": None}`. Falhas levantam `NumeroInvalido`,
+	`EvolutionIndisponivel` ou `EnvioRejeitado` (já registradas em log sem chave, texto ou número completo).
+	"""
+	# linkPreview: a Evolution lê o Open Graph da primeira URL do texto e monta o cartão de prévia.
+	return _enviar_mensagem(
+		numero, "message/sendText/{instancia}", {"text": texto, "linkPreview": True}, prioridade
+	)
+
+
+def enviar_documento(
+	numero, conteudo: bytes, nome_arquivo, legenda="", *, mimetype="application/pdf"
+) -> dict:
+	"""Envia um arquivo como documento (base64 em `sendMedia`). Mesmo retorno e exceções de `enviar_texto`."""
+	return _enviar_mensagem(
+		numero,
+		"message/sendMedia/{instancia}",
+		{
+			"mediatype": "document",
+			"mimetype": mimetype,
+			"media": base64.b64encode(conteudo).decode("ascii"),
+			"fileName": nome_arquivo,
+			"caption": legenda or "",
+		},
+		"normal",
+	)
