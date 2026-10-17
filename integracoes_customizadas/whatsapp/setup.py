@@ -12,7 +12,16 @@ def ensure_notification_field():
 					"description": "Envia o assunto e a mensagem aos celulares dos usuários destinatários.",
 					"insert_after": "send_system_notification",
 					"default": "0",
-				}
+				},
+				{
+					"fieldname": "modelo_whatsapp",
+					"fieldtype": "Link",
+					"options": "Modelo WhatsApp",
+					"label": "Modelo WhatsApp",
+					"description": "Texto próprio do WhatsApp. Vazio = usa o corpo desta notificação convertido em texto.",
+					"insert_after": "send_whatsapp",
+					"depends_on": "send_whatsapp",
+				},
 			]
 		},
 		update=True,

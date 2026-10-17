@@ -1,0 +1,22 @@
+{
+ "actions": [],
+ "autoname": "field:titulo",
+ "creation": "2026-10-16 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["titulo", "ativo", "documento", "mensagem", "assunto_email", "mensagem_email"],
+ "fields": [
+  {"fieldname": "titulo", "fieldtype": "Data", "label": "Título", "reqd": 1, "unique": 1, "in_list_view": 1},
+  {"fieldname": "ativo", "fieldtype": "Check", "label": "Ativo", "default": "1", "in_list_view": 1},
+  {"fieldname": "documento", "fieldtype": "Link", "label": "Tipo de documento", "options": "DocType", "in_list_view": 1, "description": "Documento disponível como {{ doc }} na mensagem."},
+  {"fieldname": "mensagem", "fieldtype": "Code", "options": "Jinja", "label": "Mensagem do WhatsApp", "reqd": 1, "description": "Texto puro no padrão do WhatsApp: *negrito*, _itálico_, ~tachado~. Aceita Jinja ({{ doc.campo }}); HTML não é interpretado."},
+  {"fieldname": "assunto_email", "fieldtype": "Data", "label": "Assunto do e-mail", "description": "Usado quando o envio cai para e-mail. Aceita Jinja."},
+  {"fieldname": "mensagem_email", "fieldtype": "Code", "options": "Jinja", "label": "Mensagem do e-mail (opcional)", "description": "Vazio = usa a mensagem do WhatsApp convertida em HTML."}
+ ],
+ "module": "Integracoes Customizadas",
+ "name": "Modelo WhatsApp",
+ "permissions": [{"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1}],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "titulo"
+}

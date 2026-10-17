@@ -45,6 +45,10 @@ def recipient_users(alert, doc, context):
 
 
 def render_message(alert, context):
+	if alert.get("modelo_whatsapp"):
+		from integracoes_customizadas.whatsapp.modelos import renderizar
+
+		return renderizar(alert.modelo_whatsapp, context["doc"], {"alert": alert})["texto"]
 	subject_template = alert.subject or alert.notification_title or ""
 	body_template = alert.message or ""
 	if body_template.strip() == "Add your message here":

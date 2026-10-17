@@ -4,22 +4,16 @@ import frappe
 from frappe.utils import now_datetime
 
 from integracoes_customizadas.whatsapp.api import evolution_request, instance_path, message_path
+from integracoes_customizadas.whatsapp.conector import normalizar_numero_br
 
 
 def normalize_phone(value):
+	"""Mesmo critério do conector (DDD e nono dígito validados); números internacionais (+) passam como estão."""
 	value = (value or "").strip()
-	if not value:
-		return None
-	if not re.fullmatch(r"\+?[\d\s().-]+", value):
-		return None
-	digits = re.sub(r"\D", "", value)
-	if value.startswith("+"):
+	if value.startswith("+") and re.fullmatch(r"\+[\d\s().-]+", value):
+		digits = re.sub(r"\D", "", value)
 		return digits if 8 <= len(digits) <= 15 else None
-	if len(digits) in {10, 11}:
-		return "55" + digits
-	if digits.startswith("55") and len(digits) in {12, 13}:
-		return digits
-	return None
+	return normalizar_numero_br(value)
 
 
 def send_delivery(delivery_name):
