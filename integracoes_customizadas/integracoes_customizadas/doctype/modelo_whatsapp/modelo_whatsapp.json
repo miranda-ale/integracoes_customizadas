@@ -4,12 +4,13 @@
  "creation": "2026-10-16 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": ["titulo", "ativo", "documento", "mensagem", "assunto_email", "mensagem_email"],
+ "field_order": ["titulo", "ativo", "documento", "mensagem", "variantes", "assunto_email", "mensagem_email"],
  "fields": [
   {"fieldname": "titulo", "fieldtype": "Data", "label": "Título", "reqd": 1, "unique": 1, "in_list_view": 1},
   {"fieldname": "ativo", "fieldtype": "Check", "label": "Ativo", "default": "1", "in_list_view": 1},
   {"fieldname": "documento", "fieldtype": "Link", "label": "Tipo de documento", "options": "DocType", "in_list_view": 1, "description": "Documento disponível como {{ doc }} na mensagem."},
   {"fieldname": "mensagem", "fieldtype": "Code", "options": "Jinja", "label": "Mensagem do WhatsApp", "reqd": 1, "description": "Texto puro no padrão do WhatsApp: *negrito*, _itálico_, ~tachado~. Aceita Jinja ({{ doc.campo }}); HTML não é interpretado."},
+  {"fieldname": "variantes", "fieldtype": "Table", "options": "Variante Modelo WhatsApp", "label": "Variantes da mensagem", "description": "Redações alternativas: a cada envio o sistema sorteia entre a mensagem acima e estas, sem repetir a anterior. Todas devem conter as mesmas variáveis essenciais."},
   {"fieldname": "assunto_email", "fieldtype": "Data", "label": "Assunto do e-mail", "description": "Usado quando o envio cai para e-mail. Aceita Jinja."},
   {"fieldname": "mensagem_email", "fieldtype": "Code", "options": "Jinja", "label": "Mensagem do e-mail (opcional)", "description": "Vazio = usa a mensagem do WhatsApp convertida em HTML."}
  ],

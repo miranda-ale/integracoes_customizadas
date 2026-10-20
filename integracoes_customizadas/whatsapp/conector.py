@@ -160,7 +160,7 @@ def _aguardar_espaco(settings):
 	workers concorrentes não disparem juntos."""
 	minimo, maximo = settings.get("delay_min_s") or 2, settings.get("delay_max_s") or 6
 	agora = time.time()
-	ultimo = frappe.cache.get_value(CHAVE_ULTIMO_ENVIO) or 0
+	ultimo = frappe.cache.get_value(CHAVE_ULTIMO_ENVIO, expires=True) or 0
 	horario = max(agora, ultimo + random.uniform(min(minimo, maximo), max(minimo, maximo)))
 	frappe.cache.set_value(CHAVE_ULTIMO_ENVIO, horario, expires_in_sec=3600)
 	if horario > agora:

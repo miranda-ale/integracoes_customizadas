@@ -1,0 +1,19 @@
+{
+ "actions": [],
+ "creation": "2026-10-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["ativo", "peso", "mensagem"],
+ "fields": [
+  {"fieldname": "ativo", "fieldtype": "Check", "label": "Ativa", "default": "1", "in_list_view": 1},
+  {"fieldname": "peso", "fieldtype": "Int", "label": "Peso", "default": "1", "in_list_view": 1, "description": "Chance relativa de sorteio."},
+  {"fieldname": "mensagem", "fieldtype": "Code", "options": "Jinja", "label": "Mensagem do WhatsApp", "reqd": 1, "in_list_view": 1}
+ ],
+ "istable": 1,
+ "module": "Integracoes Customizadas",
+ "name": "Variante Modelo WhatsApp",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

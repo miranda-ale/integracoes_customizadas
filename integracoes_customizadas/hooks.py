@@ -55,7 +55,10 @@ required_apps = ["erpnext", "hrms"]
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Request for Quotation": "public/js/request_for_quotation.js"}
+doctype_js = {
+	"Request for Quotation": "public/js/request_for_quotation.js",
+	"Notification": "public/js/notification.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}

@@ -22,6 +22,14 @@ def ensure_notification_field():
 					"insert_after": "send_whatsapp",
 					"depends_on": "send_whatsapp",
 				},
+				{
+					"fieldname": "whatsapp_numeros_extras",
+					"fieldtype": "Small Text",
+					"label": "Números WhatsApp adicionais",
+					"description": "Um número por linha (ex.: 11 99999-1234). Aceita Jinja, ex.: {{ doc.celular }}. Complementa os destinatários da tabela.",
+					"insert_after": "modelo_whatsapp",
+					"depends_on": "send_whatsapp",
+				},
 			]
 		},
 		update=True,

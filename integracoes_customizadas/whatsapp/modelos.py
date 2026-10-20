@@ -11,7 +11,7 @@ from frappe import _
 from frappe.utils import cstr, format_datetime, formatdate, get_datetime
 from jinja2.sandbox import SandboxedEnvironment
 
-from integracoes_customizadas.whatsapp import conector
+from integracoes_customizadas.whatsapp import conector, roteador
 
 MODELO = "Modelo WhatsApp"
 _MARCADORES = re.compile(r"([*_~])(?=\S)")
@@ -37,6 +37,7 @@ def contexto(doc, extra=None) -> dict:
 		"data_hora": lambda v: format_datetime(v) if v else "",
 		"hora": lambda v: get_datetime(v).strftime("%H:%M") if v else "",
 		"seguro": _proteger,
+		"sorteio": roteador.sorteio,
 		"url": frappe.utils.get_url,
 	}
 
@@ -54,18 +55,34 @@ def obter_modelo(nome):
 	return modelo
 
 
-def renderizar(modelo, doc, extra=None) -> dict:
-	"""→ {"texto": WhatsApp, "assunto": str, "html": corpo do e-mail}."""
+def _escolher_mensagem(modelo, destino=None) -> tuple[str, str | None]:
+	"""→ (template, id da variante). A mensagem base é a variante `base`; sem variantes ativas, só ela."""
+	variantes = [v for v in (modelo.get("variantes") or []) if v.ativo]
+	if not variantes or not roteador.variar_ativo():
+		return modelo.mensagem, None
+	base = frappe._dict(name="base", mensagem=modelo.mensagem, peso=1, ativo=1)
+	item, identificador = roteador.escolher(
+		[base, *variantes], chave=f"modelo:{modelo.name}", destino=destino
+	)
+	return item.mensagem, identificador
+
+
+def renderizar(modelo, doc, extra=None, destino=None) -> dict:
+	"""→ {"texto": WhatsApp, "assunto": str, "html": corpo do e-mail, "variante": id sorteado ou None}.
+
+	`destino` (telefone) evita repetir ao mesmo destinatário a variante que ele recebeu por último.
+	"""
 	if isinstance(modelo, str):
 		modelo = obter_modelo(modelo)
 	ctx = contexto(doc, extra)
-	texto = _renderizar_texto(modelo.mensagem, ctx)
+	template, variante = _escolher_mensagem(modelo, destino)
+	texto = _renderizar_texto(template, ctx)
 	assunto = _renderizar_texto(modelo.assunto_email, ctx) if modelo.assunto_email else modelo.titulo
 	if modelo.mensagem_email:
 		html = _ENV.from_string(modelo.mensagem_email).render(**ctx)
 	else:
 		html = _para_html(texto)
-	return {"texto": texto, "assunto": assunto, "html": html}
+	return {"texto": texto, "assunto": assunto, "html": html, "variante": variante}
 
 
 def _para_html(texto) -> str:
@@ -76,7 +93,9 @@ def _para_html(texto) -> str:
 	return whatsapp_para_html(texto)
 
 
-def registrar_envio(*, telefone, mensagem, doc=None, status, erro=None, message_id=None, modelo=None):
+def registrar_envio(
+	*, telefone, mensagem, doc=None, status, erro=None, message_id=None, modelo=None, variante=None
+):
 	frappe.get_doc(
 		{
 			"doctype": "Envio WhatsApp",
@@ -85,6 +104,7 @@ def registrar_envio(*, telefone, mensagem, doc=None, status, erro=None, message_
 			"reference_doctype": doc.doctype if doc else None,
 			"reference_name": doc.name if doc else None,
 			"message": mensagem,
+			"variante": variante,
 			"attempts": 1,
 			"provider_message_id": message_id,
 			"error": (erro or "")[:140] or None,
@@ -92,19 +112,28 @@ def registrar_envio(*, telefone, mensagem, doc=None, status, erro=None, message_
 	).insert(ignore_permissions=True)
 
 
-def enviar_whatsapp(telefone, texto, doc=None) -> tuple[bool, str | None]:
+def enviar_whatsapp(telefone, texto, doc=None, variante=None) -> tuple[bool, str | None]:
 	"""Envia pelo conector estrito. → (ok, motivo da falha)."""
 	numero = conector.normalizar_numero_br(telefone)
 	if not numero:
-		registrar_envio(telefone=None, mensagem=texto, doc=doc, status="Ignorado", erro="Celular inválido.")
+		registrar_envio(
+			telefone=None, mensagem=texto, doc=doc, status="Ignorado", erro="Celular inválido.", variante=variante
+		)
 		return False, _("Celular inválido.")
 	try:
 		resposta = conector.enviar_texto(numero, texto)
 	except (conector.NumeroInvalido, conector.EvolutionIndisponivel, conector.EnvioRejeitado) as exc:
-		registrar_envio(telefone=numero, mensagem=texto, doc=doc, status="Falhou", erro=str(exc))
+		registrar_envio(
+			telefone=numero, mensagem=texto, doc=doc, status="Falhou", erro=str(exc), variante=variante
+		)
 		return False, str(exc)
 	registrar_envio(
-		telefone=numero, mensagem=texto, doc=doc, status="Enviado", message_id=resposta.get("message_id")
+		telefone=numero,
+		mensagem=texto,
+		doc=doc,
+		status="Enviado",
+		message_id=resposta.get("message_id"),
+		variante=variante,
 	)
 	return True, None
 
@@ -118,10 +147,10 @@ def enviar_modelo(modelo, doc, *, telefone=None, email=None, canal="WhatsApp", e
 
 	WhatsApp sem telefone válido ou com falha cai para e-mail (se houver). → {"canais": [...], "erro": str|None}.
 	"""
-	conteudo = renderizar(modelo, doc, extra)
+	conteudo = renderizar(modelo, doc, extra, destino=conector.normalizar_numero_br(telefone))
 	enviados, erros = [], []
 	if canal in ("WhatsApp", "Ambos") and telefone:
-		ok, erro = enviar_whatsapp(telefone, conteudo["texto"], doc)
+		ok, erro = enviar_whatsapp(telefone, conteudo["texto"], doc, conteudo["variante"])
 		(enviados if ok else erros).append("WhatsApp" if ok else erro)
 	elif canal in ("WhatsApp", "Ambos"):
 		erros.append(_("Sem telefone cadastrado."))

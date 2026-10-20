@@ -14,6 +14,7 @@
   "delay_min_s",
   "delay_max_s",
   "verificar_numero_antes",
+  "variar_mensagens",
   "webhook_section",
   "webhook_habilitado",
   "webhook_segredo"
@@ -91,6 +92,13 @@
    "fieldtype": "Check",
    "label": "Verificar número antes de enviar",
    "default": "1"
+  },
+  {
+   "fieldname": "variar_mensagens",
+   "fieldtype": "Check",
+   "label": "Variar mensagens",
+   "default": "1",
+   "description": "Sorteia entre as variantes cadastradas em cada Modelo WhatsApp / Modelo de Assinatura."
   },
   {
    "fieldname": "webhook_section",
