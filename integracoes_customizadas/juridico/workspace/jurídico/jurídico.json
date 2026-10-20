@@ -35,7 +35,7 @@
       "hidden": 0,
       "is_query_report": 0,
       "label": "Judicial",
-      "link_count": 1,
+      "link_count": 2,
       "onboard": 0,
       "type": "Card Break"
     },
@@ -47,6 +47,16 @@
       "link_to": "Processo Judicial",
       "link_type": "DocType",
       "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Assuntos Judiciais",
+      "link_count": 0,
+      "link_to": "Assunto Judicial",
+      "link_type": "DocType",
+      "onboard": 0,
       "type": "Link"
     },
     {
@@ -86,7 +96,7 @@
       "type": "Link"
     }
   ],
-  "modified": "2026-09-16 17:39:16.000000",
+  "modified": "2026-10-20 12:00:00.000000",
   "modified_by": "Administrator",
   "module": "Juridico",
   "name": "Jurídico",
