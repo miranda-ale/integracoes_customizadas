@@ -7,6 +7,7 @@
   "server_url",
   "api_key",
   "instance_name",
+  "instancias",
   "connection_html",
   "limites_section",
   "timeout_conexao_s",
@@ -50,6 +51,13 @@
    "fieldtype": "Data",
    "label": "Nome da instância",
    "reqd": 1
+  },
+  {
+   "fieldname": "instancias",
+   "fieldtype": "Table",
+   "label": "Instâncias adicionais (roteamento)",
+   "options": "Instancia WhatsApp",
+   "description": "Opcional. Com instâncias adicionais, cada envio é distribuído entre elas (menor carga do dia, só conectadas) com afinidade por destinatário."
   },
   {
    "fieldname": "connection_html",

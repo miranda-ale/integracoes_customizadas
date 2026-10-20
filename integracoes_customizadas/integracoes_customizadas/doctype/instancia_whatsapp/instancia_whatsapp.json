@@ -1,0 +1,20 @@
+{
+ "actions": [],
+ "creation": "2026-10-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["instance_name", "ativo", "peso", "limite_diario"],
+ "fields": [
+  {"fieldname": "instance_name", "fieldtype": "Data", "label": "Nome da instância", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "ativo", "fieldtype": "Check", "label": "Ativa", "default": "1", "in_list_view": 1},
+  {"fieldname": "peso", "fieldtype": "Int", "label": "Peso", "default": "1", "in_list_view": 1, "description": "Capacidade relativa: uma instância de peso 2 recebe o dobro de envios."},
+  {"fieldname": "limite_diario", "fieldtype": "Int", "label": "Limite diário", "in_list_view": 1, "description": "0 = sem limite. Ao atingir, os envios vão para as demais instâncias."}
+ ],
+ "istable": 1,
+ "module": "Integracoes Customizadas",
+ "name": "Instancia WhatsApp",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

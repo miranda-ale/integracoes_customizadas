@@ -181,12 +181,13 @@ class TestDelivery(unittest.TestCase):
 		item.db_set = db_set
 		return item
 
+	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
 	@patch.object(delivery, "evolution_request", side_effect=[{"instance": {"state": "open"}}, {"key": {"id": "abc"}}])
 	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
 	@patch.object(delivery, "message_path", return_value="message/sendText/erp")
 	@patch.object(delivery, "now_datetime", return_value="2026-10-09 12:00:00")
-	def test_success(self, _now, _message_path, _instance_path, request, get_doc):
+	def test_success(self, _now, _message_path, _instance_path, request, get_doc, _escolher):
 		item = self.make_delivery()
 		get_doc.return_value = item
 		delivery.send_delivery("entry")
@@ -195,10 +196,11 @@ class TestDelivery(unittest.TestCase):
 		self.assertEqual(item.provider_message_id, "abc")
 		self.assertEqual(request.call_args.kwargs["json"], {"number": item.phone, "text": item.message})
 
+	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
 	@patch.object(delivery, "evolution_request", return_value={"instance": {"state": "close"}})
 	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
-	def test_disconnected_is_recorded(self, _instance_path, request, get_doc):
+	def test_disconnected_is_recorded(self, _instance_path, request, get_doc, _escolher):
 		item = self.make_delivery()
 		get_doc.return_value = item
 		delivery.send_delivery("entry")
@@ -206,10 +208,11 @@ class TestDelivery(unittest.TestCase):
 		self.assertIn("desconectada", item.error)
 		request.assert_called_once()
 
+	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
 	@patch.object(delivery, "evolution_request", side_effect=ValueError("Evolution API respondeu com HTTP 503."))
 	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
-	def test_provider_error_is_recorded_without_retry(self, _instance_path, request, get_doc):
+	def test_provider_error_is_recorded_without_retry(self, _instance_path, request, get_doc, _escolher):
 		item = self.make_delivery()
 		get_doc.return_value = item
 		delivery.send_delivery("entry")

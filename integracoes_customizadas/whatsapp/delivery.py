@@ -5,6 +5,7 @@ from frappe.utils import now_datetime
 
 from integracoes_customizadas.whatsapp.api import evolution_request, instance_path, message_path
 from integracoes_customizadas.whatsapp.conector import normalizar_numero_br
+from integracoes_customizadas.whatsapp.distribuidor import SemInstanciaDisponivel, escolher_instancia
 
 
 def normalize_phone(value):
@@ -22,11 +23,16 @@ def send_delivery(delivery_name):
 		return
 	delivery.db_set("attempts", (delivery.attempts or 0) + 1)
 	try:
-		state = evolution_request("GET", instance_path("connectionState"))
+		try:
+			instancia = escolher_instancia(delivery.phone, preferida=getattr(delivery, "instancia", None))
+		except SemInstanciaDisponivel as exc:
+			raise ValueError("Nenhuma instância WhatsApp conectada.") from exc
+		delivery.db_set("instancia", instancia)
+		state = evolution_request("GET", instance_path("connectionState", instancia))
 		if (state.get("instance") or {}).get("state") != "open":
 			raise ValueError("Instância WhatsApp desconectada.")
 		response = evolution_request(
-			"POST", message_path("sendText"),
+			"POST", message_path("sendText", instancia),
 			json={"number": delivery.phone, "text": delivery.message},
 		)
 		delivery.db_set(

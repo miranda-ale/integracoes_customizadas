@@ -17,6 +17,13 @@ import frappe
 import requests
 from frappe import _
 
+from integracoes_customizadas.whatsapp.distribuidor import (
+	SemInstanciaDisponivel,
+	escolher_instancia,
+	multiplas,
+)
+from integracoes_customizadas.whatsapp.distribuidor import nomes as nomes_instancias
+
 CHAVE_ULTIMO_ENVIO = "evolution_ultimo_envio"
 
 # DDDs válidos no Brasil (Anatel).
@@ -80,9 +87,9 @@ def _registrar_erro(titulo, exc, numero=None):
 	)
 
 
-def _requisicao(metodo, caminho, *, json=None, repetir=False):
+def _requisicao(metodo, caminho, *, json=None, repetir=False, instancia=None):
 	settings = _settings()
-	instancia = quote(settings.instance_name, safe="")
+	instancia = quote(instancia or settings.instance_name, safe="")
 	url = f"{settings.server_url.rstrip('/')}/{caminho.format(instancia=instancia).lstrip('/')}"
 	timeout = (settings.get("timeout_conexao_s") or 5, settings.get("timeout_leitura_s") or 15)
 	tentativas = 2 if repetir and metodo == "GET" else 1
@@ -124,8 +131,17 @@ def _requisicao(metodo, caminho, *, json=None, repetir=False):
 
 def estado_conexao() -> dict:
 	"""`{"conectado": bool, "estado": str}`; falha de comunicação conta como desconectado."""
+	resultado = {"conectado": False, "estado": "indisponivel"}
+	for nome in nomes_instancias(_settings()):  # com várias instâncias, basta uma conectada
+		resultado = _estado_instancia(nome)
+		if resultado["conectado"]:
+			break
+	return resultado
+
+
+def _estado_instancia(nome) -> dict:
 	try:
-		dados = _requisicao("GET", "instance/connectionState/{instancia}", repetir=True)
+		dados = _requisicao("GET", "instance/connectionState/{instancia}", repetir=True, instancia=nome)
 	except (EvolutionIndisponivel, EnvioRejeitado) as exc:
 		_registrar_erro("WhatsApp: falha ao consultar a conexão", exc)
 		return {"conectado": False, "estado": "indisponivel"}
@@ -133,7 +149,7 @@ def estado_conexao() -> dict:
 	return {"conectado": estado == "open", "estado": estado}
 
 
-def verificar_numero(numero) -> dict:
+def verificar_numero(numero, *, instancia=None) -> dict:
 	"""Confirma que o número existe no WhatsApp.
 
 	O número/JID devolvido é o canônico (o WhatsApp pode omitir o nono dígito de celulares antigos).
@@ -142,7 +158,7 @@ def verificar_numero(numero) -> dict:
 	if not normalizado:
 		raise NumeroInvalido(_("Número de telefone inválido."))
 	dados = _requisicao(
-		"POST", "chat/whatsappNumbers/{instancia}", json={"numbers": [normalizado]}, repetir=False
+		"POST", "chat/whatsappNumbers/{instancia}", json={"numbers": [normalizado]}, repetir=False, instancia=instancia
 	)
 	item = next((i for i in (dados if isinstance(dados, list) else []) if isinstance(i, dict)), {})
 	if not item.get("exists"):
@@ -155,14 +171,18 @@ def verificar_numero(numero) -> dict:
 	}
 
 
-def _aguardar_espaco(settings):
+def _chave_ultimo_envio(settings, instancia):
+	return f"{CHAVE_ULTIMO_ENVIO}:{instancia}" if multiplas(settings) else CHAVE_ULTIMO_ENVIO
+
+
+def _aguardar_espaco(settings, chave):
 	"""Intervalo aleatório desde o último envio (anti-ban). Reserva o horário antes de dormir para que
 	workers concorrentes não disparem juntos."""
 	minimo, maximo = settings.get("delay_min_s") or 2, settings.get("delay_max_s") or 6
 	agora = time.time()
-	ultimo = frappe.cache.get_value(CHAVE_ULTIMO_ENVIO, expires=True) or 0
+	ultimo = frappe.cache.get_value(chave, expires=True) or 0
 	horario = max(agora, ultimo + random.uniform(min(minimo, maximo), max(minimo, maximo)))
-	frappe.cache.set_value(CHAVE_ULTIMO_ENVIO, horario, expires_in_sec=3600)
+	frappe.cache.set_value(chave, horario, expires_in_sec=3600)
 	if horario > agora:
 		time.sleep(horario - agora)
 
@@ -174,16 +194,21 @@ def _enviar_mensagem(numero, caminho, corpo, prioridade):
 	if not destino:
 		raise NumeroInvalido(_("Número de telefone inválido."))
 	try:
+		try:
+			instancia = escolher_instancia(destino, estado=lambda nome: _estado_instancia(nome)["conectado"])
+		except SemInstanciaDisponivel as exc:
+			raise EvolutionIndisponivel(_("Nenhuma instância do WhatsApp está conectada.")) from exc
+		chave = _chave_ultimo_envio(settings, instancia)
 		if settings.get("verificar_numero_antes"):
-			verificado = verificar_numero(destino)
+			verificado = verificar_numero(destino, instancia=instancia)
 			if not verificado["existe"]:
 				raise NumeroInvalido(_("O número não possui WhatsApp."))
 			destino = verificado["numero"]
 		if prioridade != "alta":
-			_aguardar_espaco(settings)
+			_aguardar_espaco(settings, chave)
 		else:
-			frappe.cache.set_value(CHAVE_ULTIMO_ENVIO, time.time(), expires_in_sec=3600)
-		dados = _requisicao("POST", caminho, json={"number": destino, **corpo})
+			frappe.cache.set_value(chave, time.time(), expires_in_sec=3600)
+		dados = _requisicao("POST", caminho, json={"number": destino, **corpo}, instancia=instancia)
 	except (EvolutionIndisponivel, EnvioRejeitado, NumeroInvalido) as exc:
 		_registrar_erro("WhatsApp: falha no envio", exc, destino)
 		raise
