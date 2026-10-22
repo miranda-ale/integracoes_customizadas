@@ -105,6 +105,10 @@ doctype_js = {
 # registram aqui; o recebimento dos webhooks ainda não está implementado.
 evolution_webhook_handlers = []
 
+# Dados adicionais no contexto do Modelo WhatsApp (`extra`), por DocType: {"DocType": "caminho.funcao"}.
+# Os apps donos do documento registram aqui (ver whatsapp/modelos.py: contexto_extra).
+whatsapp_contexto_extra = {}
+
 after_install = "integracoes_customizadas.setup.after_install"
 
 # Migration

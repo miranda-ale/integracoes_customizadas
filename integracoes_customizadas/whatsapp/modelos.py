@@ -29,10 +29,26 @@ def _proteger(valor) -> str:
 _ENV = SandboxedEnvironment(finalize=lambda v: "" if v is None else v, autoescape=False)
 
 
+def contexto_extra(doc) -> dict:
+	"""Dados adicionais do documento, fornecidos pelo app dono dele via hook `whatsapp_contexto_extra`.
+
+	O hook mapeia `{DocType: "caminho.da.funcao"}`; a função recebe o documento e devolve um dict.
+	Falha do hook não impede o envio: o modelo só fica sem esses dados.
+	"""
+	dados = {}
+	# get_hooks junta os dicts dos apps: {DocType: [caminhos]}
+	for caminho in (frappe.get_hooks("whatsapp_contexto_extra", {}) or {}).get(doc.doctype, []):
+		try:
+			dados.update(frappe.get_attr(caminho)(doc) or {})
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), "Falha no contexto extra do Modelo WhatsApp")
+	return dados
+
+
 def contexto(doc, extra=None) -> dict:
 	return {
 		"doc": doc,
-		"extra": frappe._dict(extra or {}),
+		"extra": frappe._dict({**contexto_extra(doc), **(extra or {})}),
 		"data": lambda v, fmt=None: formatdate(v, fmt) if v else "",
 		"data_hora": lambda v: format_datetime(v) if v else "",
 		"hora": lambda v: get_datetime(v).strftime("%H:%M") if v else "",
