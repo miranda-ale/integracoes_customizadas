@@ -233,6 +233,17 @@ def enviar_texto(numero, texto, *, prioridade="normal") -> dict:
 	)
 
 
+def corpo_documento(conteudo: bytes, nome_arquivo, legenda="", mimetype="application/pdf") -> dict:
+	"""Corpo de `sendMedia` para um documento (base64)."""
+	return {
+		"mediatype": "document",
+		"mimetype": mimetype,
+		"media": base64.b64encode(conteudo).decode("ascii"),
+		"fileName": nome_arquivo,
+		"caption": legenda or "",
+	}
+
+
 def enviar_documento(
 	numero, conteudo: bytes, nome_arquivo, legenda="", *, mimetype="application/pdf"
 ) -> dict:
@@ -240,12 +251,6 @@ def enviar_documento(
 	return _enviar_mensagem(
 		numero,
 		"message/sendMedia/{instancia}",
-		{
-			"mediatype": "document",
-			"mimetype": mimetype,
-			"media": base64.b64encode(conteudo).decode("ascii"),
-			"fileName": nome_arquivo,
-			"caption": legenda or "",
-		},
+		corpo_documento(conteudo, nome_arquivo, legenda, mimetype),
 		"normal",
 	)

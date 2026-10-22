@@ -14,7 +14,7 @@ notificações por **WhatsApp**, módulo **Jurídico** (processos judiciais com 
   ações para **criar a instância**, **gerar QR Code** e **atualizar o estado** da conexão.
 - DocType **Envio WhatsApp**: registro de cada envio por usuário, com estado e botão **Reenviar** para falhas.
 - Números brasileiros com DDD recebem o prefixo 55 automaticamente; números internacionais devem ser informados
-  completos, com `+` e código do país. Nesta versão, apenas texto.
+  completos, com `+` e código do país. Se a regra marcar "Attach Print" e um "Print Format", o PDF segue como documento e o texto vira a legenda.
 - Configuração e registros de envio são restritos a administradores do sistema.
 
 ### Jurídico (módulo `Juridico`)

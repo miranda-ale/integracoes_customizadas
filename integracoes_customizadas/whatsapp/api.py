@@ -33,7 +33,7 @@ def get_settings():
 	return settings
 
 
-def evolution_request(method, path, *, json=None, params=None):
+def evolution_request(method, path, *, json=None, params=None, timeout=(5, 20)):
 	settings = get_settings()
 	url = f"{settings.server_url.rstrip('/')}/{path.lstrip('/')}"
 	try:
@@ -43,7 +43,7 @@ def evolution_request(method, path, *, json=None, params=None):
 			headers={"apikey": settings.get_password("api_key"), "Content-Type": "application/json"},
 			json=json,
 			params=params,
-			timeout=(5, 20),
+			timeout=timeout,
 		)
 		response.raise_for_status()
 		return response.json()

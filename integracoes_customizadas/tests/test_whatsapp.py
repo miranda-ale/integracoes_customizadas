@@ -174,7 +174,8 @@ class TestEvolutionAPI(unittest.TestCase):
 
 class TestDelivery(unittest.TestCase):
 	def make_delivery(self):
-		item = SimpleNamespace(status="Pendente", attempts=0, phone="5511999991234", message="Olá", error=None)
+		item = SimpleNamespace(status="Pendente", attempts=0, phone="5511999991234", message="Olá", error=None, print_format=None)
+		item.get = lambda campo, default=None: getattr(item, campo, default)
 		def db_set(key, value=None):
 			for field, content in (key if isinstance(key, dict) else {key: value}).items():
 				setattr(item, field, content)
@@ -195,6 +196,43 @@ class TestDelivery(unittest.TestCase):
 		self.assertEqual(item.attempts, 1)
 		self.assertEqual(item.provider_message_id, "abc")
 		self.assertEqual(request.call_args.kwargs["json"], {"number": item.phone, "text": item.message})
+
+	@patch.object(delivery, "gerar_anexo", return_value=b"%PDF-1.4 x")
+	@patch.object(delivery, "escolher_instancia", return_value="erp")
+	@patch.object(delivery.frappe, "get_doc")
+	@patch.object(delivery, "evolution_request", side_effect=[{"instance": {"state": "open"}}, {"key": {"id": "doc1"}}])
+	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
+	@patch.object(delivery, "message_path", side_effect=lambda endpoint, instancia=None: f"message/{endpoint}/erp")
+	@patch.object(delivery, "now_datetime", return_value="2026-10-09 12:00:00")
+	def test_print_format_sent_as_document(self, _now, message_path, _ip, request, get_doc, _escolher, _anexo):
+		item = self.make_delivery()
+		item.print_format, item.nome_arquivo = "Fatura", "ACC-1.pdf"
+		get_doc.return_value = item
+		delivery.send_delivery("entry")
+		self.assertEqual(item.status, "Enviado")
+		message_path.assert_called_with("sendMedia", "erp")
+		corpo = request.call_args.kwargs["json"]
+		self.assertEqual(corpo["mediatype"], "document")
+		self.assertEqual(corpo["fileName"], "ACC-1.pdf")
+		self.assertEqual(corpo["caption"], "Olá")
+		self.assertEqual(request.call_args.kwargs["timeout"], delivery.TIMEOUT_MIDIA)
+
+	@patch.object(delivery, "gerar_anexo", side_effect=ValueError("Documento em rascunho não pode ser impresso."))
+	@patch.object(delivery, "escolher_instancia", return_value="erp")
+	@patch.object(delivery.frappe, "get_doc")
+	@patch.object(delivery, "evolution_request", return_value={"instance": {"state": "open"}})
+	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
+	def test_print_failure_is_recorded_without_text_fallback(self, _ip, request, get_doc, _escolher, _anexo):
+		item = self.make_delivery()
+		item.print_format, item.nome_arquivo = "Fatura", "ACC-1.pdf"
+		get_doc.return_value = item
+		delivery.send_delivery("entry")
+		self.assertEqual(item.status, "Falhou")
+		self.assertIn("rascunho", item.error)
+		request.assert_called_once()  # só o connectionState; nada de sendText
+
+	def test_nome_anexo_is_sanitized(self):
+		self.assertEqual(delivery.nome_anexo("ACC/2026 01"), "ACC-2026-01.pdf")
 
 	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")

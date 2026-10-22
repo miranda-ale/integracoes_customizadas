@@ -7,7 +7,7 @@ from frappe.core.doctype.role.role import get_users
 from frappe.email.doctype.notification.notification import Notification, get_assignees
 from frappe.utils import cstr
 
-from integracoes_customizadas.whatsapp.delivery import normalize_phone
+from integracoes_customizadas.whatsapp.delivery import nome_anexo, normalize_phone
 
 
 class WhatsAppNotification(Notification):
@@ -118,6 +118,9 @@ def _register_delivery(alert, doc, context, phone, seen, user=None):
 	# Uma redação por destinatário; o roteador não repete a última que esse número recebeu.
 	detalhe = {}
 	message = render_message(alert, context, destino=phone, info=detalhe)
+	reference_doctype = doc.parenttype if doc.meta.istable else doc.doctype
+	reference_name = doc.parent if doc.meta.istable else doc.name
+	anexar = bool(phone and getattr(alert, "attach_print", None) and getattr(alert, "print_format", None))
 	delivery = frappe.get_doc(
 		{
 			"doctype": "Envio WhatsApp",
@@ -125,8 +128,10 @@ def _register_delivery(alert, doc, context, phone, seen, user=None):
 			"notification": alert.name,
 			"user": user,
 			"phone": phone or None,
-			"reference_doctype": doc.parenttype if doc.meta.istable else doc.doctype,
-			"reference_name": doc.parent if doc.meta.istable else doc.name,
+			"reference_doctype": reference_doctype,
+			"reference_name": reference_name,
+			"print_format": alert.print_format if anexar else None,
+			"nome_arquivo": nome_anexo(reference_name) if anexar else None,
 			"message": message,
 			"variante": detalhe.get("variante"),
 			"error": None if phone else (

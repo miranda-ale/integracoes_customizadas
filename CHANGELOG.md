@@ -2,6 +2,7 @@
 
 ## Não lançado
 
+- **WhatsApp:** anexo do formato de impressão. Na Notification, "Attach Print" + "Print Format" também valem para o WhatsApp: o PDF é gerado no envio (`frappe.attach_print`, mesmas travas de rascunho/cancelado do e-mail) e enviado como documento por `sendMedia`, com o texto da mensagem como legenda. Limite de 15 MB, timeout maior para mídia; `Envio WhatsApp` registra formato e nome do arquivo.
 - **WhatsApp:** roteamento entre instâncias. A tabela "Instâncias adicionais" em Configuracoes WhatsApp (peso e limite diário opcionais) soma-se à instância principal; `whatsapp/distribuidor.py` envia cada mensagem pela conectada de menor carga do dia, com afinidade por destinatário e failover. Sem linhas adicionais o comportamento não muda. A instância usada fica em `Envio WhatsApp`; criar instância e gerar QR Code passam a escolher a instância.
 - **WhatsApp:** "Criar instância" agora informa se a instância foi criada ou já existia, trata 404 na consulta e mostra o corpo do erro HTTP da Evolution (também no Error Log).
 - **WhatsApp:** variantes de mensagem. `Modelo WhatsApp` aceita redações alternativas (tabela `variantes`) e o roteador (`whatsapp/roteador.py`) sorteia uma por destinatário, sem repetir a anterior nem a última recebida pelo mesmo número; função Jinja `sorteio("Oi","Olá")` para variar trechos. A variante usada fica em `Envio WhatsApp`; o interruptor é "Variar mensagens" em Configuracoes WhatsApp.
