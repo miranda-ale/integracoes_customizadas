@@ -2,6 +2,8 @@
 
 ## Não lançado
 
+- **WhatsApp: mínimo de 10 variantes.** Modelo WhatsApp ativo só salva com ao menos 10 variantes ativas (`roteador.MIN_VARIANTES`); modelo criado por código recebe as redações-semente do título (`seed/variantes_modelos.py`, agora 11 para a convocação de comissão) e o patch `completar_variantes_modelo_whatsapp` completa os existentes (os sem semente ficam no Error Log). Notification com "Enviar também por WhatsApp" passa a exigir o Modelo WhatsApp.
+- **E-mail no layout institucional** (manifesto do clm, seção 6): e-mails das Notifications com canal E-mail, do Modelo WhatsApp (canal E-mail ou fallback) e do avanço de etapa do Edital saem pelo `render_email` do clm (`email_institucional.py`, dependência fraca).
 - **WhatsApp:** anexo do formato de impressão. Na Notification, "Attach Print" + "Print Format" também valem para o WhatsApp: o PDF é gerado no envio (`frappe.attach_print`, mesmas travas de rascunho/cancelado do e-mail) e enviado como documento por `sendMedia`, com o texto da mensagem como legenda. Limite de 15 MB, timeout maior para mídia; `Envio WhatsApp` registra formato e nome do arquivo.
 - **WhatsApp:** roteamento entre instâncias. A tabela "Instâncias adicionais" em Configuracoes WhatsApp (peso e limite diário opcionais) soma-se à instância principal; `whatsapp/distribuidor.py` envia cada mensagem pela conectada de menor carga do dia, com afinidade por destinatário e failover. Sem linhas adicionais o comportamento não muda. A instância usada fica em `Envio WhatsApp`; criar instância e gerar QR Code passam a escolher a instância.
 - **WhatsApp:** "Criar instância" agora informa se a instância foi criada ou já existia, trata 404 na consulta e mostra o corpo do erro HTTP da Evolution (também no Error Log).

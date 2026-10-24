@@ -3,14 +3,48 @@ import re
 
 import frappe
 from bs4 import BeautifulSoup
+from frappe import _
 from frappe.core.doctype.role.role import get_users
 from frappe.email.doctype.notification.notification import Notification, get_assignees
-from frappe.utils import cstr
+from frappe.utils import cstr, get_url_to_form, md_to_html, strip_html
 
+from integracoes_customizadas import email_institucional
 from integracoes_customizadas.whatsapp.delivery import nome_anexo, normalize_phone
+
+CORPO_INSTITUCIONAL = "_corpo_institucional"
 
 
 class WhatsAppNotification(Notification):
+	def validate(self):
+		super().validate()
+		self.validar_modelo_whatsapp()
+
+	def validar_modelo_whatsapp(self):
+		"""WhatsApp sempre por Modelo WhatsApp, que garante as 10 variantes (manifesto do clm, seção 7a)."""
+		if not self.get("send_whatsapp"):
+			return
+		if not self.get("modelo_whatsapp"):
+			frappe.throw(
+				_("Escolha o Modelo WhatsApp: toda notificação de WhatsApp usa um modelo com ao menos 10 variantes.")
+			)
+		modelo = frappe.get_doc("Modelo WhatsApp", self.modelo_whatsapp)
+		if not modelo.ativo:
+			frappe.throw(_("O Modelo WhatsApp {0} está inativo.").format(modelo.name))
+		modelo.validar_minimo_de_variantes()
+
+	def send_an_email(self, doc, context):
+		"""E-mail da regra no layout institucional: a mensagem renderizada vai dentro do `render_email`."""
+		corpo = corpo_do_email(self, doc, context)
+		if corpo is None:
+			return super().send_an_email(doc, context)
+		mensagem = self.message
+		# A mensagem já renderizada entra como variável: o texto do documento não é renderizado de novo.
+		self.message = "{{ " + CORPO_INSTITUCIONAL + " }}"
+		try:
+			return super().send_an_email(doc, {**context, CORPO_INSTITUCIONAL: corpo})
+		finally:
+			self.message = mensagem
+
 	def send_notification_by_channel(self, doc, context):
 		super().send_notification_by_channel(doc, context)
 		if not self.get("send_whatsapp"):
@@ -19,6 +53,22 @@ class WhatsAppNotification(Notification):
 			queue_whatsapp(self, doc, context)
 		except Exception:
 			frappe.log_error(frappe.get_traceback(), "Falha ao preparar notificação WhatsApp")
+
+
+def corpo_do_email(alert, doc, context):
+	"""HTML institucional do e-mail da regra, ou None quando não há layout (sem clm) ou a mensagem já o tem."""
+	if not alert.message or not email_institucional._render_email():
+		return None
+	corpo = frappe.render_template(alert.message, context)
+	if email_institucional.ja_institucional(corpo):
+		return None
+	if alert.get("message_type") == "Markdown":
+		corpo = md_to_html(corpo)
+	titulo = strip_html(frappe.render_template(alert.subject, context)) if alert.subject else alert.name
+	referencia = (doc.parenttype, doc.parent) if doc.meta.istable else (doc.doctype, doc.name)
+	return email_institucional.corpo(
+		titulo, corpo, acao=(_("Abrir documento"), get_url_to_form(*referencia))
+	)
 
 
 def _field_values(field_spec, doc):

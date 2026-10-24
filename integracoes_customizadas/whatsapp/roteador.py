@@ -12,6 +12,8 @@ import frappe
 
 HISTORICO_GLOBAL = 3
 TTL_S = 24 * 3600
+# Toda notificação de WhatsApp tem ao menos estas variantes ativas (manifesto do clm, seção 7a).
+MIN_VARIANTES = 10
 
 
 def _chave_global(chave) -> str:

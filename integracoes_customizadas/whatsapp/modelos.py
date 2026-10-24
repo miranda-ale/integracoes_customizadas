@@ -11,6 +11,7 @@ from frappe import _
 from frappe.utils import cstr, format_datetime, formatdate, get_datetime
 from jinja2.sandbox import SandboxedEnvironment
 
+from integracoes_customizadas import email_institucional
 from integracoes_customizadas.whatsapp import conector, roteador
 
 MODELO = "Modelo WhatsApp"
@@ -71,6 +72,26 @@ def obter_modelo(nome):
 	return modelo
 
 
+def variantes_ativas(modelo) -> list:
+	return [v for v in (modelo.get("variantes") or []) if v.ativo and (v.mensagem or "").strip()]
+
+
+def completar_variantes(modelo) -> int:
+	"""Abaixo do mínimo de variantes ativas, acrescenta as redações-semente do título que ainda faltam.
+
+	Nunca altera nem remove uma variante existente. → quantas variantes entraram.
+	"""
+	from integracoes_customizadas.seed.variantes_modelos import VARIANTES
+
+	if len(variantes_ativas(modelo)) >= roteador.MIN_VARIANTES:
+		return 0
+	existentes = {(v.mensagem or "").strip() for v in modelo.get("variantes") or []}
+	novas = [t for t in VARIANTES.get(modelo.titulo or modelo.name, []) if t.strip() not in existentes]
+	for texto in novas:
+		modelo.append("variantes", {"mensagem": texto, "ativo": 1, "peso": 1})
+	return len(novas)
+
+
 def _escolher_mensagem(modelo, destino=None) -> tuple[str, str | None]:
 	"""→ (template, id da variante). A mensagem base é a variante `base`; sem variantes ativas, só ela."""
 	variantes = [v for v in (modelo.get("variantes") or []) if v.ativo]
@@ -98,6 +119,7 @@ def renderizar(modelo, doc, extra=None, destino=None) -> dict:
 		html = _ENV.from_string(modelo.mensagem_email).render(**ctx)
 	else:
 		html = _para_html(texto)
+	html = email_institucional.corpo(assunto, html)
 	return {"texto": texto, "assunto": assunto, "html": html, "variante": variante}
 
 

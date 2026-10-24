@@ -18,9 +18,10 @@ def ensure_notification_field():
 					"fieldtype": "Link",
 					"options": "Modelo WhatsApp",
 					"label": "Modelo WhatsApp",
-					"description": "Texto próprio do WhatsApp. Vazio = usa o corpo desta notificação convertido em texto.",
+					"description": "Texto próprio do WhatsApp, com ao menos 10 variantes ativas (obrigatório com WhatsApp).",
 					"insert_after": "send_whatsapp",
 					"depends_on": "send_whatsapp",
+					"mandatory_depends_on": "send_whatsapp",
 				},
 				{
 					"fieldname": "whatsapp_numeros_extras",

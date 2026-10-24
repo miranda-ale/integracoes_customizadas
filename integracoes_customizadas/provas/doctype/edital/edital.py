@@ -4,7 +4,9 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import now_datetime, getdate, today
+from frappe.utils import escape_html, getdate, now_datetime, today
+
+from integracoes_customizadas import email_institucional
 
 
 class Edital(Document):
@@ -281,27 +283,24 @@ class Edital(Document):
 			# Busca dados da etapa
 			etapa_doc = frappe.get_doc("Interview Round", proxima_etapa)
 			
-			# Prepara conteúdo do email
-			subject = _("Processo Seletivo - Avanço de Etapa - {0}").format(self.titulo)
+			# Prepara conteúdo do email (layout institucional, manifesto do clm, seção 6)
+			subject = _("[Processo seletivo] Avanço de etapa {0}").format(self.titulo)
 			
-			message = _("""
-				<p>Prezado(a) {0},</p>
-				
-				<p>Informamos que você foi aprovado(a) e avançou para a próxima etapa do processo seletivo.</p>
-				
-				<p><strong>Edital:</strong> {1}</p>
-				<p><strong>Vaga:</strong> {2}</p>
-				<p><strong>Próxima Etapa:</strong> {3}</p>
-				
-				<p>Em breve você receberá mais informações sobre a data e local da próxima etapa.</p>
-				
-				<p>Atenciosamente,<br>
-				Equipe de Recrutamento</p>
-			""").format(
-				job_applicant_doc.applicant_name,
-				self.titulo,
-				self.job_opening,
-				etapa_doc.round_name
+			message = email_institucional.corpo(
+				_("Avanço de etapa no processo seletivo"),
+				_(
+					"<p>Prezado(a) {0},</p>"
+					"<p>Informamos que você foi aprovado(a) e avançou para a próxima etapa do processo seletivo.</p>"
+				).format(escape_html(job_applicant_doc.applicant_name or "")),
+				fatos=[
+					(_("Edital"), self.titulo),
+					(_("Vaga"), self.job_opening),
+					(_("Próxima etapa"), etapa_doc.round_name),
+				],
+				nota=_(
+					"Em breve você receberá mais informações sobre a data e o local da próxima etapa. "
+					"Equipe de Recrutamento."
+				),
 			)
 			
 			frappe.sendmail(
