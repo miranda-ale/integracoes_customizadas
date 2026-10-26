@@ -1,0 +1,32 @@
+{
+ "actions": [],
+ "creation": "2026-10-26 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["nome_bionexo", "cnpj", "supplier", "situacao", "itens_cotados", "itens_confirmados", "email", "telefone", "contato", "pagamento", "faturamento_minimo", "validade", "entrega"],
+ "fields": [
+  {"fieldname": "nome_bionexo", "fieldtype": "Data", "label": "Fornecedor no Bionexo", "in_list_view": 1, "read_only": 1, "columns": 3},
+  {"fieldname": "cnpj", "fieldtype": "Data", "label": "CNPJ", "in_list_view": 1, "read_only": 1, "columns": 2},
+  {"fieldname": "supplier", "fieldtype": "Link", "label": "Fornecedor", "options": "Supplier", "in_list_view": 1, "columns": 3},
+  {"fieldname": "situacao", "fieldtype": "Select", "label": "Situação", "options": "Encontrado\nEncontrado pelo nome\nNão cadastrado", "in_list_view": 1, "read_only": 1, "columns": 1},
+  {"fieldname": "itens_cotados", "fieldtype": "Int", "label": "Itens cotados", "read_only": 1},
+  {"fieldname": "itens_confirmados", "fieldtype": "Int", "label": "Itens confirmados", "in_list_view": 1, "read_only": 1, "columns": 1},
+  {"fieldname": "email", "fieldtype": "Data", "label": "E-mail", "read_only": 1},
+  {"fieldname": "telefone", "fieldtype": "Data", "label": "Telefone", "read_only": 1},
+  {"fieldname": "contato", "fieldtype": "Data", "label": "Contato", "read_only": 1},
+  {"fieldname": "pagamento", "fieldtype": "Data", "label": "Condição de pagamento", "read_only": 1},
+  {"fieldname": "faturamento_minimo", "fieldtype": "Currency", "label": "Faturamento mínimo", "read_only": 1},
+  {"fieldname": "validade", "fieldtype": "Date", "label": "Proposta válida até", "read_only": 1},
+  {"fieldname": "entrega", "fieldtype": "Data", "label": "Prazo de entrega", "read_only": 1}
+ ],
+ "istable": 1,
+ "modified": "2026-10-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Integracoes Customizadas",
+ "name": "Importacao Bionexo Fornecedor",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

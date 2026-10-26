@@ -117,6 +117,7 @@ after_migrate = [
 	"integracoes_customizadas.provas.setup.after_migrate",
 	"integracoes_customizadas.juridico.setup.after_migrate",
 	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
+	"integracoes_customizadas.bionexo.setup.ensure_buying_card",
 	# Política: todo DocType dos apps customizados tem atalho em Workspace e leitor (apenas avisa)
 	"integracoes_customizadas.politicas.acesso_doctypes.avisar_violacoes",
 ]

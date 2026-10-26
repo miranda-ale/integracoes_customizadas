@@ -47,6 +47,16 @@ notificações por **WhatsApp**, módulo **Jurídico** (processos judiciais com 
 
 - **Exportação Bionexo**: botão *Exportar XML Bionexo* na `Request for Quotation` submetida, que baixa a cotação
   no layout XML da Bionexo.
+- **Importação do PDF Bionexo** (`Importacao Bionexo`, card *Bionexo* no workspace Compras ou botão *Importar PDF
+  Bionexo* na `Request for Quotation` submetida): lê o "Relatório geral de PDC" do Bionexo e identifica o Pedido de
+  Cotação (pelo nome gravado em Observações pelo XML exportado ou pelo ID Bionexo), os itens (código = `item_code`
+  ou `custom_código_bionexo`) e os fornecedores (CNPJ completo; sem CNPJ válido no cadastro, pelo nome).
+  Fornecedores não cadastrados são criados com a consulta de CNPJ do `busca_cnpj` (sem ela, com nome e CNPJ do
+  relatório); itens não identificados são relacionados à mão aos itens do Pedido de Cotação ou ignorados. Sem
+  identificação automática, Solicitação de Compras e Pedido de Cotação filtram um ao outro. Ao submeter, gera um
+  `Supplier Quotation` submetido por fornecedor que cotou e uma `Purchase Order` em rascunho por fornecedor com os
+  itens "Confirmado" (quantidade e preço do Bionexo); o cancelamento exclui essas OCs em rascunho e cancela os
+  orçamentos.
 - **Mapa de Preços RFQ**: relatório comparativo de uma `Request for Quotation` (um item por linha, um fornecedor
   por coluna), acessível pelo botão *Mapa de Preços* da própria cotação.
 
@@ -86,10 +96,10 @@ integracoes_customizadas/
 ├── whatsapp/      # api, delivery, override de Notification
 ├── juridico/      # datajud.py, DocTypes, relatório, dashboard, workspace
 ├── provas/        # DocTypes, relatórios, formatos de impressão
-├── bionexo/       # export_xml.py
-├── integracoes_customizadas/   # DocTypes de WhatsApp e relatório Mapa de Preços RFQ
+├── bionexo/       # export_xml.py · import_pdf.py (leitura do PDF) · importacao.py · setup.py
+├── integracoes_customizadas/   # DocTypes de WhatsApp e Importacao Bionexo, relatório Mapa de Preços RFQ
 ├── patches/ · fixtures/ · public/js/
-└── tests/         # test_whatsapp.py · test_bionexo_export.py
+└── tests/         # test_whatsapp.py · test_bionexo_export.py · test_bionexo_import.py
 ```
 
 Testes (a partir da raiz do bench):

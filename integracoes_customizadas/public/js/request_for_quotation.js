@@ -7,6 +7,11 @@ frappe.ui.form.on("Request for Quotation", {
 				{ request_for_quotation: frm.doc.name }
 			);
 		}, __("Actions"));
+		if (frm.doc.docstatus === 1) {
+			frm.add_custom_button(__("Importar PDF Bionexo"), () => {
+				frappe.new_doc("Importacao Bionexo", { request_for_quotation: frm.doc.name });
+			}, __("Actions"));
+		}
 		frm.add_custom_button(
 			__("Mapa de Preços"),
 			() => {

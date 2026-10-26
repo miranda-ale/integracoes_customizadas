@@ -1,0 +1,28 @@
+{
+ "actions": [],
+ "creation": "2026-10-26 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["seq", "codigo_bionexo", "descricao", "unidade", "qtd_solicitada", "item_code", "situacao", "ignorar", "rfq_item"],
+ "fields": [
+  {"fieldname": "seq", "fieldtype": "Int", "label": "Nº no Bionexo", "read_only": 1, "in_list_view": 1, "columns": 1},
+  {"fieldname": "codigo_bionexo", "fieldtype": "Data", "label": "Código no Bionexo", "read_only": 1, "in_list_view": 1, "columns": 1},
+  {"fieldname": "descricao", "fieldtype": "Small Text", "label": "Descrição no Bionexo", "read_only": 1, "in_list_view": 1, "columns": 3},
+  {"fieldname": "unidade", "fieldtype": "Data", "label": "Unidade", "read_only": 1},
+  {"fieldname": "qtd_solicitada", "fieldtype": "Float", "label": "Qtd. solicitada", "read_only": 1, "in_list_view": 1, "columns": 1},
+  {"fieldname": "item_code", "fieldtype": "Link", "label": "Item da solicitação", "options": "Item", "in_list_view": 1, "columns": 2, "description": "Item do Pedido de Cotação correspondente. Preenchido automaticamente pelo código; escolha manualmente quando não identificado."},
+  {"fieldname": "situacao", "fieldtype": "Select", "label": "Situação", "options": "Identificado\nNão identificado\nIgnorado", "read_only": 1, "in_list_view": 1, "columns": 1},
+  {"fieldname": "ignorar", "fieldtype": "Check", "label": "Ignorar item", "description": "Não gera orçamento nem ordem de compra para este item."},
+  {"fieldname": "rfq_item", "fieldtype": "Data", "label": "Linha do Pedido de Cotação", "read_only": 1, "hidden": 1}
+ ],
+ "istable": 1,
+ "modified": "2026-10-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Integracoes Customizadas",
+ "name": "Importacao Bionexo Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

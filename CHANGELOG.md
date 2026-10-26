@@ -2,6 +2,7 @@
 
 ## Não lançado
 
+- **Compras: importação do PDF Bionexo.** Novo DocType `Importacao Bionexo` lê o "Relatório geral de PDC" (pypdf), relaciona Pedido de Cotação/Solicitação de Compras, itens e fornecedores (cadastro rápido via `busca_cnpj`) e, ao submeter, gera os Orçamentos de Fornecedor submetidos e as Ordens de Compra em rascunho dos itens confirmados. Botão *Importar PDF Bionexo* na Request for Quotation e card *Bionexo* no workspace Compras.
 - **WhatsApp: mínimo de 10 variantes.** Modelo WhatsApp ativo só salva com ao menos 10 variantes ativas (`roteador.MIN_VARIANTES`); modelo criado por código recebe as redações-semente do título (`seed/variantes_modelos.py`, agora 11 para a convocação de comissão) e o patch `completar_variantes_modelo_whatsapp` completa os existentes (os sem semente ficam no Error Log). Notification com "Enviar também por WhatsApp" passa a exigir o Modelo WhatsApp.
 - **E-mail no layout institucional** (manifesto do clm, seção 6): e-mails das Notifications com canal E-mail, do Modelo WhatsApp (canal E-mail ou fallback) e do avanço de etapa do Edital saem pelo `render_email` do clm (`email_institucional.py`, dependência fraca).
 - **WhatsApp:** anexo do formato de impressão. Na Notification, "Attach Print" + "Print Format" também valem para o WhatsApp: o PDF é gerado no envio (`frappe.attach_print`, mesmas travas de rascunho/cancelado do e-mail) e enviado como documento por `sendMedia`, com o texto da mensagem como legenda. Limite de 15 MB, timeout maior para mídia; `Envio WhatsApp` registra formato e nome do arquivo.
