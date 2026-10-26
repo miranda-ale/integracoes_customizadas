@@ -6,9 +6,9 @@ app_email = "alessandro.siqueira@outlook.com"
 app_license = "mit"
 
 fixtures = [
-    {"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
-    {"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
-    {"dt": "Custom HTML Block", "filters": [["name", "in", ["Relatórios"]]]},
+	{"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
+	{"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
+	{"dt": "Custom HTML Block", "filters": [["name", "in", ["Relatórios"]]]},
 ]
 
 override_doctype_dashboards = {
@@ -38,6 +38,9 @@ required_apps = ["erpnext", "hrms"]
 # ------------------
 
 # include js, css files in header of desk.html
+# Etapas do processo de compras (barra nos formulários da cadeia Solicitação -> Fatura)
+app_include_css = "/assets/integracoes_customizadas/css/compras_steps.css?v=0.1.2"
+app_include_js = "/assets/integracoes_customizadas/js/compras_steps.js?v=0.1.2"
 # app_include_js = "/assets/integracoes_customizadas/js/desk_theme.js"  # desativado: so servia pro experimento de topbar teal, revertido
 
 # include js, css files in header of web template
@@ -118,6 +121,7 @@ after_migrate = [
 	"integracoes_customizadas.juridico.setup.after_migrate",
 	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
 	"integracoes_customizadas.bionexo.setup.ensure_buying_card",
+	"integracoes_customizadas.compras.setup.after_migrate",
 	# Política: todo DocType dos apps customizados tem atalho em Workspace e leitor (apenas avisa)
 	"integracoes_customizadas.politicas.acesso_doctypes.avisar_violacoes",
 ]
@@ -165,6 +169,16 @@ override_doctype_class = {
 # 		"on_trash": "method"
 # 	}
 # }
+doc_events = {
+	# Nota Fiscal registrada pela unidade no recebimento; a fatura herda número e data
+	"Purchase Receipt": {
+		"validate": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
+		"before_update_after_submit": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
+	},
+	"Purchase Invoice": {
+		"before_validate": "integracoes_customizadas.compras.receipt.herdar_nota_fiscal",
+	},
+}
 
 # Scheduled Tasks
 # ---------------

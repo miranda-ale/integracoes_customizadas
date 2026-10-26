@@ -1,0 +1,137 @@
+/* Etapas do processo de compras: mesmo visual da barra do CLM (prefixo cmp-). */
+.cmp-steps {
+	--st-teal: #0f9b8e;
+	--st-teal-dark: #0a6f66;
+	--st-teal-soft: color-mix(in srgb, var(--st-teal) 12%, var(--card-bg, #ffffff));
+	--st-warn: #b7791f;
+	--st-muted: var(--text-muted, #5d6e71);
+	--st-border: var(--border-color, #e2e8e7);
+	margin: 0 0 var(--margin-md, 12px);
+}
+.cmp-steps * { box-sizing: border-box; }
+
+.cmp-steps-panel {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--st-border);
+	border-top: 3px solid var(--st-teal);
+	border-radius: var(--border-radius-md, 8px);
+	padding: 10px 14px 12px;
+}
+.cmp-steps.is-collapsed .cmp-steps-panel { display: none; }
+.cmp-steps:not(.is-collapsed) .cmp-steps-pill { display: none; }
+
+.cmp-steps-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cmp-steps-title {
+	font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--st-teal);
+}
+.cmp-steps-progress { font-size: 12px; color: var(--st-muted); }
+.cmp-steps-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.cmp-steps-close {
+	border: 0; background: transparent; color: var(--st-muted); font-size: 18px; line-height: 1;
+	width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+}
+.cmp-steps-close:hover { background: var(--control-bg, #f3f3f3); color: var(--text-color); }
+
+.cmp-steps-pill {
+	display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+	border: 1px solid var(--st-border); border-left: 3px solid var(--st-teal);
+	background: var(--card-bg, #ffffff); color: var(--text-color);
+	border-radius: 999px; padding: 4px 12px; font-size: 12px;
+}
+.cmp-steps-pill:hover { border-color: var(--st-teal); }
+.cmp-steps-pill-title { font-weight: 600; color: var(--st-teal); }
+.cmp-steps-pill-meta { color: var(--st-muted); }
+
+.cmp-steps-track {
+	display: flex; list-style: none; margin: 0; padding: 10px 0 4px; overflow-x: auto; scrollbar-width: thin;
+}
+.cmp-step {
+	position: relative; flex: 1 0 104px; min-width: 104px; display: flex; flex-direction: column;
+	align-items: center; text-align: center; padding: 14px 4px 6px; cursor: default;
+}
+/* Connector to the previous step */
+.cmp-step + .cmp-step::before {
+	content: ""; position: absolute; top: 27px; right: calc(50% + 16px); width: calc(100% - 32px);
+	height: 2px; background: var(--st-border);
+}
+.cmp-step.is-ok + .cmp-step::before { background: var(--st-teal); }
+
+.cmp-step-marker {
+	position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%;
+	display: inline-flex; align-items: center; justify-content: center;
+	font-size: 12px; font-weight: 700; border: 2px solid var(--st-border);
+	background: var(--card-bg, #ffffff); color: var(--st-muted);
+}
+.cmp-step.is-ok .cmp-step-marker { background: var(--st-teal); border-color: var(--st-teal); color: #ffffff; }
+.cmp-step.is-pending .cmp-step-marker { border-color: var(--st-warn); color: var(--st-warn); }
+.cmp-step.is-warn .cmp-step-marker { background: var(--st-warn); border-color: var(--st-warn); color: #ffffff; }
+.cmp-step.is-current .cmp-step-marker {
+	box-shadow: 0 0 0 4px var(--st-teal-soft); border-color: var(--st-teal-dark);
+	transform: scale(1.12);
+}
+
+.cmp-step-text { display: flex; flex-direction: column; margin-top: 6px; line-height: 1.25; }
+.cmp-step-label { font-size: 12px; font-weight: 500; color: var(--text-color); }
+.cmp-step-status { font-size: 11px; color: var(--st-muted); }
+.cmp-step.is-none .cmp-step-label { color: var(--st-muted); }
+.cmp-step.is-current .cmp-step-label { font-weight: 700; color: var(--st-teal-dark); }
+.cmp-step.is-current .cmp-step-status { color: var(--st-teal); font-weight: 600; }
+.cmp-steps-count {
+	display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 8px; font-size: 10px;
+	background: var(--st-teal-soft); color: var(--st-teal-dark);
+}
+
+.cmp-step.is-link { cursor: pointer; }
+.cmp-step.is-link:hover .cmp-step-label { color: var(--st-teal); text-decoration: underline; }
+.cmp-step.is-link:hover .cmp-step-marker { border-color: var(--st-teal); }
+
+/* Optional group (Pedido de Cotação + Cotação de Fornecedor): one dashed outline spanning its steps, with a tag. */
+.cmp-step.in-group {
+	--grp: color-mix(in srgb, var(--st-teal) 55%, transparent);
+	border-top: 1.5px dashed var(--grp); border-bottom: 1.5px dashed var(--grp);
+	background: color-mix(in srgb, var(--st-teal) 4%, transparent);
+}
+.cmp-step.in-group.is-group-start {
+	border-left: 1.5px dashed var(--grp); border-radius: 14px 0 0 14px; margin-left: 6px;
+}
+.cmp-step.in-group.is-group-end {
+	border-right: 1.5px dashed var(--grp); border-radius: 0 14px 14px 0; margin-right: 6px;
+}
+.cmp-step.in-group.is-group-start.is-group-end { border-radius: 14px; }
+.cmp-group-tag {
+	position: absolute; top: -9px; left: 14px; padding: 0 8px; border-radius: 999px; white-space: nowrap;
+	font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+	color: var(--st-teal-dark); background: var(--card-bg, #ffffff); border: 1px solid var(--st-border);
+}
+
+[data-theme="dark"] .cmp-steps { --st-teal-dark: #3cc4b6; }
+
+/* Hover card of a step (appended to body, so it carries its own tokens) */
+.cmp-tip-pop {
+	position: fixed; z-index: 1080; max-width: 280px; pointer-events: none;
+	background: var(--card-bg, #ffffff); color: var(--text-color, #1f272e);
+	border: 1px solid var(--border-color, #e2e8e7); border-top: 3px solid #0f9b8e;
+	border-radius: var(--border-radius-md, 8px); padding: 8px 12px;
+	box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, .15)); font-size: 12px; line-height: 1.35;
+}
+.cmp-tip-title { font-weight: 700; margin-bottom: 4px; }
+.cmp-tip-status {
+	display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+	background: var(--control-bg, #f3f3f3); color: var(--text-muted, #5d6e71);
+}
+.cmp-tip-status.is-ok { background: color-mix(in srgb, #0f9b8e 14%, transparent); color: #0a6f66; }
+.cmp-tip-status.is-pending, .cmp-tip-status.is-warn {
+	background: color-mix(in srgb, #b7791f 16%, transparent); color: #b7791f;
+}
+.cmp-tip-alerts { margin: 6px 0 0; padding-left: 16px; color: var(--text-muted, #5d6e71); }
+.cmp-tip-alerts li + li { margin-top: 2px; }
+[data-theme="dark"] .cmp-tip-status.is-ok { color: #3cc4b6; }
+.cmp-tip-help { margin: 6px 0 0; color: var(--text-muted, #5d6e71); }
+.cmp-tip-section {
+	margin-top: 8px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+	color: #0f9b8e;
+}
+.cmp-tip-docs { list-style: none; margin: 4px 0 0; padding: 0; }
+.cmp-tip-docs li + li { margin-top: 3px; }
+.cmp-tip-doc-status { display: block; font-size: 11px; color: var(--text-muted, #5d6e71); }
+.cmp-tip-hint { margin-top: 8px; font-size: 11px; color: var(--text-muted, #5d6e71); font-style: italic; }
