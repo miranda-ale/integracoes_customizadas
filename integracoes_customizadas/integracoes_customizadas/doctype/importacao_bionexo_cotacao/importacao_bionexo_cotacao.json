@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "editable_grid": 0,
  "engine": "InnoDB",
- "field_order": ["seq", "codigo_bionexo", "item_code", "nome_bionexo", "cnpj", "supplier", "qty", "rate", "amount", "status_bionexo", "column_break_produto", "item_fornecedor", "marca", "embalagem", "observacao", "confirmado_por", "justificativa", "section_break_documentos", "supplier_quotation", "purchase_order", "rfq_item"],
+ "field_order": ["seq", "codigo_bionexo", "item_code", "nome_bionexo", "cnpj", "supplier", "qty", "rate", "amount", "status_bionexo", "column_break_produto", "item_fornecedor", "marca", "embalagem", "observacao", "confirmado_por", "data_confirmacao", "justificativa", "section_break_documentos", "supplier_quotation", "purchase_order", "rfq_item"],
  "fields": [
   {"fieldname": "seq", "fieldtype": "Int", "label": "Nº do item", "read_only": 1, "in_list_view": 1, "columns": 1},
   {"fieldname": "codigo_bionexo", "fieldtype": "Data", "label": "Código no Bionexo", "read_only": 1},
@@ -22,6 +22,7 @@
   {"fieldname": "embalagem", "fieldtype": "Small Text", "label": "Embalagem", "read_only": 1},
   {"fieldname": "observacao", "fieldtype": "Small Text", "label": "Observação do fornecedor", "read_only": 1},
   {"fieldname": "confirmado_por", "fieldtype": "Data", "label": "Confirmado por", "read_only": 1},
+  {"fieldname": "data_confirmacao", "fieldtype": "Datetime", "label": "Data da confirmação", "read_only": 1},
   {"fieldname": "justificativa", "fieldtype": "Small Text", "label": "Justificativa de escolha", "read_only": 1},
   {"fieldname": "section_break_documentos", "fieldtype": "Section Break", "label": "Documentos gerados"},
   {"fieldname": "supplier_quotation", "fieldtype": "Link", "label": "Orçamento de Fornecedor", "options": "Supplier Quotation", "read_only": 1},

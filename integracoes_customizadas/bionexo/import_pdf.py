@@ -17,6 +17,7 @@ RE_VALORES = re.compile(r"^([\d.,]+) R\$ ?([\d.]+,\d+) R\$ ?([\d.]+,\d+) (.+)$")
 RE_FIM_PARTICIPANTE = re.compile(r"^(\d{2}/\d{2}/\d{4}) (.*?) ?([\d.]+,\d{2})$")
 RE_CONFIRMADO = re.compile(r"^(.+) (\d+) ([\d.]+,\d{2})$")
 RE_DATA = re.compile(r"(\d{2})/(\d{2})/(\d{4})")
+RE_DATA_CONFIRMACAO = re.compile(r"no dia (\d{2})/(\d{2})/(\d{4}) às (\d{2})h(\d{2})m")
 RE_TELEFONE = re.compile(r"^\(?\d{2}\)? ?[\d.\- ]{7,}$|^\d{6,}-\d{4}$")
 
 INICIO_PARTICIPANTES = "Fornecedores participantes desta cotação"
@@ -199,7 +200,17 @@ def _resposta(bloco):
 	}
 	for rotulo, chave in CHAVES_ROTULO.items():
 		resposta[chave] = extras.get(rotulo, "")
+	resposta["data_confirmacao"] = data_confirmacao(resposta["confirmado_por"])
 	return resposta
+
+
+def data_confirmacao(confirmado_por: str) -> str | None:
+	"""'Fulana no dia 20/10/2026 às 16h28m' -> '2026-10-20 16:28:00'."""
+	achado = RE_DATA_CONFIRMACAO.search(confirmado_por or "")
+	if not achado:
+		return None
+	dia, mes, ano, hora, minuto = achado.groups()
+	return f"{ano}-{mes}-{dia} {hora}:{minuto}:00"
 
 
 def _por_rotulo(texto, rotulos):

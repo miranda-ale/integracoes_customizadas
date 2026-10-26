@@ -90,6 +90,7 @@ class ImportacaoBionexo(Document):
 						"observacao": resposta["observacao"],
 						"confirmado_por": resposta["confirmado_por"],
 						"justificativa": resposta["justificativa"],
+						"data_confirmacao": resposta.get("data_confirmacao"),
 					},
 				)
 
@@ -378,6 +379,9 @@ class ImportacaoBionexo(Document):
 		linhas = [itens_orcamento[c.rfq_item] for c in confirmadas]
 		ordem = make_purchase_order(orcamento.name, args={"filtered_children": linhas})
 		hoje = getdate(nowdate())
+		# Data da OC = quando o item foi confirmado no Bionexo (a mais recente entre os itens do fornecedor).
+		confirmacoes = [getdate(c.data_confirmacao) for c in confirmadas if c.data_confirmacao]
+		ordem.transaction_date = max(confirmacoes) if confirmacoes else hoje
 		for item in ordem.items:
 			data = None
 			if item.material_request_item:
@@ -385,7 +389,7 @@ class ImportacaoBionexo(Document):
 					"Material Request Item", item.material_request_item, "schedule_date"
 				)
 			data = getdate(data or rfq.schedule_date or hoje)
-			item.schedule_date = max(data, hoje)
+			item.schedule_date = max(data, getdate(ordem.transaction_date), hoje)
 		ordem.schedule_date = min(item.schedule_date for item in ordem.items)
 		ordem.insert()
 

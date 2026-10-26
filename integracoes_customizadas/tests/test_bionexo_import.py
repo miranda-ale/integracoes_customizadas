@@ -50,8 +50,17 @@ def relatorio(rfq, codigos):
 		"Alfa Distribuidora\nLtda\nItem: -", 10, "2,5000", "25,00", "Confirmado", confirmado_por
 	)
 	gama_a = resposta("Gama Comercio de Produtos Medicos Ltda Item: -", 10, "2,6000", "26,00", "Para análise")
-	beta_b = resposta("Beta Hospitalar Ltda\nItem: B-OFERTADO", "1.000", "1,1000", "1.100,00", "Confirmado")
-	beta_c = resposta("Beta Hospitalar Ltda\nItem: C-OFERTADO", 2, "1.132,0000", "2.264,00", "Confirmado")
+	beta_b = resposta(
+		"Beta Hospitalar Ltda\nItem: B-OFERTADO", "1.000", "1,1000", "1.100,00", "Confirmado", confirmado_por
+	)
+	beta_c = resposta(
+		"Beta Hospitalar Ltda\nItem: C-OFERTADO",
+		2,
+		"1.132,0000",
+		"2.264,00",
+		"Confirmado",
+		"Confirmado por:Comprador no dia 21/10/2026 às 10h18m\n",
+	)
 	gama_c = resposta(
 		"Gama Comercio de Produtos\nMedicos Ltda\nItem: -", 2, "1.200,0000", "2.400,00", "Para análise"
 	)
@@ -165,6 +174,8 @@ class TestParserBionexo(FrappeTestCase):
 		self.assertEqual(alfa["marca"], "MARCA + GENERICA")
 		self.assertEqual(alfa["observacao"], "Validade: 30/06/2028")
 		self.assertTrue(alfa["confirmado_por"].startswith("Comprador"))
+		self.assertEqual(alfa["data_confirmacao"], "2026-10-20 16:28:00")
+		self.assertIsNone(gama["data_confirmacao"])
 		self.assertEqual(gama["cnpj"], CNPJ_GAMA)
 		c_gama = itens[2]["respostas"][1]
 		self.assertEqual((c_gama["qty"], c_gama["rate"], c_gama["amount"]), (2, 1200.0, 2400.0))
@@ -254,7 +265,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 		dados = parse_texto(relatorio(observacao or self.rfq, codigos))
 		with patch(PARSER, return_value=dados), patch(f"{CLASSE}.conteudo_pdf", return_value=b""):
 			return frappe.get_doc(
-				{"doctype": "Importacao Bionexo", "arquivo_pdf": "/private/files/bionexo-teste.pdf"}
+				{"doctype": "Importacao Bionexo", "arquivo_pdf": "bionexo-teste.pdf"}
 			).insert()
 
 	def test_identifica_rfq_itens_e_fornecedores_pelo_relatorio(self):
@@ -314,6 +325,9 @@ class TestImportacaoBionexo(FrappeTestCase):
 		self.assertEqual(set(ordens), {"_TST Alfa Distribuidora", "_TST Beta Hospitalar"})
 		beta = frappe.get_doc("Purchase Order", ordens["_TST Beta Hospitalar"])
 		self.assertEqual(beta.docstatus, 0)
+		# Data da OC = confirmação mais recente no Bionexo entre os itens do fornecedor (B 20/10, C 21/10)
+		self.assertEqual(str(beta.transaction_date), "2026-10-21")
+		self.assertTrue(all(i.schedule_date >= beta.transaction_date for i in beta.items))
 		self.assertEqual(
 			sorted((i.item_code, i.qty, i.rate, i.material_request) for i in beta.items),
 			[("_TST-BNX-B", 1000, 1.1, self.mr), ("_TST-BNX-C", 2, 1132.0, self.mr)],
