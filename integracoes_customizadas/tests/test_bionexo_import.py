@@ -342,3 +342,67 @@ class TestImportacaoBionexo(FrappeTestCase):
 		doc.cancel()
 		self.assertFalse(frappe.db.exists("Purchase Order", beta.name))
 		self.assertEqual({frappe.db.get_value("Supplier Quotation", n, "docstatus") for n in orcamentos}, {2})
+
+	def test_sem_demais_fornecedores_gera_orcamento_so_dos_vencedores_e_itens_confirmados(self):
+		doc = self.nova_importacao(codigos=("_TST-BNX-A", "_TST-BNX-B", "_TST-BNX-C"))
+		doc.gerar_demais_fornecedores = 0
+		doc.save()
+		# Gama (sem cadastro e sem item confirmado) não bloqueia: não vai gerar orçamento
+		self.assertEqual(doc.status, "Pronto")
+		doc.submit()
+
+		fornecedores = {c.supplier for c in doc.cotacoes if c.supplier_quotation}
+		self.assertEqual(fornecedores, {"_TST Alfa Distribuidora", "_TST Beta Hospitalar"})
+		itens = {
+			c.supplier: sorted(
+				i.item_code for i in frappe.get_doc("Supplier Quotation", c.supplier_quotation).items
+			)
+			for c in doc.cotacoes
+			if c.supplier_quotation
+		}
+		self.assertEqual(itens["_TST Alfa Distribuidora"], ["_TST-BNX-A"])
+		self.assertEqual(itens["_TST Beta Hospitalar"], ["_TST-BNX-B", "_TST-BNX-C"])
+
+	def test_gera_pedido_de_cotacao_quando_a_solicitacao_nao_tem(self):
+		mr = frappe.get_doc(
+			{
+				"doctype": "Material Request",
+				"material_request_type": "Purchase",
+				"company": self.company,
+				"schedule_date": add_days(nowdate(), 5),
+				"items": [
+					{
+						"item_code": codigo,
+						"qty": qty,
+						"schedule_date": add_days(nowdate(), 5),
+						"warehouse": self.warehouse,
+					}
+					for codigo, qty in zip(self.itens, (10, 1000, 2), strict=True)
+				],
+			}
+		)
+		mr.flags.ignore_mandatory = True
+		mr.insert()
+		mr.submit()
+
+		doc = self.nova_importacao(observacao=mr.name, codigos=("_TST-BNX-A", "_TST-BNX-B", "_TST-BNX-C"))
+		self.assertFalse(doc.request_for_quotation)
+		self.assertEqual(doc.material_request, mr.name)
+		self.assertEqual(doc.company, self.company)
+		self.assertEqual({i.situacao for i in doc.itens}, {"Identificado"})
+		doc.gerar_demais_fornecedores = 0
+		doc.save()
+		doc.submit()
+
+		self.assertTrue(doc.rfq_gerada)
+		rfq = frappe.get_doc("Request for Quotation", doc.request_for_quotation)
+		self.assertEqual((rfq.docstatus, rfq.custom_id_bionexo), (1, "999000111"))
+		self.assertEqual(sorted(i.item_code for i in rfq.items), sorted(self.itens))
+		self.assertEqual(
+			sorted(s.supplier for s in rfq.suppliers),
+			["_TST Alfa Distribuidora", "_TST Beta Hospitalar"],
+		)
+		self.assertTrue(all(c.rfq_item for c in doc.cotacoes))
+
+		doc.cancel()
+		self.assertEqual(frappe.db.get_value("Request for Quotation", rfq.name, "docstatus"), 2)

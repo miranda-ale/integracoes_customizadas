@@ -57,6 +57,19 @@ def material_requests_da_rfq(request_for_quotation: str) -> list[str]:
 	)
 
 
+def rfqs_da_material_request(material_request: str) -> list[str]:
+	"""Pedidos de Cotação enviados que referenciam a Solicitação de Compras."""
+	return sorted(
+		set(
+			frappe.get_all(
+				"Request for Quotation Item",
+				filters={"material_request": material_request, "docstatus": 1},
+				pluck="parent",
+			)
+		)
+	)
+
+
 @frappe.whitelist()
 def vinculos_da_rfq(request_for_quotation: str) -> dict:
 	"""Solicitações de Compras e itens de uma RFQ, para o formulário filtrar e preencher os campos."""
@@ -161,3 +174,30 @@ def _criar_fornecedor(linha) -> str:
 			dados["email"] = linha.email
 		return confirmar_dados_cnpj(supplier.name, json.dumps(dados))["supplier"]
 	return supplier.name
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def itens_da_importacao(doctype, txt, searchfield, start, page_len, filters):
+	"""Link query dos itens do relatório: itens do Pedido de Cotação (ou, sem ele, da Solicitação de Compras),
+	com nome e quantidade solicitada."""
+	filters = filters or {}
+	if filters.get("request_for_quotation"):
+		tabela, pai = "Request for Quotation Item", filters["request_for_quotation"]
+	elif filters.get("material_request"):
+		tabela, pai = "Material Request Item", filters["material_request"]
+	else:
+		return []
+	condicoes = {"parent": pai}
+	linhas = frappe.get_all(
+		tabela,
+		filters=condicoes,
+		fields=["item_code", "item_name", "qty", "uom"],
+		order_by="idx asc",
+	)
+	txt = (txt or "").lower()
+	return [
+		(l.item_code, f"{l.item_name} | {l.qty:g} {l.uom or ''}".strip())
+		for l in linhas
+		if not txt or txt in l.item_code.lower() or txt in (l.item_name or "").lower()
+	][int(start) : int(start) + int(page_len)]

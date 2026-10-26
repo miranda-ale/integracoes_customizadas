@@ -21,6 +21,7 @@ from integracoes_customizadas.bionexo.importacao import (
 	fornecedor_por_nome,
 	material_requests_da_rfq,
 	normalizar_cnpj,
+	rfqs_da_material_request,
 )
 
 STATUS_CONFIRMADO = "Confirmado"
@@ -142,6 +143,11 @@ class ImportacaoBionexo(Document):
 			)
 
 	def validar_vinculos(self):
+		if not self.request_for_quotation and self.material_request:
+			self.validar_solicitacao()
+			existentes = rfqs_da_material_request(self.material_request)
+			if len(existentes) == 1:
+				self.request_for_quotation = existentes[0]
 		if not self.request_for_quotation:
 			return
 		rfq = frappe.db.get_value(
@@ -151,7 +157,7 @@ class ImportacaoBionexo(Document):
 			frappe.throw(
 				_("O Pedido de Cotação {0} precisa estar enviado.").format(self.request_for_quotation)
 			)
-		self.company = rfq.company
+		self.empresa_da_referencia(rfq.company, _("Pedido de Cotação"), self.request_for_quotation)
 
 		solicitacoes = material_requests_da_rfq(self.request_for_quotation)
 		if not self.material_request and len(solicitacoes) == 1:
@@ -163,13 +169,51 @@ class ImportacaoBionexo(Document):
 				)
 			)
 
+	def validar_solicitacao(self):
+		mr = frappe.db.get_value(
+			"Material Request", self.material_request, ["docstatus", "company"], as_dict=True
+		)
+		if not mr or mr.docstatus != 1:
+			frappe.throw(
+				_("A Solicitação de Compras {0} precisa estar enviada.").format(self.material_request)
+			)
+		self.empresa_da_referencia(mr.company, _("Solicitação de Compras"), self.material_request)
+
+	def empresa_da_referencia(self, empresa, rotulo, nome):
+		"""A empresa acompanha a referência escolhida; editada depois dela, precisa continuar igual."""
+		mudou = (
+			self.is_new()
+			or self.has_value_changed("request_for_quotation")
+			or self.has_value_changed("material_request")
+		)
+		if not self.company or mudou:
+			self.company = empresa
+		elif self.company != empresa:
+			frappe.throw(
+				_("A empresa {0} difere da empresa do {1} {2} ({3}).").format(
+					self.company, rotulo, nome, empresa
+				)
+			)
+
+	def rfq_sera_gerada(self) -> bool:
+		"""Há Solicitação de Compras sem Pedido de Cotação: ele é gerado a partir do relatório ao concluir."""
+		return bool(self.material_request and not self.request_for_quotation)
+
 	def resolver(self):
 		"""Relaciona itens às linhas da RFQ e fornecedores aos cadastros; propaga para as cotações."""
+		# Sem Pedido de Cotação (ele será gerado), concilia com os itens da Solicitação de Compras.
 		linhas_rfq = []
 		if self.request_for_quotation:
 			linhas_rfq = frappe.get_all(
 				"Request for Quotation Item",
 				filters={"parent": self.request_for_quotation},
+				fields=["name", "item_code"],
+				order_by="idx asc",
+			)
+		elif self.material_request:
+			linhas_rfq = frappe.get_all(
+				"Material Request Item",
+				filters={"parent": self.material_request},
 				fields=["name", "item_code"],
 				order_by="idx asc",
 			)
@@ -186,9 +230,9 @@ class ImportacaoBionexo(Document):
 			if item.item_code not in por_codigo:
 				item.item_code = self._codigo_no_erp(item.codigo_bionexo, por_codigo)
 			if item.item_code in por_codigo and item.item_code not in usados:
-				item.rfq_item = por_codigo[item.item_code]
+				item.rfq_item = por_codigo[item.item_code] if self.request_for_quotation else None
 				usados.add(item.item_code)
-			item.situacao = "Identificado" if item.rfq_item else NAO_IDENTIFICADO
+			item.situacao = "Identificado" if item.item_code in usados else NAO_IDENTIFICADO
 
 		for fornecedor in self.fornecedores:
 			if fornecedor.supplier:
@@ -240,21 +284,48 @@ class ImportacaoBionexo(Document):
 			)
 
 	def cotacoes_validas(self):
-		itens_ativos = {item.seq for item in self.itens if item.rfq_item}
+		itens_ativos = {item.seq for item in self.itens if item.situacao == "Identificado"}
 		return [c for c in self.cotacoes if c.seq in itens_ativos and flt(c.rate) > 0 and flt(c.qty) > 0]
+
+	def cotacoes_a_gerar(self):
+		"""Cotações que viram Orçamento: itens confirmados dos vencedores e, se marcado, tudo dos demais."""
+		validas = self.cotacoes_validas()
+		vencedores = {normalizar_cnpj(c.cnpj) for c in validas if c.status_bionexo == STATUS_CONFIRMADO}
+		gerar = []
+		for cotacao in validas:
+			if normalizar_cnpj(cotacao.cnpj) in vencedores:
+				if cotacao.status_bionexo == STATUS_CONFIRMADO:
+					gerar.append(cotacao)
+			elif self.gerar_demais_fornecedores:
+				gerar.append(cotacao)
+		return gerar
 
 	def pendencias(self) -> list[str]:
 		pendencias = []
-		if not self.request_for_quotation:
-			pendencias.append(_("Selecione o Pedido de Cotação."))
-		nao_identificados = [i.codigo_bionexo for i in self.itens if i.situacao == NAO_IDENTIFICADO]
+		if not self.request_for_quotation and not self.material_request:
+			pendencias.append(_("Selecione a Solicitação de Compras ou o Pedido de Cotação."))
+		elif not self.request_for_quotation and len(rfqs_da_material_request(self.material_request)) > 1:
+			pendencias.append(_("Há mais de um Pedido de Cotação para a Solicitação: escolha um."))
+		nao_identificados = [i for i in self.itens if i.situacao == NAO_IDENTIFICADO]
 		if nao_identificados:
-			pendencias.append(
-				_("Itens não identificados (relacione ou marque Ignorar): {0}").format(
-					", ".join(nao_identificados)
+			no_erp = set(
+				frappe.get_all(
+					"Item",
+					filters={"name": ["in", [i.codigo_bionexo for i in nao_identificados]]},
+					pluck="name",
 				)
 			)
-		precisam = {normalizar_cnpj(c.cnpj) for c in self.cotacoes_validas()}
+			pendencias.append(
+				_(
+					"Itens não identificados (relacione ou marque Ignorar). Os marcados com * existem no ERP, mas não estão na Solicitação/Pedido de Cotação: {0}"
+				).format(
+					", ".join(
+						i.codigo_bionexo + ("*" if i.codigo_bionexo in no_erp else "")
+						for i in nao_identificados
+					)
+				)
+			)
+		precisam = {normalizar_cnpj(c.cnpj) for c in self.cotacoes_a_gerar()}
 		sem_cadastro = [
 			f"{f.nome_bionexo} ({f.cnpj})"
 			for f in self.fornecedores
@@ -262,7 +333,11 @@ class ImportacaoBionexo(Document):
 		]
 		if sem_cadastro:
 			pendencias.append(_("Fornecedores não cadastrados: {0}").format(", ".join(sem_cadastro)))
-		if self.itens and not self.cotacoes_validas() and self.request_for_quotation:
+		if (
+			(self.request_for_quotation or self.material_request)
+			and self.itens
+			and not self.cotacoes_a_gerar()
+		):
 			pendencias.append(_("Nenhuma cotação com preço para itens identificados."))
 		return pendencias
 
@@ -272,7 +347,9 @@ class ImportacaoBionexo(Document):
 			frappe.throw("<br>".join(pendencias), title=_("Resolva as pendências antes de concluir"))
 
 		existentes = []
-		for supplier in sorted({c.supplier for c in self.cotacoes_validas()}):
+		for supplier in (
+			sorted({c.supplier for c in self.cotacoes_a_gerar()}) if self.request_for_quotation else []
+		):
 			orcamento = _orcamento_existente(supplier, self.request_for_quotation)
 			if orcamento:
 				existentes.append(f"{supplier}: {orcamento}")
@@ -286,9 +363,11 @@ class ImportacaoBionexo(Document):
 			)
 
 	def on_submit(self):
+		if not self.request_for_quotation:
+			self._gerar_rfq()
 		rfq = frappe.get_doc("Request for Quotation", self.request_for_quotation)
 		por_fornecedor = defaultdict(list)
-		for cotacao in self.cotacoes_validas():
+		for cotacao in self.cotacoes_a_gerar():
 			por_fornecedor[cotacao.supplier].append(cotacao)
 
 		self._completar_rfq(rfq, por_fornecedor)
@@ -310,6 +389,39 @@ class ImportacaoBionexo(Document):
 			title=_("Importação concluída"),
 			indicator="green",
 		)
+
+	def _gerar_rfq(self):
+		"""Gera e envia o Pedido de Cotação da Solicitação de Compras com os itens identificados do relatório."""
+		from erpnext.stock.doctype.material_request.material_request import make_request_for_quotation
+
+		hoje = getdate(nowdate())
+		rfq = make_request_for_quotation(self.material_request)
+		por_codigo = {i.item_code: i for i in self.itens if i.situacao == "Identificado"}
+		rfq.set("items", [linha for linha in rfq.items if linha.item_code in por_codigo])
+		rfq.company = self.company or rfq.company
+		rfq.transaction_date = self.data_cotacao or hoje
+		rfq.subject = (self.titulo_bionexo or f"Bionexo {self.id_cotacao_bionexo}")[:140]
+		rfq.message_for_supplier = _("Pedido de Cotação gerado a partir da cotação {0} do Bionexo.").format(
+			self.id_cotacao_bionexo
+		)
+		for idx, linha in enumerate(rfq.items, start=1):
+			linha.idx = idx
+			linha.schedule_date = max(getdate(linha.schedule_date or hoje), getdate(rfq.transaction_date))
+		rfq.schedule_date = min(linha.schedule_date for linha in rfq.items)
+		if rfq.meta.has_field("custom_id_bionexo"):
+			rfq.custom_id_bionexo = self.id_cotacao_bionexo
+		rfq.insert()
+		rfq.submit()
+
+		por_item_rfq = {linha.item_code: linha.name for linha in rfq.items}
+		for item in self.itens:
+			if item.situacao == "Identificado":
+				item.db_set("rfq_item", por_item_rfq.get(item.item_code))
+		for cotacao in self.cotacoes:
+			cotacao.rfq_item = por_item_rfq.get(cotacao.item_code)
+			cotacao.db_set("rfq_item", cotacao.rfq_item)
+		self.request_for_quotation = rfq.name
+		self.db_set({"request_for_quotation": rfq.name, "rfq_gerada": 1})
 
 	def _completar_rfq(self, rfq, por_fornecedor):
 		"""O ERPNext só submete o orçamento de fornecedor presente na tabela de fornecedores da RFQ."""
@@ -412,6 +524,19 @@ class ImportacaoBionexo(Document):
 			doc = frappe.get_doc("Supplier Quotation", orcamento)
 			if doc.docstatus == 1:
 				doc.cancel()
+		if (
+			self.rfq_gerada
+			and frappe.db.get_value("Request for Quotation", self.request_for_quotation, "docstatus") == 1
+		):
+			try:
+				frappe.get_doc("Request for Quotation", self.request_for_quotation).cancel()
+			except frappe.LinkExistsError:
+				frappe.msgprint(
+					_("O Pedido de Cotação {0} tem outros documentos vinculados e foi mantido.").format(
+						self.request_for_quotation
+					),
+					indicator="orange",
+				)
 		self.db_set("status", "Cancelado")
 
 

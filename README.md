@@ -54,9 +54,14 @@ notificações por **WhatsApp**, módulo **Jurídico** (processos judiciais com 
   Fornecedores não cadastrados são criados com a consulta de CNPJ do `busca_cnpj` (sem ela, com nome e CNPJ do
   relatório); itens não identificados são relacionados à mão aos itens do Pedido de Cotação ou ignorados. Sem
   identificação automática, Solicitação de Compras e Pedido de Cotação filtram um ao outro. Ao submeter, gera um
-  `Supplier Quotation` submetido por fornecedor que cotou e uma `Purchase Order` em rascunho por fornecedor com os
-  itens "Confirmado" (quantidade e preço do Bionexo; data da OC = data da confirmação no Bionexo); o cancelamento exclui essas OCs em rascunho e cancela os
-  orçamentos.
+  `Supplier Quotation` submetido por fornecedor e uma `Purchase Order` em rascunho por fornecedor com os itens
+  "Confirmado" (quantidade e preço do Bionexo; data da OC = data da confirmação no Bionexo). Antes de concluir, uma
+  janela informa o padrão (orçamentos só dos itens confirmados e dos fornecedores vencedores) e traz a caixa
+  *Gerar também orçamentos dos demais fornecedores* (marcada por padrão: os demais entram com todos os itens
+  cotados). Se a Solicitação de Compras não tem Pedido de Cotação, ele é gerado e enviado a partir do relatório
+  (itens identificados e fornecedores cadastrados) antes dos orçamentos. A empresa acompanha a Solicitação/Pedido de
+  Cotação escolhido. O cancelamento exclui as OCs em rascunho, cancela os orçamentos e o Pedido de Cotação gerado
+  pela importação.
 - **Mapa de Preços RFQ**: relatório comparativo de uma `Request for Quotation` (um item por linha, um fornecedor
   por coluna), acessível pelo botão *Mapa de Preços* da própria cotação.
 
