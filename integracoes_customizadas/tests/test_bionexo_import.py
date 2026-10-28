@@ -180,6 +180,27 @@ class TestParserBionexo(FrappeTestCase):
 		c_gama = itens[2]["respostas"][1]
 		self.assertEqual((c_gama["qty"], c_gama["rate"], c_gama["amount"]), (2, 1200.0, 2400.0))
 
+	def test_item_sem_resposta_de_fornecedor_nao_quebra_a_leitura(self):
+		def sem_resposta(seq, codigo):
+			return (
+				f"{seq} Código\n{codigo}\nNome doitem\nITEM SEM COTACAO | Unidade\nEmbalagem\nUnidade\n"
+				"Qntd. solicitada\n3\nÚltimas compras:\nData:25.09.2026\nFornecedor:QUALQUER UM\n"
+				"Qntd:1 Preço unit.:R$1,0000\n"
+			)
+
+		texto = relatorio("X", ("A1", "B2", "C3"))
+		texto = texto.replace("2 Código\nB2", sem_resposta(2, "S1") + "3 Código\nB2", 1)
+		texto = texto.replace("3 Código\nC3", "4 Código\nC3", 1)
+		texto = texto.replace(
+			"Fornecedores participantes desta cotação",
+			sem_resposta(5, "S2") + "Fornecedores participantes desta cotação",
+			1,
+		)
+		itens = parse_texto(texto)["itens"]
+
+		self.assertEqual([i["codigo"] for i in itens], ["A1", "S1", "B2", "C3", "S2"])
+		self.assertEqual([len(i["respostas"]) for i in itens], [2, 0, 1, 2, 0])
+
 	def test_numeros_e_nomes(self):
 		self.assertEqual(numero_br("1.132,0000"), 1132.0)
 		self.assertEqual(numero_br("0,8208"), 0.8208)

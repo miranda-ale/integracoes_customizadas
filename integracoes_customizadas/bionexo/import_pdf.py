@@ -158,7 +158,8 @@ def _itens(linhas):
 
 		fim = next((n for n in range(j, len(linhas)) if RE_ITEM.match(linhas[n])), len(linhas))
 		inicios = [n for n in range(j, fim) if RE_CABECALHO_RESPOSTA.match(linhas[n])]
-		for a, b in zip(inicios, [*inicios[1:], fim], strict=True):
+		# Item sem nenhuma cotação de fornecedor (só "Últimas compras") fica sem respostas.
+		for a, b in zip(inicios, [*inicios[1:], fim], strict=False):
 			resposta = _resposta(linhas[a + 1 : b])
 			if resposta:
 				item["respostas"].append(resposta)
