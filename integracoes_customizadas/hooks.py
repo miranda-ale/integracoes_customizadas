@@ -40,7 +40,10 @@ required_apps = ["erpnext", "hrms"]
 # include js, css files in header of desk.html
 # Etapas do processo de compras (barra nos formulários da cadeia Solicitação -> Fatura)
 app_include_css = "/assets/integracoes_customizadas/css/compras_steps.css?v=0.1.2"
-app_include_js = "/assets/integracoes_customizadas/js/compras_steps.js?v=0.1.2"
+app_include_js = [
+	"/assets/integracoes_customizadas/js/compras_steps.js?v=0.1.2",
+	"/assets/integracoes_customizadas/js/maiusculas.js?v=0.1.0",
+]
 # app_include_js = "/assets/integracoes_customizadas/js/desk_theme.js"  # desativado: so servia pro experimento de topbar teal, revertido
 
 # include js, css files in header of web template
@@ -170,6 +173,11 @@ override_doctype_class = {
 # 	}
 # }
 doc_events = {
+	# Nomes de cadastro em caixa alta (allowlist em normalizacao/maiusculas.py)
+	"*": {
+		"before_insert": "integracoes_customizadas.normalizacao.maiusculas.aplicar",
+		"before_validate": "integracoes_customizadas.normalizacao.maiusculas.aplicar",
+	},
 	# Nota Fiscal registrada pela unidade no recebimento; a fatura herda número e data
 	"Purchase Receipt": {
 		"validate": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
