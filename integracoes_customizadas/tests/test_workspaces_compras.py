@@ -53,3 +53,10 @@ class TestWorkspacesCompras(FrappeTestCase):
 	def test_bionexo_continua_em_compras(self):
 		ws = frappe.get_doc("Workspace", "Buying")
 		self.assertIn("Importacao Bionexo", {l.link_to for l in ws.links})
+
+	def test_documentos_de_fornecedor_no_compras(self):
+		if not frappe.db.exists("DocType", "CLM Supplier Document"):
+			self.skipTest("clm não instalado")
+		alvos = {l.link_to for l in frappe.get_doc("Workspace", "Buying").links}
+		self.assertIn("CLM Supplier Document", alvos)
+		self.assertIn("CLM Documentos de Fornecedor a Vencer", alvos)
