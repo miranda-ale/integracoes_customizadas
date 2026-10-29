@@ -1,6 +1,6 @@
+from types import SimpleNamespace
 from unittest.mock import patch
 from xml.etree.ElementTree import fromstring
-from types import SimpleNamespace
 
 import frappe
 from frappe.tests.utils import FrappeTestCase

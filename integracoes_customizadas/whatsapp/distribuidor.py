@@ -31,7 +31,13 @@ def instancias(settings) -> list[dict]:
 	for linha in getattr(settings, "instancias", None) or []:
 		nome = (linha.get("instance_name") or "").strip()
 		if nome and linha.get("ativo") and nome not in {i["nome"] for i in lista}:
-			lista.append({"nome": nome, "peso": max(linha.get("peso") or 1, 1), "limite": linha.get("limite_diario") or 0})
+			lista.append(
+				{
+					"nome": nome,
+					"peso": max(linha.get("peso") or 1, 1),
+					"limite": linha.get("limite_diario") or 0,
+				}
+			)
 	return lista
 
 
@@ -83,14 +89,18 @@ def escolher_instancia(numero=None, *, preferida=None, excluir=(), estado=estado
 		return todas[0]["nome"]
 
 	elegiveis = [
-		i for i in todas if (not i["limite"] or _carga(i["nome"]) < i["limite"]) and _conectada(i["nome"], estado)
+		i
+		for i in todas
+		if (not i["limite"] or _carga(i["nome"]) < i["limite"]) and _conectada(i["nome"], estado)
 	]
 	if not elegiveis:
 		raise SemInstanciaDisponivel
 
 	nomes_elegiveis = {i["nome"] for i in elegiveis}
 	chave_afinidade = (
-		f"{PREFIXO_AFINIDADE}:{hashlib.sha1(str(numero).encode()).hexdigest()}" if numero else None  # sem número no Redis
+		f"{PREFIXO_AFINIDADE}:{hashlib.sha1(str(numero).encode()).hexdigest()}"
+		if numero
+		else None  # sem número no Redis
 	)
 	anterior = preferida or (chave_afinidade and frappe.cache.get_value(chave_afinidade, expires=True))
 	if anterior in nomes_elegiveis:

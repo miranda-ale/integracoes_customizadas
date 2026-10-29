@@ -14,7 +14,7 @@ def create_edital_custom_fields():
 	"""Cria os vínculos com Edital efetivamente usados pelo recrutamento."""
 	try:
 		custom_fields = {}
-		
+
 		# Custom Field 'edital' em Job Applicant
 		if frappe.db.exists("DocType", "Job Applicant"):
 			custom_fields["Job Applicant"] = [
@@ -27,7 +27,7 @@ def create_edital_custom_fields():
 					"description": "Edital vinculado a este candidato",
 				}
 			]
-		
+
 		# Custom Field 'edital' em Interview
 		if frappe.db.exists("DocType", "Interview"):
 			custom_fields["Interview"] = [
@@ -40,37 +40,37 @@ def create_edital_custom_fields():
 					"description": "Edital vinculado a esta entrevista",
 				}
 			]
-		
+
 		if custom_fields:
 			create_custom_fields(custom_fields, update=True)
 			frappe.db.commit()
-			
+
 	except Exception as e:
-		frappe.log_error(f"Erro ao criar Custom Fields para Edital: {str(e)}")
+		frappe.log_error(f"Erro ao criar Custom Fields para Edital: {e!s}")
 		raise
 
 
 def verify_edital_custom_fields():
 	"""Verifica os vínculos com Edital usados por candidatos e entrevistas."""
 	fields_ok = True
-	
+
 	# Verifica Job Applicant
 	if frappe.db.exists("DocType", "Job Applicant"):
 		if not frappe.db.exists("Custom Field", {"dt": "Job Applicant", "fieldname": "edital"}):
 			fields_ok = False
-	
+
 	# Verifica Interview
 	if frappe.db.exists("DocType", "Interview"):
 		if not frappe.db.exists("Custom Field", {"dt": "Interview", "fieldname": "edital"}):
 			fields_ok = False
-	
+
 	if not fields_ok:
 		try:
 			create_edital_custom_fields()
 		except Exception as e:
-			frappe.log_error(f"Erro ao recriar Custom Fields para Edital: {str(e)}")
+			frappe.log_error(f"Erro ao recriar Custom Fields para Edital: {e!s}")
 			return False
-	
+
 	return True
 
 
@@ -80,7 +80,7 @@ def after_migrate():
 		create_edital_custom_fields()
 		remover_link_prova_edital_invalido()
 	except Exception as e:
-		frappe.log_error(f"Erro ao criar Custom Fields durante migração: {str(e)}")
+		frappe.log_error(f"Erro ao criar Custom Fields durante migração: {e!s}")
 
 
 @frappe.whitelist()
@@ -92,7 +92,7 @@ def criar_custom_fields_edital():
 		frappe.msgprint("Custom Fields criados com sucesso!", indicator="green", title="Sucesso")
 		return {"success": True, "message": "Custom Fields criados com sucesso"}
 	except Exception as e:
-		frappe.log_error(f"Erro ao criar Custom Fields: {str(e)}")
+		frappe.log_error(f"Erro ao criar Custom Fields: {e!s}")
 		return {"success": False, "message": str(e)}
 
 

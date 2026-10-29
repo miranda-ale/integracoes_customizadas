@@ -7,9 +7,7 @@ def _adicionar_processos(data, tipo_parte):
 	data["fieldname"] = data.get("fieldname") or "parte"
 	data.setdefault("non_standard_fieldnames", {})["Processo Judicial"] = "parte"
 	data.setdefault("dynamic_links", {})["parte"] = [tipo_parte, "tipo_parte"]
-	data.setdefault("transactions", []).append(
-		{"label": _("Jurídico"), "items": ["Processo Judicial"]}
-	)
+	data.setdefault("transactions", []).append({"label": _("Jurídico"), "items": ["Processo Judicial"]})
 	return data
 
 

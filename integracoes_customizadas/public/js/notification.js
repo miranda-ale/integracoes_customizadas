@@ -17,7 +17,9 @@ function add_phone_receivers(frm) {
 			if (!grid) return;
 			const option = (df, parent) => ({
 				value: parent ? `${df.fieldname},${parent.fieldname}` : df.fieldname,
-				label: `${df.label || df.fieldname} (${df.fieldname}${parent ? ` / ${parent.fieldname}` : ""})`,
+				label: `${df.label || df.fieldname} (${df.fieldname}${
+					parent ? ` / ${parent.fieldname}` : ""
+				})`,
 			});
 			const found = [];
 			frappe.get_meta(frm.doc.document_type).fields.forEach((df) => {

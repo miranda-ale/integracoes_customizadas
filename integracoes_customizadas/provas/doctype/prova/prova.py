@@ -1,9 +1,10 @@
 # Copyright (c) 2026, Frappe and contributors
 # For license information, please see license.txt
 
-import frappe
 import json
 import random
+
+import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import now_datetime
@@ -28,8 +29,7 @@ class Prova(Document):
 			count = frappe.db.count(
 				"Prova",
 				filters={
-					"creation": [">=", f"{hoje} 00:00:00"],
-					"creation": ["<=", f"{hoje} 23:59:59"],
+					"creation": ["between", [f"{hoje} 00:00:00", f"{hoje} 23:59:59"]],
 				},
 			)
 			seq = str(count + 1).zfill(4)
@@ -59,19 +59,16 @@ class Prova(Document):
 			# Se a disciplina é específica, verifica se o cargo está na disciplina
 			if not disciplina.is_aplicavel_a_designation(self.designation):
 				frappe.throw(
-					_(
-						"A questão {0} pertence à disciplina '{1}' que não é aplicável ao cargo {2}."
-					).format(item.questao, questao.disciplina, self.designation)
+					_("A questão {0} pertence à disciplina '{1}' que não é aplicável ao cargo {2}.").format(
+						item.questao, questao.disciplina, self.designation
+					)
 				)
 
 			# Verifica também se a questão tem o cargo na sua lista de designations
 			designations_questao = questao.get_designations()
 			if designations_questao and self.designation not in designations_questao:
 				frappe.throw(
-					_(
-						"A questão {0} não é aplicável ao cargo {1}. "
-						"Cargos aplicáveis: {2}"
-					).format(
+					_("A questão {0} não é aplicável ao cargo {1}. Cargos aplicáveis: {2}").format(
 						item.questao,
 						self.designation,
 						", ".join(designations_questao),
@@ -131,82 +128,84 @@ class Prova(Document):
 @frappe.whitelist()
 def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None, tipo=None):
 	"""Retorna lista de questões disponíveis para seleção na prova.
-	
+
 	Args:
 		prova_name: Nome da prova (para excluir questões já adicionadas)
 		designation: Cargo para filtrar questões aplicáveis
 		disciplina: Disciplina para filtrar
 		tipo: Tipo de questão (Objetiva/Discursiva)
-	
+
 	Returns:
 		Lista de questões com informações resumidas
 	"""
 	filters = {"ativo": 1}
-	
+
 	# Filtros opcionais
 	if disciplina:
 		filters["disciplina"] = disciplina
 	if tipo:
 		filters["tipo"] = tipo
-	
+
 	# Busca questões
 	questoes = frappe.get_all(
 		"Questao",
 		filters=filters,
 		fields=["name", "tipo", "disciplina", "dificuldade", "enunciado"],
-		order_by="modified desc"
+		order_by="modified desc",
 	)
-	
+
 	# Se houver prova, exclui questões já adicionadas
 	questoes_ja_adicionadas = []
 	if prova_name and frappe.db.exists("Prova", prova_name):
 		prova = frappe.get_doc("Prova", prova_name)
 		questoes_ja_adicionadas = [q.questao for q in prova.questoes]
-	
+
 	# Filtra questões aplicáveis ao cargo (se fornecido)
 	resultado = []
 	for questao in questoes:
 		if questao.name in questoes_ja_adicionadas:
 			continue
-		
+
 		# Verifica se a questão é aplicável ao cargo
 		if designation:
 			questao_doc = frappe.get_doc("Questao", questao.name)
 			disciplina_doc = frappe.get_doc("Disciplina", questao.disciplina)
-			
+
 			# Se a disciplina é aplicável a todos, OK
 			if disciplina_doc.aplicavel_a_todos:
 				pass
 			# Se a disciplina não é aplicável a todos, verifica se o cargo está na lista
 			elif not disciplina_doc.is_aplicavel_a_designation(designation):
 				continue
-			
+
 			# Verifica se a questão tem o cargo na sua lista de designations
 			designations_questao = questao_doc.get_designations()
 			if designations_questao and designation not in designations_questao:
 				continue
-		
+
 		# Limita o tamanho do enunciado para preview
 		enunciado_preview = questao.enunciado
 		if enunciado_preview and len(enunciado_preview) > 200:
 			enunciado_preview = enunciado_preview[:200] + "..."
-		
-		resultado.append({
-			"name": questao.name,
-			"tipo": questao.tipo,
-			"disciplina": questao.disciplina,
-			"dificuldade": questao.dificuldade,
-			"enunciado": enunciado_preview,
-			"enunciado_completo": questao.enunciado
-		})
-	
+
+		resultado.append(
+			{
+				"name": questao.name,
+				"tipo": questao.tipo,
+				"disciplina": questao.disciplina,
+				"dificuldade": questao.dificuldade,
+				"enunciado": enunciado_preview,
+				"enunciado_completo": questao.enunciado,
+			}
+		)
+
 	return resultado
 
 
 @frappe.whitelist()
 def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=None, questoes_excluir=None):
 	"""Gera questões automaticamente baseado em configurações de disciplinas e quantidades.
-	
+
 	Args:
 		prova_name: Nome da prova
 		designation: Cargo da prova
@@ -214,7 +213,7 @@ def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=
 			- disciplina: Nome da disciplina
 			- quantidade: Quantidade de questões desejada
 			- dificuldade: Dificuldade (Aleatória/Fácil/Média/Difícil)
-	
+
 	Returns:
 		Dict com:
 			- questoes_selecionadas: Lista de nomes de questões selecionadas
@@ -228,52 +227,47 @@ def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=
 	# Parse JSON se questoes_excluir vier como string
 	if isinstance(questoes_excluir, str):
 		questoes_excluir = json.loads(questoes_excluir)
-	
+
 	if not designation:
 		frappe.throw(_("É necessário informar o cargo da prova para gerar questões."))
-	
+
 	# Obtém questões já adicionadas
 	questoes_ja_adicionadas = questoes_excluir or []
-	
+
 	questoes_selecionadas = []
 	avisos = []
-	
+
 	# Processa cada configuração
 	for config in configuracoes:
 		disciplina = config.get("disciplina")
 		quantidade = int(config.get("quantidade", 1))
 		dificuldade = config.get("dificuldade", "Aleatória")
-		
+
 		if not disciplina:
 			continue
-		
+
 		# Busca questões disponíveis da disciplina
-		filters = {
-			"ativo": 1,
-			"disciplina": disciplina
-		}
-		
+		filters = {"ativo": 1, "disciplina": disciplina}
+
 		# Filtra por dificuldade se não for "Aleatória"
 		if dificuldade != "Aleatória":
 			filters["dificuldade"] = dificuldade
-		
+
 		questoes_disponiveis = frappe.get_all(
-			"Questao",
-			filters=filters,
-			fields=["name", "tipo", "disciplina", "dificuldade"]
+			"Questao", filters=filters, fields=["name", "tipo", "disciplina", "dificuldade"]
 		)
-		
+
 		# Filtra questões aplicáveis ao cargo
 		questoes_aplicaveis = []
 		for questao in questoes_disponiveis:
 			# Exclui questões já adicionadas
 			if questao.name in questoes_ja_adicionadas:
 				continue
-			
+
 			# Verifica se a questão é aplicável ao cargo
 			questao_doc = frappe.get_doc("Questao", questao.name)
 			disciplina_doc = frappe.get_doc("Disciplina", disciplina)
-			
+
 			# Se a disciplina é aplicável a todos, OK
 			if disciplina_doc.aplicavel_a_todos:
 				questoes_aplicaveis.append(questao.name)
@@ -283,7 +277,7 @@ def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=
 				designations_questao = questao_doc.get_designations()
 				if not designations_questao or designation in designations_questao:
 					questoes_aplicaveis.append(questao.name)
-		
+
 		# Seleciona aleatoriamente a quantidade solicitada
 		if len(questoes_aplicaveis) < quantidade:
 			avisos.append(
@@ -293,7 +287,7 @@ def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=
 				).format(disciplina, quantidade, len(questoes_aplicaveis))
 			)
 			quantidade = len(questoes_aplicaveis)
-		
+
 		if questoes_aplicaveis:
 			# Seleciona aleatoriamente
 			random.shuffle(questoes_aplicaveis)
@@ -304,9 +298,9 @@ def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=
 					disciplina, designation
 				)
 			)
-	
+
 	return {
 		"questoes_selecionadas": questoes_selecionadas,
 		"total_adicionadas": len(questoes_selecionadas),
-		"avisos": avisos
+		"avisos": avisos,
 	}

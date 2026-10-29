@@ -7,7 +7,6 @@ from frappe.tests.utils import FrappeTestCase
 from integracoes_customizadas.juridico import datajud
 from integracoes_customizadas.juridico.doctype.processo_judicial.processo_judicial import _datajud_datetime
 
-
 NUMERO = "00008323520184013202"
 IDENTIFICADOR = f"TRF1_436_JE_16403_{NUMERO}"
 
@@ -27,37 +26,48 @@ def _fonte(identificador=IDENTIFICADOR, numero=NUMERO):
 		"dataHoraUltimaAtualizacao": "2023-07-21T19:10:08.483Z",
 		"@timestamp": "2023-08-14T11:50:51.994Z",
 		"assuntos": [{"codigo": 6177, "nome": "Concessão"}],
-		"movimentos": [{
-			"codigo": 26,
-			"nome": "Distribuição",
-			"dataHora": "2018-10-30T14:06:24.000Z",
-			"orgaoJulgador": {"codigoOrgao": 16403, "nomeOrgao": "Vara"},
-			"complementosTabelados": [{"codigo": 2, "valor": 1, "nome": "Competência"}],
-		}],
+		"movimentos": [
+			{
+				"codigo": 26,
+				"nome": "Distribuição",
+				"dataHora": "2018-10-30T14:06:24.000Z",
+				"orgaoJulgador": {"codigoOrgao": 16403, "nomeOrgao": "Vara"},
+				"complementosTabelados": [{"codigo": 2, "valor": 1, "nome": "Competência"}],
+			}
+		],
 	}
 
 
 class TestProcessoJudicialDataJud(FrappeTestCase):
 	def test_descricoes_dos_complementos_e_submovimentos(self):
 		fonte = _fonte()
-		fonte["movimentos"] = [{
-			"codigo": 26, "nome": "Distribuição", "dataHora": "2026-02-18T17:15:20.000Z",
-			"complementosTabelados": [{
-				"descricao": "tipo_de_distribuicao_redistribuicao", "nome": "sorteio"
-			}],
-			"movimentos": [{
-				"codigo": 12749, "nome": "de Instrução", "dataHora": "2026-02-18T17:15:21.000Z",
+		fonte["movimentos"] = [
+			{
+				"codigo": 26,
+				"nome": "Distribuição",
+				"dataHora": "2026-02-18T17:15:20.000Z",
 				"complementosTabelados": [
-					{"descricao": "dirigida_por", "nome": "Juiz(a)"},
-					{"descricao": "situacao_da_audiencia", "nome": "designada"},
+					{"descricao": "tipo_de_distribuicao_redistribuicao", "nome": "sorteio"}
 				],
-			}],
-		}]
+				"movimentos": [
+					{
+						"codigo": 12749,
+						"nome": "de Instrução",
+						"dataHora": "2026-02-18T17:15:21.000Z",
+						"complementosTabelados": [
+							{"descricao": "dirigida_por", "nome": "Juiz(a)"},
+							{"descricao": "situacao_da_audiencia", "nome": "designada"},
+						],
+					}
+				],
+			}
+		]
 		datajud._espelhar_ocorrencia(IDENTIFICADOR, fonte)
 		doc = frappe.get_doc("Processo Judicial", IDENTIFICADOR)
-		self.assertEqual([row.descricao for row in doc.movimentos], [
-			"Audiência de Instrução Designada", "Distribuição por sorteio"
-		])
+		self.assertEqual(
+			[row.descricao for row in doc.movimentos],
+			["Audiência de Instrução Designada", "Distribuição por sorteio"],
+		)
 		movimento = doc.movimentos[0]
 		movimento.arquivo = "/private/files/audiencia.pdf"
 		doc.save()
@@ -78,17 +88,28 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		doc.save()
 		self.assertEqual(doc.doctype_parte, "Contact")
 		self.assertEqual(doc.nome_parte, "Paciente Jurídico")
-		self.assertIn("Cadastre pacientes em Contatos", frappe.get_meta("Processo Judicial").get_field("tipo_parte").description)
+		self.assertIn(
+			"Cadastre pacientes em Contatos",
+			frappe.get_meta("Processo Judicial").get_field("tipo_parte").description,
+		)
 
 	def test_endpoint_aliases_and_pagination_filter_exact_number(self):
 		self.assertIn("tre-ac", datajud.TRIBUNAIS)
 		self.assertEqual(datajud._alias_do_tribunal("TRE-AC"), "tre-ac")
 		with patch.object(datajud, "PAGE_SIZE", 2), patch.object(datajud, "_post") as post:
 			post.side_effect = [
-				{"hits": {"hits": [
-					{"_id": "um", "_source": _fonte("um"), "sort": [1]},
-					{"_id": "ignorar", "_source": {**_fonte("ignorar"), "numeroProcesso": "0" * 20}, "sort": [2]},
-				]}},
+				{
+					"hits": {
+						"hits": [
+							{"_id": "um", "_source": _fonte("um"), "sort": [1]},
+							{
+								"_id": "ignorar",
+								"_source": {**_fonte("ignorar"), "numeroProcesso": "0" * 20},
+								"sort": [2],
+							},
+						]
+					}
+				},
 				{"hits": {"hits": [{"_id": "dois", "_source": _fonte("dois"), "sort": [3]}]}},
 			]
 			resultados = datajud.consultar_numero(NUMERO, "trf1", "chave")
@@ -104,7 +125,10 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 
 	def test_http_errors_and_retry(self):
 		with patch.object(datajud.requests, "post") as post, patch.object(datajud.time, "sleep"):
-			post.side_effect = [Mock(status_code=429), Mock(status_code=200, json=lambda: {"hits": {"hits": []}})]
+			post.side_effect = [
+				Mock(status_code=429),
+				Mock(status_code=200, json=lambda: {"hits": {"hits": []}}),
+			]
 			self.assertIn("hits", datajud._post("trf1", {}, "chave"))
 			self.assertEqual(post.call_count, 2)
 			post.side_effect = None
@@ -146,12 +170,25 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			{"codigo": 99393938, "nome": "Assunto novo dois"},
 		]
 		fonte_dois = _fonte("segunda-ocorrencia")
-		with patch.object(datajud, "_post", return_value={"hits": {"hits": [
-			{"_id": "primeira-ocorrencia", "_source": fonte_um},
-			{"_id": "segunda-ocorrencia", "_source": fonte_dois},
-		]}}), patch.object(datajud, "_chave_publica", return_value="chave"):
+		with (
+			patch.object(
+				datajud,
+				"_post",
+				return_value={
+					"hits": {
+						"hits": [
+							{"_id": "primeira-ocorrencia", "_source": fonte_um},
+							{"_id": "segunda-ocorrencia", "_source": fonte_dois},
+						]
+					}
+				},
+			),
+			patch.object(datajud, "_chave_publica", return_value="chave"),
+		):
 			resultados = datajud.acompanhar_processo(NUMERO, "trf1")
-		self.assertEqual([item["doc"]["datajud_id"] for item in resultados], ["primeira-ocorrencia", "segunda-ocorrencia"])
+		self.assertEqual(
+			[item["doc"]["datajud_id"] for item in resultados], ["primeira-ocorrencia", "segunda-ocorrencia"]
+		)
 		self.assertFalse(frappe.db.exists("Processo Judicial", {"datajud_id": "primeira-ocorrencia"}))
 		self.assertFalse(frappe.db.exists("Assunto Judicial", "99393939"))
 		self.assertFalse(frappe.db.exists("Assunto Judicial", "99393938"))
@@ -164,25 +201,43 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(doc.risco, "Baixo")
 		self.assertTrue(frappe.db.exists("Assunto Judicial", "99393939"))
 		self.assertTrue(frappe.db.exists("Assunto Judicial", "99393938"))
-		with patch.object(datajud, "_post", return_value={"hits": {"hits": [
-			{"_id": "primeira-ocorrencia", "_source": fonte_um},
-		]}}), patch.object(datajud, "_chave_publica", return_value="chave"):
-			self.assertEqual(datajud.acompanhar_processo(NUMERO, "trf1"), [
-				{"name": "primeira-ocorrencia", "existente": True}
-			])
+		with (
+			patch.object(
+				datajud,
+				"_post",
+				return_value={
+					"hits": {
+						"hits": [
+							{"_id": "primeira-ocorrencia", "_source": fonte_um},
+						]
+					}
+				},
+			),
+			patch.object(datajud, "_chave_publica", return_value="chave"),
+		):
+			self.assertEqual(
+				datajud.acompanhar_processo(NUMERO, "trf1"),
+				[{"name": "primeira-ocorrencia", "existente": True}],
+			)
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc(resultados[1]["doc"] | {"consulta_token": None}).save()
-		with patch.object(datajud, "_post", return_value={"hits": {"hits": []}}), patch.object(
-			datajud, "_chave_publica", return_value="chave"
+		with (
+			patch.object(datajud, "_post", return_value={"hits": {"hits": []}}),
+			patch.object(datajud, "_chave_publica", return_value="chave"),
 		):
 			self.assertEqual(datajud.acompanhar_processo("1" * 20, "trf1"), [])
-		self.assertEqual(frappe.db.count("Processo Judicial", {"numero_processo": datajud._numero_cnj_formatado("1" * 20)}), 0)
+		self.assertEqual(
+			frappe.db.count(
+				"Processo Judicial", {"numero_processo": datajud._numero_cnj_formatado("1" * 20)}
+			),
+			0,
+		)
 
 	def test_dates_accept_iso_and_legacy_ajuizamento(self):
-		self.assertIsNotNone(_datajud_datetime("2018-10-29T00:00:00.000Z", "dataAjuizamento", ajuizamento=True))
-		self.assertEqual(
-			_datajud_datetime("20181029000000", "dataAjuizamento", ajuizamento=True).year, 2018
+		self.assertIsNotNone(
+			_datajud_datetime("2018-10-29T00:00:00.000Z", "dataAjuizamento", ajuizamento=True)
 		)
+		self.assertEqual(_datajud_datetime("20181029000000", "dataAjuizamento", ajuizamento=True).year, 2018)
 
 	def test_acao_exige_funcao_autorizada(self):
 		usuario_original = frappe.session.user
@@ -202,10 +257,13 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		meta = frappe.get_meta("Processo Judicial")
 		self.assertTrue(meta.get_field("nome_parte").in_list_view)
 		self.assertFalse(meta.get_field("situacao_cadastro").in_list_view)
-		self.assertEqual({(p.role, p.read, p.write, p.create) for p in meta.permissions}, {
-			("Usuário Jurídico", 1, 1, 1),
-			("System Manager", 1, 1, 1),
-		})
+		self.assertEqual(
+			{(p.role, p.read, p.write, p.create) for p in meta.permissions},
+			{
+				("Usuário Jurídico", 1, 1, 1),
+				("System Manager", 1, 1, 1),
+			},
+		)
 		self.assertEqual(
 			[(p.role, p.read, p.write) for p in frappe.get_meta("Configurações DataJud").permissions],
 			[("System Manager", 1, 1)],
@@ -213,30 +271,30 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertTrue(frappe.db.exists("Role", "Usuário Jurídico"))
 		self.assertTrue(frappe.has_permission("Configurações DataJud", "read", user="Administrator"))
 		with patch("frappe.get_roles", return_value=["System Manager"]):
-			self.assertTrue(frappe.has_permission(
-				"Configurações DataJud", "read", user="gestor-datajud@example.com"
-			))
-			self.assertTrue(frappe.has_permission(
-				"Configurações DataJud", "write", user="gestor-datajud@example.com"
-			))
+			self.assertTrue(
+				frappe.has_permission("Configurações DataJud", "read", user="gestor-datajud@example.com")
+			)
+			self.assertTrue(
+				frappe.has_permission("Configurações DataJud", "write", user="gestor-datajud@example.com")
+			)
 		with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
-			self.assertFalse(frappe.has_permission(
-				"Configurações DataJud", "read", user="juridico-datajud@example.com"
-			))
+			self.assertFalse(
+				frappe.has_permission("Configurações DataJud", "read", user="juridico-datajud@example.com")
+			)
 		with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
-			self.assertTrue(frappe.has_permission(
-				"Processo Judicial", "read", user="juridico-datajud@example.com"
-			))
-			self.assertTrue(frappe.has_permission(
-				"Processo Judicial", "write", user="juridico-datajud@example.com"
-			))
+			self.assertTrue(
+				frappe.has_permission("Processo Judicial", "read", user="juridico-datajud@example.com")
+			)
+			self.assertTrue(
+				frappe.has_permission("Processo Judicial", "write", user="juridico-datajud@example.com")
+			)
 		with patch("frappe.get_roles", return_value=["System Manager"]):
-			self.assertTrue(frappe.has_permission(
-				"Processo Judicial", "read", user="gestor-datajud@example.com"
-			))
-			self.assertTrue(frappe.has_permission(
-				"Processo Judicial", "write", user="gestor-datajud@example.com"
-			))
+			self.assertTrue(
+				frappe.has_permission("Processo Judicial", "read", user="gestor-datajud@example.com")
+			)
+			self.assertTrue(
+				frappe.has_permission("Processo Judicial", "write", user="gestor-datajud@example.com")
+			)
 		doc = frappe.new_doc("Processo Judicial")
 		doc.datajud_id = IDENTIFICADOR
 		with self.assertRaises(frappe.ValidationError):
@@ -288,7 +346,9 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(meta.get_field("assuntos").fieldtype, "Table MultiSelect")
 		ordem = [field.fieldname for field in meta.fields]
 		self.assertLess(ordem.index("assuntos"), ordem.index("aba_movimentos"))
-		self.assertEqual(frappe.get_meta("Processo Judicial Assunto").get_field("assunto").options, "Assunto Judicial")
+		self.assertEqual(
+			frappe.get_meta("Processo Judicial Assunto").get_field("assunto").options, "Assunto Judicial"
+		)
 		datajud._espelhar_ocorrencia(IDENTIFICADOR, _fonte())
 		linha = frappe.get_doc("Processo Judicial", IDENTIFICADOR).assuntos[0]
 		frappe.db.set_value("Processo Judicial Assunto", linha.name, "assunto", None)
@@ -297,9 +357,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 
 	def test_movimentos_mais_recentes_primeiro_e_campos_ocultos(self):
 		fonte = _fonte()
-		fonte["movimentos"].append({
-			"codigo": 27, "nome": "Decisão", "dataHora": "2024-01-30T14:06:24.000Z"
-		})
+		fonte["movimentos"].append({"codigo": 27, "nome": "Decisão", "dataHora": "2024-01-30T14:06:24.000Z"})
 		datajud._espelhar_ocorrencia(IDENTIFICADOR, fonte)
 		doc = frappe.get_doc("Processo Judicial", IDENTIFICADOR)
 		self.assertEqual([m.codigo for m in doc.movimentos], [27, 26])
@@ -315,25 +373,31 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		from frappe.desk.doctype.dashboard.dashboard import get_permitted_cards, get_permitted_charts
 
 		usuario = "datajud-workspace-test@example.com"
-		frappe.get_doc({
-			"doctype": "User",
-			"email": usuario,
-			"first_name": "Gestor DataJud",
-			"send_welcome_email": 0,
-			"user_type": "System User",
-		}).insert(ignore_permissions=True)
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": usuario,
+				"first_name": "Gestor DataJud",
+				"send_welcome_email": 0,
+				"user_type": "System User",
+			}
+		).insert(ignore_permissions=True)
 		frappe.get_doc("User", usuario).add_roles("System Manager")
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user(usuario)
 			workspace = Workspace({"name": "Jurídico"})
 			blocos = frappe.parse_json(workspace.doc.content)
-			self.assertEqual([block["type"] for block in blocos],
-				["number_card"] * 3 + ["shortcut"] * 4 + ["card", "card", "custom_block", "card"])
+			self.assertEqual(
+				[block["type"] for block in blocos],
+				["number_card"] * 3 + ["shortcut"] * 4 + ["card", "card", "custom_block", "card"],
+			)
 			self.assertEqual(len(workspace.get_number_cards()), 3)
-			self.assertTrue({
-				"Processo Judicial", "Configurações DataJud", "Processos Judiciais"
-			}.issubset({item["link_to"] for item in workspace.get_shortcuts()}))
+			self.assertTrue(
+				{"Processo Judicial", "Configurações DataJud", "Processos Judiciais"}.issubset(
+					{item["link_to"] for item in workspace.get_shortcuts()}
+				)
+			)
 			caixas = {card["label"]: card["links"] for card in workspace.get_links()}
 			self.assertTrue({"Ética", "Judicial", "Configurações"}.issubset(caixas))
 			self.assertEqual(caixas["Ética"][0]["link_to"], "Canal de Denuncias")
@@ -353,13 +417,15 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		from frappe.desk.doctype.dashboard.dashboard import get_permitted_cards, get_permitted_charts
 
 		usuario = "datajud-juridico-test@example.com"
-		frappe.get_doc({
-			"doctype": "User",
-			"email": usuario,
-			"first_name": "Usuário Jurídico",
-			"send_welcome_email": 0,
-			"user_type": "System User",
-		}).insert(ignore_permissions=True)
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": usuario,
+				"first_name": "Usuário Jurídico",
+				"send_welcome_email": 0,
+				"user_type": "System User",
+			}
+		).insert(ignore_permissions=True)
 		frappe.get_doc("User", usuario).add_roles("Usuário Jurídico")
 		usuario_original = frappe.session.user
 		try:
@@ -381,11 +447,14 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			frappe.set_user(usuario_original)
 
 	def test_agendamento_e_falha_isolada(self):
-		self.assertEqual(frappe.db.get_value(
-			"Scheduled Job Type",
-			{"method": "integracoes_customizadas.juridico.datajud.atualizar_processos_acompanhados"},
-			"cron_format",
-		), "0 3 * * 1-5")
+		self.assertEqual(
+			frappe.db.get_value(
+				"Scheduled Job Type",
+				{"method": "integracoes_customizadas.juridico.datajud.atualizar_processos_acompanhados"},
+				"cron_format",
+			),
+			"0 3 * * 1-5",
+		)
 		processos = [
 			frappe._dict(numero_processo=NUMERO, tribunal="TRF1"),
 			frappe._dict(numero_processo="1" * 20, tribunal="TRE-AC"),
@@ -396,9 +465,9 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			patch.object(datajud.frappe, "enqueue") as enqueue,
 		):
 			datajud.atualizar_processos_acompanhados()
-			self.assertEqual(datajud.frappe.get_all.call_args.kwargs["filters"], {
-				"status_processo": "Em andamento"
-			})
+			self.assertEqual(
+				datajud.frappe.get_all.call_args.kwargs["filters"], {"status_processo": "Em andamento"}
+			)
 		self.assertEqual(enqueue.call_count, 2)
 		self.assertTrue(all(call.kwargs["queue"] == "long" for call in enqueue.call_args_list))
 		self.assertEqual({call.kwargs["alias"] for call in enqueue.call_args_list}, {"trf1", "tre-ac"})
@@ -429,19 +498,25 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, numero))
 		doc.reload()
 		self.assertEqual(doc.status_processo, "Encerrado")
-		with patch.object(datajud, "consultar_numero", return_value=[
-			(identificador, _fonte(identificador, numero))
-		]):
-			self.assertEqual(datajud.acompanhar_processo(numero, "trf1"), [
-				{"name": identificador, "existente": True}
-			])
-		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Encerrado")
+		with patch.object(
+			datajud, "consultar_numero", return_value=[(identificador, _fonte(identificador, numero))]
+		):
+			self.assertEqual(
+				datajud.acompanhar_processo(numero, "trf1"), [{"name": identificador, "existente": True}]
+			)
+		self.assertEqual(
+			frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Encerrado"
+		)
 		doc.status_processo = "Em andamento"
 		doc.save()
-		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Em andamento")
+		self.assertEqual(
+			frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Em andamento"
+		)
 		frappe.db.set_value("Processo Judicial", identificador, "status_processo", None)
 		after_migrate()
-		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Em andamento")
+		self.assertEqual(
+			frappe.db.get_value("Processo Judicial", identificador, "status_processo"), "Em andamento"
+		)
 
 	def test_agendamento_ignora_pares_encerrados(self):
 		numero_ativo = "2" * 20
@@ -455,9 +530,10 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		datajud._espelhar_ocorrencia("agendamento-encerrado-outro-par", fonte_outro)
 		for nome in ("agendamento-encerrado-mesmo-par", "agendamento-encerrado-outro-par"):
 			frappe.db.set_value("Processo Judicial", nome, "status_processo", "Encerrado")
-		with patch.object(datajud, "_chave_publica", return_value="chave"), patch.object(
-			datajud.frappe, "enqueue"
-		) as enqueue:
+		with (
+			patch.object(datajud, "_chave_publica", return_value="chave"),
+			patch.object(datajud.frappe, "enqueue") as enqueue,
+		):
 			datajud.atualizar_processos_acompanhados()
 		pares = [(call.kwargs["numero"], call.kwargs["alias"]) for call in enqueue.call_args_list]
 		self.assertEqual(pares.count((datajud._numero_cnj_formatado(numero_ativo), "trf1")), 1)
@@ -481,14 +557,23 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		fonte_ativa["classe"]["nome"] = "Classe atualizada"
 		fonte_encerrada = _fonte("misto-encerrado", numero)
 		fonte_encerrada["classe"]["nome"] = "Não deve ser gravada"
-		with patch.object(datajud, "consultar_numero", return_value=[
-			("misto-encerrado", fonte_encerrada), ("misto-ativo", fonte_ativa),
-			("misto-novo", _fonte("misto-novo", numero))
-		]):
+		with patch.object(
+			datajud,
+			"consultar_numero",
+			return_value=[
+				("misto-encerrado", fonte_encerrada),
+				("misto-ativo", fonte_ativa),
+				("misto-novo", _fonte("misto-novo", numero)),
+			],
+		):
 			datajud.atualizar_um_processo(numero, "trf1")
-		self.assertEqual(frappe.db.get_value("Processo Judicial", "misto-encerrado", "classe_nome"),
-			"Procedimento do Juizado")
-		self.assertEqual(frappe.db.get_value("Processo Judicial", "misto-ativo", "classe_nome"), "Classe atualizada")
+		self.assertEqual(
+			frappe.db.get_value("Processo Judicial", "misto-encerrado", "classe_nome"),
+			"Procedimento do Juizado",
+		)
+		self.assertEqual(
+			frappe.db.get_value("Processo Judicial", "misto-ativo", "classe_nome"), "Classe atualizada"
+		)
 		self.assertTrue(frappe.db.exists("Processo Judicial", "misto-novo"))
 
 	def test_encerramento_durante_consulta_impede_atualizacao(self):
@@ -500,12 +585,16 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 
 		def consultar(*args):
 			frappe.db.set_value("Processo Judicial", identificador, "status_processo", "Encerrado")
-			return [(identificador, fonte), ("novo-durante-consulta", _fonte("novo-durante-consulta", numero))]
+			return [
+				(identificador, fonte),
+				("novo-durante-consulta", _fonte("novo-durante-consulta", numero)),
+			]
 
 		with patch.object(datajud, "consultar_numero", side_effect=consultar):
 			datajud.atualizar_um_processo(numero, "trf1")
-		self.assertEqual(frappe.db.get_value("Processo Judicial", identificador, "classe_nome"),
-			"Procedimento do Juizado")
+		self.assertEqual(
+			frappe.db.get_value("Processo Judicial", identificador, "classe_nome"), "Procedimento do Juizado"
+		)
 		self.assertFalse(frappe.db.exists("Processo Judicial", "novo-durante-consulta"))
 
 	def test_busca_manual_atualiza_apenas_ocorrencia_aberta_inclusive_encerrada(self):
@@ -516,13 +605,18 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		datajud._espelhar_ocorrencia(outro, _fonte(outro, numero))
 		frappe.db.set_value("Processo Judicial", identificador, "status_processo", "Encerrado")
 		fonte = _fonte(identificador, numero)
-		fonte["movimentos"].append({
-			"codigo": 51, "nome": "Conclusão", "dataHora": "2023-07-22T10:00:00.000Z"
-		})
+		fonte["movimentos"].append(
+			{"codigo": 51, "nome": "Conclusão", "dataHora": "2023-07-22T10:00:00.000Z"}
+		)
 		fonte["classe"]["nome"] = "Classe atualizada"
-		with patch.object(datajud, "consultar_numero", return_value=[
-			(outro, _fonte(outro, numero)), (identificador, fonte),
-		]):
+		with patch.object(
+			datajud,
+			"consultar_numero",
+			return_value=[
+				(outro, _fonte(outro, numero)),
+				(identificador, fonte),
+			],
+		):
 			resultado = datajud.buscar_andamentos(identificador)
 		self.assertEqual(resultado, {"novos_andamentos": 1, "total_andamentos": 2})
 		doc = frappe.get_doc("Processo Judicial", identificador)
@@ -547,27 +641,29 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		for tipo_parte in ("Employee", "Customer", "Supplier"):
 			with self.subTest(tipo_parte=tipo_parte):
 				dados = frappe.get_meta(tipo_parte).get_dashboard_data()
-				self.assertIn("Processo Judicial", [
-					item for grupo in dados.transactions for item in grupo["items"]
-				])
+				self.assertIn(
+					"Processo Judicial", [item for grupo in dados.transactions for item in grupo["items"]]
+				)
 				self.assertEqual(dados.non_standard_fieldnames["Processo Judicial"], "parte")
-				self.assertEqual(get_dynamic_link_filters("Processo Judicial", dados, "parte"), {
-					"tipo_parte": tipo_parte
-				})
+				self.assertEqual(
+					get_dynamic_link_filters("Processo Judicial", dados, "parte"), {"tipo_parte": tipo_parte}
+				)
 
 	def test_conexao_do_colaborador_localiza_seus_processos(self):
 		from frappe.desk.notifications import get_open_count
 
-		colaborador = frappe.get_doc({
-			"doctype": "Employee",
-			"naming_series": "EMP-",
-			"first_name": "Colaborador Jurídico",
-			"company": frappe.get_all("Company", pluck="name", limit=1)[0],
-			"gender": frappe.get_all("Gender", pluck="name", limit=1)[0],
-			"date_of_birth": "1990-05-08",
-			"date_of_joining": "2020-01-01",
-			"status": "Active",
-		}).insert(ignore_mandatory=True)
+		colaborador = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"naming_series": "EMP-",
+				"first_name": "Colaborador Jurídico",
+				"company": frappe.get_all("Company", pluck="name", limit=1)[0],
+				"gender": frappe.get_all("Gender", pluck="name", limit=1)[0],
+				"date_of_birth": "1990-05-08",
+				"date_of_joining": "2020-01-01",
+				"status": "Active",
+			}
+		).insert(ignore_mandatory=True)
 		identificador = "processo-colaborador-conexao"
 		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, "3" * 20))
 		processo = frappe.get_doc("Processo Judicial", identificador)

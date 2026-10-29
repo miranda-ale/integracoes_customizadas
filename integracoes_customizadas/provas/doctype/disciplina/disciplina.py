@@ -15,7 +15,9 @@ class Disciplina(Document):
 		if not self.aplicavel_a_todos:
 			if not self.designations or len(self.designations) == 0:
 				frappe.throw(
-					_("Disciplinas não aplicáveis a todos os cargos devem ter pelo menos um cargo específico.")
+					_(
+						"Disciplinas não aplicáveis a todos os cargos devem ter pelo menos um cargo específico."
+					)
 				)
 
 			# Verifica duplicatas

@@ -155,7 +155,12 @@ def enviar_whatsapp(telefone, texto, doc=None, variante=None) -> tuple[bool, str
 	numero = conector.normalizar_numero_br(telefone)
 	if not numero:
 		registrar_envio(
-			telefone=None, mensagem=texto, doc=doc, status="Ignorado", erro="Celular inválido.", variante=variante
+			telefone=None,
+			mensagem=texto,
+			doc=doc,
+			status="Ignorado",
+			erro="Celular inválido.",
+			variante=variante,
 		)
 		return False, _("Celular inválido.")
 	try:
@@ -198,4 +203,7 @@ def enviar_modelo(modelo, doc, *, telefone=None, email=None, canal="WhatsApp", e
 		enviados.append("E-mail")
 	elif usar_email and canal != "WhatsApp":
 		erros.append(_("Sem e-mail cadastrado."))
-	return {"canais": enviados, "erro": None if enviados else "; ".join(erros) or _("Nenhum canal disponível.")}
+	return {
+		"canais": enviados,
+		"erro": None if enviados else "; ".join(erros) or _("Nenhum canal disponível."),
+	}

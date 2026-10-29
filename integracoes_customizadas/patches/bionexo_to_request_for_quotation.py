@@ -23,9 +23,7 @@ def _remove_material_request_bionexo():
 	frappe.delete_doc("Client Script", "Botão de Exportação em XML", force=True, ignore_missing=True)
 
 	for fieldname in MR_REMOVED_FIELDS:
-		frappe.delete_doc(
-			"Custom Field", f"Material Request-{fieldname}", force=True, ignore_missing=True
-		)
+		frappe.delete_doc("Custom Field", f"Material Request-{fieldname}", force=True, ignore_missing=True)
 	frappe.delete_doc(
 		"Property Setter",
 		"Material Request-custom_id_cotacao-in_list_view",
@@ -82,6 +80,10 @@ def _customize_request_for_quotation():
 	if value:
 		order = json.loads(value)
 		if "custom_id_bionexo" not in order:
-			i = order.index("custom_tipo_de_contratacao") + 1 if "custom_tipo_de_contratacao" in order else len(order)
+			i = (
+				order.index("custom_tipo_de_contratacao") + 1
+				if "custom_tipo_de_contratacao" in order
+				else len(order)
+			)
 			order[i:i] = ["custom_id_bionexo", "custom_link_bionexo"]
 			frappe.db.set_value("Property Setter", name, "value", json.dumps(order))

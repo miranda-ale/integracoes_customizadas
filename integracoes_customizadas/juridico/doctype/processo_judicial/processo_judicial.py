@@ -50,7 +50,8 @@ class ProcessoJudicial(Document):
 
 			consulta = (
 				frappe.cache.get_value(f"datajud-rascunho:{self.consulta_token}")
-				if self.consulta_token else None
+				if self.consulta_token
+				else None
 			)
 			if not consulta or consulta["usuario"] != frappe.session.user:
 				frappe.throw(_("A consulta ao DataJud expirou. Consulte o processo novamente."))
@@ -82,42 +83,75 @@ class ProcessoJudicial(Document):
 			frappe.throw(_("Selecione uma parte válida para o tipo informado."))
 		if self.processo_relacionado and self.processo_relacionado == self.name:
 			frappe.throw(_("Um processo não pode ser relacionado a si mesmo."))
-		campos_nome = {"Employee": "employee_name", "Customer": "customer_name", "Supplier": "supplier_name", "Terceiros": "full_name"}
+		campos_nome = {
+			"Employee": "employee_name",
+			"Customer": "customer_name",
+			"Supplier": "supplier_name",
+			"Terceiros": "full_name",
+		}
 		self.nome_parte = (
 			frappe.db.get_value(self.doctype_parte, self.parte, campos_nome[self.tipo_parte])
-			if self.parte else None
+			if self.parte
+			else None
 		)
 		if self.situacao_cadastro == "Cadastrado" and not (self.tipo_parte and self.parte and self.empresa):
 			frappe.throw(_("Informe tipo da parte, parte e empresa para finalizar o cadastro."))
 
 	def _validar_dados_datajud_inalterados(self, anterior):
 		campos_datajud = (
-			"datajud_id", "numero_processo", "tribunal", "grau", "nivel_sigilo",
-			"orgao_julgador_codigo", "orgao_julgador_nome",
-			"orgao_julgador_codigo_municipio_ibge", "classe_codigo", "classe_nome",
-			"sistema_codigo", "sistema_nome", "formato_codigo", "formato_nome",
-			"data_ajuizamento_original", "data_ajuizamento",
-			"data_hora_ultima_atualizacao_original", "data_hora_ultima_atualizacao",
-			"timestamp_original", "timestamp",
+			"datajud_id",
+			"numero_processo",
+			"tribunal",
+			"grau",
+			"nivel_sigilo",
+			"orgao_julgador_codigo",
+			"orgao_julgador_nome",
+			"orgao_julgador_codigo_municipio_ibge",
+			"classe_codigo",
+			"classe_nome",
+			"sistema_codigo",
+			"sistema_nome",
+			"formato_codigo",
+			"formato_nome",
+			"data_ajuizamento_original",
+			"data_ajuizamento",
+			"data_hora_ultima_atualizacao_original",
+			"data_hora_ultima_atualizacao",
+			"timestamp_original",
+			"timestamp",
 		)
 		campos_data_hora = {"data_ajuizamento", "data_hora_ultima_atualizacao", "timestamp"}
 		if any(
 			(
 				not _data_hora_igual(self.get(campo), anterior.get(campo))
-				if campo in campos_data_hora else self.get(campo) != anterior.get(campo)
+				if campo in campos_data_hora
+				else self.get(campo) != anterior.get(campo)
 			)
 			for campo in campos_datajud
 		):
 			frappe.throw(_("Os dados retornados pelo DataJud não podem ser alterados manualmente."))
 		for tabela, campos in (
 			("assuntos", ("assunto", "codigo", "nome")),
-			("movimentos", ("codigo", "nome", "descricao", "data_hora_original", "data_hora",
-				"orgao_julgador_codigo", "orgao_julgador_nome", "complementos_tabelados")),
+			(
+				"movimentos",
+				(
+					"codigo",
+					"nome",
+					"descricao",
+					"data_hora_original",
+					"data_hora",
+					"orgao_julgador_codigo",
+					"orgao_julgador_nome",
+					"complementos_tabelados",
+				),
+			),
 		):
+
 			def valores(linhas):
 				return [
 					tuple(
-						get_datetime(linha.get(campo)) if linha.get(campo) and campo == "data_hora"
+						get_datetime(linha.get(campo))
+						if linha.get(campo) and campo == "data_hora"
 						else linha.get(campo)
 						for campo in campos
 					)

@@ -10,19 +10,75 @@ import frappe
 import requests
 from frappe import _
 
-
 TRIBUNAIS = (
-	"stj", "stm", "tse", "tst",
+	"stj",
+	"stm",
+	"tse",
+	"tst",
 	*(f"trf{numero}" for numero in range(1, 7)),
-	"tjac", "tjal", "tjam", "tjap", "tjba", "tjce", "tjdft", "tjes", "tjgo",
-	"tjma", "tjmg", "tjms", "tjmt", "tjpa", "tjpb", "tjpe", "tjpi", "tjpr",
-	"tjrj", "tjrn", "tjro", "tjrr", "tjrs", "tjsc", "tjse", "tjsp", "tjto",
+	"tjac",
+	"tjal",
+	"tjam",
+	"tjap",
+	"tjba",
+	"tjce",
+	"tjdft",
+	"tjes",
+	"tjgo",
+	"tjma",
+	"tjmg",
+	"tjms",
+	"tjmt",
+	"tjpa",
+	"tjpb",
+	"tjpe",
+	"tjpi",
+	"tjpr",
+	"tjrj",
+	"tjrn",
+	"tjro",
+	"tjrr",
+	"tjrs",
+	"tjsc",
+	"tjse",
+	"tjsp",
+	"tjto",
 	*(f"trt{numero}" for numero in range(1, 25)),
-	*(f"tre-{uf}" for uf in (
-		"ac", "al", "am", "ap", "ba", "ce", "dft", "es", "go", "ma", "mg", "ms", "mt",
-		"pa", "pb", "pe", "pi", "pr", "rj", "rn", "ro", "rr", "rs", "sc", "se", "sp", "to",
-	)),
-	"tjmmg", "tjmrs", "tjmsp",
+	*(
+		f"tre-{uf}"
+		for uf in (
+			"ac",
+			"al",
+			"am",
+			"ap",
+			"ba",
+			"ce",
+			"dft",
+			"es",
+			"go",
+			"ma",
+			"mg",
+			"ms",
+			"mt",
+			"pa",
+			"pb",
+			"pe",
+			"pi",
+			"pr",
+			"rj",
+			"rn",
+			"ro",
+			"rr",
+			"rs",
+			"sc",
+			"se",
+			"sp",
+			"to",
+		)
+	),
+	"tjmmg",
+	"tjmrs",
+	"tjmsp",
 )
 
 API_BASE = "https://api-publica.datajud.cnj.jus.br"
@@ -171,16 +227,18 @@ def consultar_numero(numero, alias, chave=None):
 
 
 def _preencher_ocorrencia(doc, identificador, fonte, *, registrar_assuntos=True):
-	doc.update({
-		"datajud_id": identificador,
-		"numero_processo": _numero_cnj_formatado(fonte.get("numeroProcesso")),
-		"tribunal": fonte.get("tribunal"),
-		"grau": fonte.get("grau"),
-		"nivel_sigilo": fonte.get("nivelSigilo"),
-		"data_ajuizamento_original": fonte.get("dataAjuizamento"),
-		"data_hora_ultima_atualizacao_original": fonte.get("dataHoraUltimaAtualizacao"),
-		"timestamp_original": fonte.get("@timestamp"),
-	})
+	doc.update(
+		{
+			"datajud_id": identificador,
+			"numero_processo": _numero_cnj_formatado(fonte.get("numeroProcesso")),
+			"tribunal": fonte.get("tribunal"),
+			"grau": fonte.get("grau"),
+			"nivel_sigilo": fonte.get("nivelSigilo"),
+			"data_ajuizamento_original": fonte.get("dataAjuizamento"),
+			"data_hora_ultima_atualizacao_original": fonte.get("dataHoraUltimaAtualizacao"),
+			"timestamp_original": fonte.get("@timestamp"),
+		}
+	)
 	for origem, prefixo in (("classe", "classe"), ("sistema", "sistema"), ("formato", "formato")):
 		valor = fonte.get(origem) or {}
 		doc.set(f"{prefixo}_codigo", valor.get("codigo"))
@@ -191,14 +249,18 @@ def _preencher_ocorrencia(doc, identificador, fonte, *, registrar_assuntos=True)
 	doc.orgao_julgador_codigo_municipio_ibge = orgao.get("codigoMunicipioIBGE")
 	doc.set("assuntos", [])
 	for assunto in fonte.get("assuntos") or []:
-		doc.append("assuntos", {
-			"assunto": (
-				_registrar_assunto(assunto.get("codigo"), assunto.get("nome"))
-				if registrar_assuntos else _id_assunto(assunto.get("codigo"), assunto.get("nome"))
-			),
-			"codigo": assunto.get("codigo"),
-			"nome": assunto.get("nome"),
-		})
+		doc.append(
+			"assuntos",
+			{
+				"assunto": (
+					_registrar_assunto(assunto.get("codigo"), assunto.get("nome"))
+					if registrar_assuntos
+					else _id_assunto(assunto.get("codigo"), assunto.get("nome"))
+				),
+				"codigo": assunto.get("codigo"),
+				"nome": assunto.get("nome"),
+			},
+		)
 	anteriores = defaultdict(deque)
 	for linha in doc.get("movimentos") or []:
 		anteriores[_chave_movimento(linha)].append(linha)
@@ -242,8 +304,7 @@ def _descricao_movimento(movimento):
 	if not isinstance(complementos, list):
 		return nome
 	if nome.lower().startswith("de ") and any(
-		isinstance(item, dict) and item.get("descricao") == "situacao_da_audiencia"
-		for item in complementos
+		isinstance(item, dict) and item.get("descricao") == "situacao_da_audiencia" for item in complementos
 	):
 		nome = f"Audiência {nome}"
 	partes = [nome] if nome else []
@@ -273,15 +334,20 @@ def _chave_movimento(movimento):
 		except (ValueError, TypeError):
 			pass
 	return (
-		movimento.get("codigo"), movimento.get("nome"), movimento.get("data_hora_original"),
-		str(movimento.get("orgao_julgador_codigo")), movimento.get("orgao_julgador_nome"),
+		movimento.get("codigo"),
+		movimento.get("nome"),
+		movimento.get("data_hora_original"),
+		str(movimento.get("orgao_julgador_codigo")),
+		movimento.get("orgao_julgador_nome"),
 		frappe.as_json(complementos),
 	)
 
 
 def _id_assunto(codigo, nome):
-	return str(codigo) if codigo is not None and codigo != "" else (
-		"nome-" + hashlib.sha1((nome or "").encode()).hexdigest()[:16]
+	return (
+		str(codigo)
+		if codigo is not None and codigo != ""
+		else ("nome-" + hashlib.sha1((nome or "").encode()).hexdigest()[:16])
 	)
 
 
@@ -310,7 +376,8 @@ def acompanhar_processo(numero_processo, tribunal_alias):
 			continue
 		token = secrets.token_urlsafe(32)
 		frappe.cache.set_value(
-			f"datajud-rascunho:{token}", {"usuario": frappe.session.user, "fonte": fonte, "identificador": identificador},
+			f"datajud-rascunho:{token}",
+			{"usuario": frappe.session.user, "fonte": fonte, "identificador": identificador},
 			expires_in_sec=24 * 60 * 60,
 		)
 		doc = _preencher_ocorrencia(
@@ -324,8 +391,11 @@ def acompanhar_processo(numero_processo, tribunal_alias):
 def _assinaturas_movimentos(doc):
 	return Counter(
 		(
-			movimento.codigo, movimento.nome, movimento.data_hora_original,
-			movimento.orgao_julgador_codigo, movimento.orgao_julgador_nome,
+			movimento.codigo,
+			movimento.nome,
+			movimento.data_hora_original,
+			movimento.orgao_julgador_codigo,
+			movimento.orgao_julgador_nome,
 			movimento.complementos_tabelados,
 		)
 		for movimento in doc.movimentos
@@ -359,7 +429,8 @@ def atualizar_processos_acompanhados():
 	except DataJudError:
 		return
 	processos = frappe.get_all(
-		"Processo Judicial", filters={"status_processo": "Em andamento"},
+		"Processo Judicial",
+		filters={"status_processo": "Em andamento"},
 		fields=["numero_processo", "tribunal"],
 	)
 	pares = {(p.numero_processo, _alias_do_tribunal(p.tribunal)) for p in processos}

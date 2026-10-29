@@ -2,35 +2,64 @@ frappe.query_reports["Relação de Processos"] = {
 	filters: [
 		{ fieldname: "company", label: __("Empresa"), fieldtype: "Link", options: "Company" },
 		{
-			fieldname: "tipo_parte", label: __("Tipo da Parte"), fieldtype: "Select",
+			fieldname: "tipo_parte",
+			label: __("Tipo da Parte"),
+			fieldtype: "Select",
 			options: "\nEmployee\nCustomer\nSupplier\nTerceiros",
 			on_change: () => {
 				frappe.query_report.set_filter_value("parte", "");
 				const tipo = frappe.query_report.get_filter_value("tipo_parte");
-				frappe.query_report.set_filter_value("doctype_parte", tipo === "Terceiros" ? "Contact" : tipo);
+				frappe.query_report.set_filter_value(
+					"doctype_parte",
+					tipo === "Terceiros" ? "Contact" : tipo
+				);
 			},
 		},
-		{ fieldname: "doctype_parte", label: __("DocType da Parte"), fieldtype: "Data", hidden: 1 },
 		{
-			fieldname: "parte", label: __("Parte"), fieldtype: "Dynamic Link",
-			options: "doctype_parte", depends_on: "eval:doc.tipo_parte",
+			fieldname: "doctype_parte",
+			label: __("DocType da Parte"),
+			fieldtype: "Data",
+			hidden: 1,
 		},
 		{
-			fieldname: "fase_processo", label: __("Fase"), fieldtype: "Select",
+			fieldname: "parte",
+			label: __("Parte"),
+			fieldtype: "Dynamic Link",
+			options: "doctype_parte",
+			depends_on: "eval:doc.tipo_parte",
+		},
+		{
+			fieldname: "fase_processo",
+			label: __("Fase"),
+			fieldtype: "Select",
 			options: "\nPostulatória\nInstrutória\nDecisória\nRecursal\nExecução",
 		},
 		{
-			fieldname: "status_processo", label: __("Situação"), fieldtype: "Select",
+			fieldname: "status_processo",
+			label: __("Situação"),
+			fieldtype: "Select",
 			options: "\nEm andamento\nEncerrado",
 		},
-		{ fieldname: "assunto", label: __("Assunto"), fieldtype: "Link", options: "Assunto Judicial" },
+		{
+			fieldname: "assunto",
+			label: __("Assunto"),
+			fieldtype: "Link",
+			options: "Assunto Judicial",
+		},
 		{ fieldname: "tribunal", label: __("Tribunal"), fieldtype: "Data" },
 		{ fieldname: "numero_processo", label: __("Número do Processo"), fieldtype: "Data" },
 		{
-			fieldname: "situacao_cadastro", label: __("Situação do Cadastro"), fieldtype: "Select",
+			fieldname: "situacao_cadastro",
+			label: __("Situação do Cadastro"),
+			fieldtype: "Select",
 			options: "\nRascunho\nCadastrado",
 		},
-		{ fieldname: "risco", label: __("Risco"), fieldtype: "Select", options: "\nBaixo\nMédio\nAlto" },
+		{
+			fieldname: "risco",
+			label: __("Risco"),
+			fieldtype: "Select",
+			options: "\nBaixo\nMédio\nAlto",
+		},
 		{ fieldname: "grau", label: __("Grau"), fieldtype: "Data" },
 		{ fieldname: "de", label: __("Ajuizado de"), fieldtype: "Date" },
 		{ fieldname: "ate", label: __("Ajuizado até"), fieldtype: "Date" },

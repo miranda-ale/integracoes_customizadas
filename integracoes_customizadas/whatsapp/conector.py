@@ -158,7 +158,11 @@ def verificar_numero(numero, *, instancia=None) -> dict:
 	if not normalizado:
 		raise NumeroInvalido(_("Número de telefone inválido."))
 	dados = _requisicao(
-		"POST", "chat/whatsappNumbers/{instancia}", json={"numbers": [normalizado]}, repetir=False, instancia=instancia
+		"POST",
+		"chat/whatsappNumbers/{instancia}",
+		json={"numbers": [normalizado]},
+		repetir=False,
+		instancia=instancia,
 	)
 	item = next((i for i in (dados if isinstance(dados, list) else []) if isinstance(i, dict)), {})
 	if not item.get("exists"):

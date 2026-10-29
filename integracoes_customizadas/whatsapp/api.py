@@ -83,9 +83,7 @@ def create_instance(instancia=None):
 	nome = resolve_instance(instancia)
 	try:
 		try:
-			instances = evolution_request(
-				"GET", "instance/fetchInstances", params={"instanceName": nome}
-			)
+			instances = evolution_request("GET", "instance/fetchInstances", params={"instanceName": nome})
 		except EvolutionHTTPError as exc:
 			if exc.status != 404:
 				raise
@@ -95,7 +93,8 @@ def create_instance(instancia=None):
 		if any(
 			(item.get("name") or item.get("instanceName") or (item.get("instance") or {}).get("instanceName"))
 			== nome
-			for item in instances if isinstance(item, dict)
+			for item in instances
+			if isinstance(item, dict)
 		):
 			return {"created": False, "instance_name": nome}
 		evolution_request(

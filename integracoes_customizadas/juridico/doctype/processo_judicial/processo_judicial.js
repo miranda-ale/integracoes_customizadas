@@ -14,14 +14,18 @@ frappe.ui.form.on("Processo Judicial", {
 				callback(response) {
 					if (response.exc) return;
 					const novos = response.message.novos_andamentos;
-					frappe.show_alert({
-						message: novos === 1
-							? __("1 novo andamento encontrado.")
-							: novos > 1
-								? __("{0} novos andamentos encontrados.", [novos])
-								: __("Nenhum andamento novo encontrado."),
-						indicator: novos ? "green" : "blue",
-					}, 8);
+					frappe.show_alert(
+						{
+							message:
+								novos === 1
+									? __("1 novo andamento encontrado.")
+									: novos > 1
+									? __("{0} novos andamentos encontrados.", [novos])
+									: __("Nenhum andamento novo encontrado."),
+							indicator: novos ? "green" : "blue",
+						},
+						8
+					);
 					frm.reload_doc();
 				},
 			});
@@ -29,6 +33,9 @@ frappe.ui.form.on("Processo Judicial", {
 	},
 	tipo_parte(frm) {
 		frm.set_value("parte", "");
-		frm.set_value("doctype_parte", frm.doc.tipo_parte === "Terceiros" ? "Contact" : frm.doc.tipo_parte);
+		frm.set_value(
+			"doctype_parte",
+			frm.doc.tipo_parte === "Terceiros" ? "Contact" : frm.doc.tipo_parte
+		);
 	},
 });

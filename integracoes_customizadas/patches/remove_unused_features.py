@@ -15,9 +15,9 @@ def _remove_contracts():
 		contract_count = frappe.db.count("Contrato de Trabalho")
 		if contract_count:
 			frappe.throw(
-				_(
-					"A remoção de Contrato de Trabalho foi interrompida porque existem {0} registros."
-				).format(contract_count)
+				_("A remoção de Contrato de Trabalho foi interrompida porque existem {0} registros.").format(
+					contract_count
+				)
 			)
 
 	artifacts = {

@@ -32,7 +32,9 @@ class TestRuleRecipients(unittest.TestCase):
 			recipients=[
 				SimpleNamespace(condition=None, receiver_by_role="Manager", receiver_by_document_field=None),
 				SimpleNamespace(condition=None, receiver_by_role=None, receiver_by_document_field="owner"),
-				SimpleNamespace(condition=None, receiver_by_role=None, receiver_by_document_field="responsavel"),
+				SimpleNamespace(
+					condition=None, receiver_by_role=None, receiver_by_document_field="responsavel"
+				),
 			],
 			send_to_all_assignees=True,
 		)
@@ -55,19 +57,30 @@ class TestRuleRecipients(unittest.TestCase):
 	@patch.object(notification, "recipient_phones", return_value=[])
 	@patch.object(notification, "recipient_users", return_value=["good@example.com", "bad@example.com"])
 	@patch.object(notification, "render_message", return_value="Aviso\n\nMensagem")
-	def test_queue_records_missing_phone_and_enqueues_valid_user(self, _render, _users, _phones, enqueue, get_doc):
+	def test_queue_records_missing_phone_and_enqueues_valid_user(
+		self, _render, _users, _phones, enqueue, get_doc
+	):
 		notification.frappe.db.get_value.side_effect = [
 			SimpleNamespace(enabled=1, mobile_no="(11) 99999-1234"),
 			SimpleNamespace(enabled=1, mobile_no=""),
 		]
 		records = []
+
 		def create_record(values):
 			records.append(values)
-			return SimpleNamespace(name=f"delivery-{len(records)}", insert=lambda **kwargs: SimpleNamespace(name=f"delivery-{len(records)}"))
+			return SimpleNamespace(
+				name=f"delivery-{len(records)}",
+				insert=lambda **kwargs: SimpleNamespace(name=f"delivery-{len(records)}"),
+			)
+
 		get_doc.side_effect = create_record
 		doc = SimpleNamespace(
-			doctype="Task", name="TASK-1", parenttype=None, owner="owner@example.com",
-			meta=SimpleNamespace(istable=False), get=lambda key: None,
+			doctype="Task",
+			name="TASK-1",
+			parenttype=None,
+			owner="owner@example.com",
+			meta=SimpleNamespace(istable=False),
+			get=lambda key: None,
 		)
 		alert = SimpleNamespace(name="Aviso tarefa")
 		notification.queue_whatsapp(alert, doc)
@@ -92,10 +105,17 @@ class TestRuleRecipients(unittest.TestCase):
 		)
 		values = {"celular": " 11 99999-1234 ", "contato": "user@example.com", "ignorado": "11 90000-0000"}
 		doc = SimpleNamespace(
-			get=lambda key: [SimpleNamespace(get=lambda f: "11 95555-4444")] if key == "familiares" else values.get(key)
+			get=lambda key: [SimpleNamespace(get=lambda f: "11 95555-4444")]
+			if key == "familiares"
+			else values.get(key)
 		)
-		with patch.object(notification.frappe, "safe_eval", side_effect=lambda expr, *a: expr != "False"), patch.object(
-			notification.frappe, "render_template", side_effect=lambda text, ctx: text.replace("{{ doc.extra }}", "11 96666-5555")
+		with (
+			patch.object(notification.frappe, "safe_eval", side_effect=lambda expr, *a: expr != "False"),
+			patch.object(
+				notification.frappe,
+				"render_template",
+				side_effect=lambda text, ctx: text.replace("{{ doc.extra }}", "11 96666-5555"),
+			),
 		):
 			self.assertEqual(
 				notification.recipient_phones(alert, doc, {}),
@@ -123,7 +143,11 @@ class TestRuleRecipients(unittest.TestCase):
 
 		get_doc.side_effect = create_record
 		doc = SimpleNamespace(
-			doctype="Task", name="TASK-1", parenttype=None, meta=SimpleNamespace(istable=False), get=lambda key: None
+			doctype="Task",
+			name="TASK-1",
+			parenttype=None,
+			meta=SimpleNamespace(istable=False),
+			get=lambda key: None,
 		)
 		with patch.object(notification.frappe, "db", MagicMock()) as db:
 			db.get_value.return_value = SimpleNamespace(enabled=1, mobile_no="11 99999-1234")
@@ -174,17 +198,23 @@ class TestEvolutionAPI(unittest.TestCase):
 
 class TestDelivery(unittest.TestCase):
 	def make_delivery(self):
-		item = SimpleNamespace(status="Pendente", attempts=0, phone="5511999991234", message="Olá", error=None, print_format=None)
+		item = SimpleNamespace(
+			status="Pendente", attempts=0, phone="5511999991234", message="Olá", error=None, print_format=None
+		)
 		item.get = lambda campo, default=None: getattr(item, campo, default)
+
 		def db_set(key, value=None):
 			for field, content in (key if isinstance(key, dict) else {key: value}).items():
 				setattr(item, field, content)
+
 		item.db_set = db_set
 		return item
 
 	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
-	@patch.object(delivery, "evolution_request", side_effect=[{"instance": {"state": "open"}}, {"key": {"id": "abc"}}])
+	@patch.object(
+		delivery, "evolution_request", side_effect=[{"instance": {"state": "open"}}, {"key": {"id": "abc"}}]
+	)
 	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
 	@patch.object(delivery, "message_path", return_value="message/sendText/erp")
 	@patch.object(delivery, "now_datetime", return_value="2026-10-09 12:00:00")
@@ -200,11 +230,17 @@ class TestDelivery(unittest.TestCase):
 	@patch.object(delivery, "gerar_anexo", return_value=b"%PDF-1.4 x")
 	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
-	@patch.object(delivery, "evolution_request", side_effect=[{"instance": {"state": "open"}}, {"key": {"id": "doc1"}}])
+	@patch.object(
+		delivery, "evolution_request", side_effect=[{"instance": {"state": "open"}}, {"key": {"id": "doc1"}}]
+	)
 	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
-	@patch.object(delivery, "message_path", side_effect=lambda endpoint, instancia=None: f"message/{endpoint}/erp")
+	@patch.object(
+		delivery, "message_path", side_effect=lambda endpoint, instancia=None: f"message/{endpoint}/erp"
+	)
 	@patch.object(delivery, "now_datetime", return_value="2026-10-09 12:00:00")
-	def test_print_format_sent_as_document(self, _now, message_path, _ip, request, get_doc, _escolher, _anexo):
+	def test_print_format_sent_as_document(
+		self, _now, message_path, _ip, request, get_doc, _escolher, _anexo
+	):
 		item = self.make_delivery()
 		item.print_format, item.nome_arquivo = "Fatura", "ACC-1.pdf"
 		get_doc.return_value = item
@@ -217,7 +253,9 @@ class TestDelivery(unittest.TestCase):
 		self.assertEqual(corpo["caption"], "Olá")
 		self.assertEqual(request.call_args.kwargs["timeout"], delivery.TIMEOUT_MIDIA)
 
-	@patch.object(delivery, "gerar_anexo", side_effect=ValueError("Documento em rascunho não pode ser impresso."))
+	@patch.object(
+		delivery, "gerar_anexo", side_effect=ValueError("Documento em rascunho não pode ser impresso.")
+	)
 	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
 	@patch.object(delivery, "evolution_request", return_value={"instance": {"state": "open"}})
@@ -248,7 +286,9 @@ class TestDelivery(unittest.TestCase):
 
 	@patch.object(delivery, "escolher_instancia", return_value="erp")
 	@patch.object(delivery.frappe, "get_doc")
-	@patch.object(delivery, "evolution_request", side_effect=ValueError("Evolution API respondeu com HTTP 503."))
+	@patch.object(
+		delivery, "evolution_request", side_effect=ValueError("Evolution API respondeu com HTTP 503.")
+	)
 	@patch.object(delivery, "instance_path", return_value="instance/connectionState/erp")
 	def test_provider_error_is_recorded_without_retry(self, _instance_path, request, get_doc, _escolher):
 		item = self.make_delivery()
