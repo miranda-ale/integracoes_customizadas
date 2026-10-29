@@ -83,6 +83,8 @@ TRIBUNAIS = (
 
 API_BASE = "https://api-publica.datajud.cnj.jus.br"
 PAGE_SIZE = 100
+# A API pública chega a levar 20-35 s por consulta; o limite fica abaixo dos 120 s do gunicorn/nginx.
+TIMEOUT = (10, 100)
 
 
 class DataJudError(Exception):
@@ -153,8 +155,11 @@ def _post(alias, payload, chave):
 				url,
 				headers={"Authorization": f"APIKey {chave}", "Content-Type": "application/json"},
 				json=payload,
-				timeout=20,
+				timeout=TIMEOUT,
 			)
+		except requests.ReadTimeout as exc:
+			# Repetir estouraria o limite da requisição web; a nova tentativa fica com o usuário.
+			raise DataJudError(_("O DataJud demorou demais para responder. Tente novamente.")) from exc
 		except requests.RequestException as exc:
 			if tentativa == 2:
 				raise DataJudError(_("Não foi possível conectar ao DataJud.")) from exc
