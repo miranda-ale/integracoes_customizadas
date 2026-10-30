@@ -194,6 +194,7 @@ doc_events = {
 scheduler_events = {
 	"cron": {
 		"0 3 * * 1-5": ["integracoes_customizadas.juridico.datajud.atualizar_processos_acompanhados"],
+		"0 7 * * *": ["integracoes_customizadas.juridico.agenda.alertar_prazos"],
 	},
 }
 

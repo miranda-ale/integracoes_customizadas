@@ -20,6 +20,13 @@
     "coluna_gestao",
     "risco",
     "fase_processo",
+    "secao_classificacao_interna",
+    "natureza",
+    "tipo_acao",
+    "objeto",
+    "coluna_classificacao_interna",
+    "pasta_interna",
+    "responsavel_interno",
     "secao_cadastro",
     "partes",
     "secao_parte_principal",
@@ -67,6 +74,33 @@
     "valor_causa",
     "coluna_valores",
     "valor_condenacao",
+    "secao_pedidos",
+    "pedidos",
+    "secao_provisao",
+    "probabilidade_perda",
+    "valor_provisionado_sugerido",
+    "provisao_manual",
+    "coluna_provisao",
+    "valor_provisionado",
+    "data_provisao",
+    "secao_depositos",
+    "depositos",
+    "secao_acordos",
+    "acordos",
+    "secao_custas",
+    "custas",
+    "secao_encerramento",
+    "resultado",
+    "data_encerramento",
+    "coluna_encerramento",
+    "saldo_depositado",
+    "total_acordos",
+    "total_custas",
+    "aba_juridico",
+    "secao_advogados",
+    "advogados",
+    "secao_audiencias",
+    "audiencias",
     "aba_conexoes",
     "processo_relacionado"
   ],
@@ -105,7 +139,6 @@
       "fieldname": "grau",
       "fieldtype": "Data",
       "label": "Grau",
-      "in_list_view": 1,
       "in_standard_filter": 1,
       "read_only": 1
     },
@@ -486,10 +519,218 @@
     {
       "fieldname": "coluna_parte_principal",
       "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "secao_classificacao_interna",
+      "fieldtype": "Section Break",
+      "label": "Classificação Interna"
+    },
+    {
+      "fieldname": "natureza",
+      "fieldtype": "Select",
+      "label": "Natureza",
+      "options": "\nTrabalhista\nCível\nTributário\nOutros",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "tipo_acao",
+      "fieldtype": "Data",
+      "label": "Tipo de Ação",
+      "description": "Ex.: Reclamação trabalhista, execução fiscal, indenização."
+    },
+    {
+      "fieldname": "objeto",
+      "fieldtype": "Small Text",
+      "label": "Objeto"
+    },
+    {
+      "fieldname": "coluna_classificacao_interna",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "pasta_interna",
+      "fieldtype": "Data",
+      "label": "Pasta / Código Interno",
+      "no_copy": 1,
+      "search_index": 1,
+      "description": "Único por empresa."
+    },
+    {
+      "fieldname": "responsavel_interno",
+      "fieldtype": "Link",
+      "label": "Responsável Interno",
+      "options": "User",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "aba_juridico",
+      "fieldtype": "Tab Break",
+      "label": "Jurídico"
+    },
+    {
+      "fieldname": "secao_advogados",
+      "fieldtype": "Section Break",
+      "label": "Advogados"
+    },
+    {
+      "fieldname": "advogados",
+      "fieldtype": "Table",
+      "label": "Advogados",
+      "options": "Processo Judicial Advogado"
+    },
+    {
+      "fieldname": "secao_pedidos",
+      "fieldtype": "Section Break",
+      "label": "Pedidos"
+    },
+    {
+      "fieldname": "pedidos",
+      "fieldtype": "Table",
+      "label": "Pedidos",
+      "options": "Processo Judicial Pedido"
+    },
+    {
+      "fieldname": "secao_provisao",
+      "fieldtype": "Section Break",
+      "label": "Provisão"
+    },
+    {
+      "fieldname": "probabilidade_perda",
+      "fieldtype": "Select",
+      "label": "Probabilidade de Perda",
+      "options": "\nProvável\nPossível\nRemota",
+      "in_standard_filter": 1,
+      "read_only_depends_on": "eval:doc.pedidos && doc.pedidos.length",
+      "description": "Com pedidos, assume a probabilidade do pior pedido."
+    },
+    {
+      "fieldname": "valor_provisionado_sugerido",
+      "fieldtype": "Currency",
+      "label": "Provisão Sugerida",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Soma do valor provável dos pedidos com perda provável."
+    },
+    {
+      "fieldname": "provisao_manual",
+      "fieldtype": "Check",
+      "label": "Informar provisão manualmente",
+      "no_copy": 1
+    },
+    {
+      "fieldname": "coluna_provisao",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "valor_provisionado",
+      "fieldtype": "Currency",
+      "label": "Valor Provisionado",
+      "options": "moeda",
+      "read_only_depends_on": "eval:!doc.provisao_manual"
+    },
+    {
+      "fieldname": "data_provisao",
+      "fieldtype": "Date",
+      "label": "Data da Provisão",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Atualizada quando a probabilidade ou o valor provisionado mudam."
+    },
+    {
+      "fieldname": "secao_audiencias",
+      "fieldtype": "Section Break",
+      "label": "Audiências e Prazos"
+    },
+    {
+      "fieldname": "audiencias",
+      "fieldtype": "Table",
+      "label": "Audiências e Prazos",
+      "options": "Processo Judicial Audiencia"
+    },
+    {
+      "fieldname": "secao_depositos",
+      "fieldtype": "Section Break",
+      "label": "Depósitos Judiciais e Recursais"
+    },
+    {
+      "fieldname": "depositos",
+      "fieldtype": "Table",
+      "label": "Depósitos",
+      "options": "Processo Judicial Deposito"
+    },
+    {
+      "fieldname": "secao_acordos",
+      "fieldtype": "Section Break",
+      "label": "Acordos"
+    },
+    {
+      "fieldname": "acordos",
+      "fieldtype": "Table",
+      "label": "Acordos",
+      "options": "Processo Judicial Acordo"
+    },
+    {
+      "fieldname": "secao_custas",
+      "fieldtype": "Section Break",
+      "label": "Custas e Despesas"
+    },
+    {
+      "fieldname": "custas",
+      "fieldtype": "Table",
+      "label": "Custas",
+      "options": "Processo Judicial Custa"
+    },
+    {
+      "fieldname": "secao_encerramento",
+      "fieldtype": "Section Break",
+      "label": "Resultado e Totais"
+    },
+    {
+      "fieldname": "resultado",
+      "fieldtype": "Select",
+      "label": "Resultado",
+      "options": "\nProcedente\nImprocedente\nAcordo",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "data_encerramento",
+      "fieldtype": "Date",
+      "label": "Data de Encerramento"
+    },
+    {
+      "fieldname": "coluna_encerramento",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "saldo_depositado",
+      "fieldtype": "Currency",
+      "label": "Saldo Depositado",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Depósitos na situação Depositado."
+    },
+    {
+      "fieldname": "total_acordos",
+      "fieldtype": "Currency",
+      "label": "Total de Acordos",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Acordos, exceto descumpridos."
+    },
+    {
+      "fieldname": "total_custas",
+      "fieldtype": "Currency",
+      "label": "Total de Custas",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1
     }
   ],
   "links": [],
-  "modified": "2026-10-30 00:00:00.000000",
+  "modified": "2026-10-30 06:00:00.000000",
   "modified_by": "Administrator",
   "module": "Juridico",
   "name": "Processo Judicial",
@@ -523,5 +764,5 @@
   "naming_rule": "By fieldname",
   "title_field": "numero_processo",
   "search_fields": "datajud_id,numero_processo,tribunal,grau",
-  "track_changes": 0
+  "track_changes": 1
 }

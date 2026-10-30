@@ -1,0 +1,56 @@
+{
+  "actions": [],
+  "creation": "2026-10-30 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "descricao",
+    "valor_pedido",
+    "probabilidade_perda",
+    "valor_provavel"
+  ],
+  "fields": [
+    {
+      "fieldname": "descricao",
+      "fieldtype": "Small Text",
+      "label": "Pedido",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "valor_pedido",
+      "fieldtype": "Currency",
+      "label": "Valor Pedido",
+      "options": "moeda",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "probabilidade_perda",
+      "fieldtype": "Select",
+      "label": "Probabilidade de Perda",
+      "options": "\nProvável\nPossível\nRemota",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "valor_provavel",
+      "fieldtype": "Currency",
+      "label": "Valor Provável",
+      "options": "moeda",
+      "in_list_view": 1,
+      "description": "Valor estimado de perda; obrigatório para pedidos prováveis."
+    }
+  ],
+  "links": [],
+  "modified": "2026-10-30 01:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Pedido",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 1
+}

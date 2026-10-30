@@ -2,12 +2,16 @@
 # For license information, please see license.txt
 
 import json
+import re
 from datetime import datetime
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import flt, getdate, today
 from frappe.utils.data import convert_utc_to_system_timezone, get_datetime
+
+from integracoes_customizadas.juridico import agenda
 
 
 def _datajud_datetime(value: str | None, label: str, *, ajuizamento: bool = False) -> datetime | None:
@@ -44,6 +48,20 @@ def _normalizar_documento(valor: str | None) -> str | None:
 		frappe.throw(_("CPF/CNPJ inválido: {0}").format(valor))
 	return format_cpf(base) if len(base) == 11 else formatar_cnpj(base)
 
+
+def _normalizar_oab(valor: str | None) -> str | None:
+	"""Aceita "123456/SP", "SP 123456" ou "SP-123.456" e devolve "123456/SP"; vazio vira None."""
+	texto = (valor or "").strip().upper()
+	if not texto:
+		return None
+	numero = "".join(c for c in texto if c.isdigit())
+	uf = "".join(c for c in texto if c.isalpha())
+	if not (1 <= len(numero) <= 6 and re.fullmatch(r"[A-Z]{2}", uf)) or re.search(r"[^0-9A-Z./\s-]", texto):
+		frappe.throw(_("OAB inválida: {0}. Use o formato 123456/SP.").format(valor))
+	return f"{int(numero)}/{uf}"
+
+
+PROBABILIDADES_POR_GRAVIDADE = ("Provável", "Possível", "Remota")
 
 CAMPOS_NOME_PARTE = {
 	"Employee": "employee_name",
@@ -123,6 +141,93 @@ class ProcessoJudicial(Document):
 		if self.processo_relacionado and self.processo_relacionado == self.name:
 			frappe.throw(_("Um processo não pode ser relacionado a si mesmo."))
 		self._validar_parte()
+		self._validar_classificacao()
+		self._validar_advogados()
+		self._calcular_provisao()
+		self._calcular_financeiro()
+
+	def on_update(self):
+		agenda.sincronizar(self)
+
+	def _validar_classificacao(self):
+		"""Normaliza a classificação interna e garante pasta única por empresa."""
+		for campo in ("tipo_acao", "objeto", "pasta_interna"):
+			self.set(campo, (self.get(campo) or "").strip() or None)
+		if self.pasta_interna and frappe.db.exists(
+			"Processo Judicial",
+			{"pasta_interna": self.pasta_interna, "empresa": self.empresa or "", "name": ["!=", self.name]},
+		):
+			frappe.throw(_("A pasta {0} já está em uso por outro processo desta empresa.").format(self.pasta_interna))
+
+	def _validar_advogados(self):
+		vistas = set()
+		for linha in self.advogados:
+			linha.nome = (linha.nome or "").strip()
+			linha.escritorio = (linha.escritorio or "").strip() or None
+			linha.oab = _normalizar_oab(linha.oab)
+			if not linha.nome:
+				frappe.throw(_("Linha {0}: informe o nome do advogado.").format(linha.idx))
+			if linha.tipo == "Externo" and not linha.escritorio:
+				frappe.throw(_("Linha {0}: informe o escritório do advogado externo.").format(linha.idx))
+			if (linha.honorarios or 0) < 0:
+				frappe.throw(_("Linha {0}: os honorários não podem ser negativos.").format(linha.idx))
+			if linha.oab:
+				if linha.oab in vistas:
+					frappe.throw(_("Linha {0}: a OAB {1} já consta neste processo.").format(linha.idx, linha.oab))
+				vistas.add(linha.oab)
+
+	def _calcular_provisao(self):
+		"""Provisão (CPC 25): sugerida pelos pedidos prováveis; probabilidade do processo é a do pior pedido."""
+		for linha in self.pedidos:
+			linha.descricao = (linha.descricao or "").strip()
+			if flt(linha.valor_pedido) < 0 or flt(linha.valor_provavel) < 0:
+				frappe.throw(_("Linha {0}: os valores do pedido não podem ser negativos.").format(linha.idx))
+			if linha.probabilidade_perda == "Provável" and not flt(linha.valor_provavel):
+				frappe.throw(_("Linha {0}: informe o valor provável do pedido com perda provável.").format(linha.idx))
+		self.valor_provisionado_sugerido = sum(
+			flt(linha.valor_provavel) for linha in self.pedidos if linha.probabilidade_perda == "Provável"
+		)
+		if self.pedidos:
+			probabilidades = {linha.probabilidade_perda for linha in self.pedidos}
+			self.probabilidade_perda = next(p for p in PROBABILIDADES_POR_GRAVIDADE if p in probabilidades)
+		if not self.provisao_manual:
+			self.valor_provisionado = self.valor_provisionado_sugerido
+		if flt(self.valor_provisionado) < 0:
+			frappe.throw(_("O valor provisionado não pode ser negativo."))
+
+		anterior = self.get_doc_before_save()
+		mudou = not anterior or (
+			anterior.probabilidade_perda != self.probabilidade_perda
+			or flt(anterior.valor_provisionado) != flt(self.valor_provisionado)
+		)
+		if mudou and (self.probabilidade_perda or flt(self.valor_provisionado)):
+			self.data_provisao = today()
+
+	def _calcular_financeiro(self):
+		"""Valida depósitos, acordos e custas e calcula os totais; o encerramento exige resultado."""
+		for tabela, rotulo in (("depositos", "depósito"), ("acordos", "acordo"), ("custas", "custa")):
+			for linha in self.get(tabela):
+				if flt(linha.valor) < 0:
+					frappe.throw(_("Linha {0}: o valor do {1} não pode ser negativo.").format(linha.idx, rotulo))
+		for linha in self.acordos:
+			if linha.situacao != "Pago":
+				linha.data_pagamento = None
+			if (linha.parcelas or 0) < 1:
+				frappe.throw(_("Linha {0}: informe ao menos uma parcela.").format(linha.idx))
+		for linha in self.custas:
+			if not linha.pago:
+				linha.data_pagamento = None
+		self.saldo_depositado = sum(flt(d.valor) for d in self.depositos if d.situacao == "Depositado")
+		self.total_acordos = sum(flt(a.valor) for a in self.acordos if a.situacao != "Descumprido")
+		self.total_custas = sum(flt(c.valor) for c in self.custas)
+
+		if self.data_encerramento:
+			if not self.resultado:
+				frappe.throw(_("Informe o resultado do processo para registrar a data de encerramento."))
+			if getdate(self.data_encerramento) > getdate(today()):
+				frappe.throw(_("A data de encerramento não pode ser futura."))
+			if self.data_ajuizamento and getdate(self.data_encerramento) < getdate(self.data_ajuizamento):
+				frappe.throw(_("A data de encerramento não pode ser anterior ao ajuizamento."))
 
 	def _sincronizar_partes(self):
 		"""A tabela de partes é a fonte; a parte principal é espelhada nos campos de topo.

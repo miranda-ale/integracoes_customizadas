@@ -48,6 +48,13 @@ frappe.query_reports["Relação de Processos"] = {
 			options: "\nEm andamento\nEncerrado",
 		},
 		{
+			fieldname: "natureza",
+			label: __("Natureza"),
+			fieldtype: "Select",
+			options: "\nTrabalhista\nCível\nTributário\nOutros",
+		},
+		{ fieldname: "responsavel_interno", label: __("Responsável"), fieldtype: "Link", options: "User" },
+		{
 			fieldname: "assunto",
 			label: __("Assunto"),
 			fieldtype: "Link",

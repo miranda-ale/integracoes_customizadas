@@ -1,0 +1,66 @@
+{
+  "actions": [],
+  "creation": "2026-10-30 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "tipo",
+    "data",
+    "valor",
+    "guia",
+    "situacao"
+  ],
+  "fields": [
+    {
+      "fieldname": "tipo",
+      "fieldtype": "Select",
+      "label": "Tipo",
+      "options": "Judicial\nRecursal",
+      "default": "Judicial",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "data",
+      "fieldtype": "Date",
+      "label": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "valor",
+      "fieldtype": "Currency",
+      "label": "Valor",
+      "options": "moeda",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "guia",
+      "fieldtype": "Data",
+      "label": "Guia / Identificação",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "situacao",
+      "fieldtype": "Select",
+      "label": "Situação",
+      "options": "Depositado\nLevantado\nConvertido em pagamento",
+      "default": "Depositado",
+      "reqd": 1,
+      "in_list_view": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-10-30 04:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Deposito",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 1
+}

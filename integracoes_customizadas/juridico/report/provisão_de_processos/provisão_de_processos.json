@@ -1,0 +1,28 @@
+{
+  "add_total_row": 0,
+  "columns": [],
+  "creation": "2026-10-30 00:00:00.000000",
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Report",
+  "filters": [],
+  "is_standard": "Yes",
+  "letter_head": "",
+  "modified": "2026-10-30 05:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Provisão de Processos",
+  "owner": "Administrator",
+  "prepared_report": 0,
+  "ref_doctype": "Processo Judicial",
+  "report_name": "Provisão de Processos",
+  "report_type": "Script Report",
+  "roles": [
+    {
+      "role": "Usuário Jurídico"
+    },
+    {
+      "role": "System Manager"
+    }
+  ]
+}

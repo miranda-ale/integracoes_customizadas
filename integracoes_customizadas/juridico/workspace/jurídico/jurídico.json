@@ -79,6 +79,46 @@
     },
     {
       "hidden": 0,
+      "is_query_report": 1,
+      "label": "Provisão de Processos",
+      "link_count": 0,
+      "link_to": "Provisão de Processos",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Passivo de Processos",
+      "link_count": 0,
+      "link_to": "Passivo de Processos",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Processos por Colaborador",
+      "link_count": 0,
+      "link_to": "Processos por Colaborador",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Aging de Processos",
+      "link_count": 0,
+      "link_to": "Aging de Processos",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
       "is_query_report": 0,
       "label": "Configurações",
       "link_count": 1,

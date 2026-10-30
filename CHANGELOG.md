@@ -1,5 +1,16 @@
 # Histórico de alterações
 
+## v3.0.0 — Gestão jurídica do Processo Judicial (Fase 3)
+
+- **Classificação interna:** natureza (Trabalhista, Cível, Tributário, Outros), tipo de ação, objeto, pasta/código interno (único por empresa) e responsável interno; `track_changes` ligado; patch marca os processos existentes como Trabalhista.
+- **Advogados:** tabela com nome, OAB validada (`123456/SP`), escritório, tipo interno/externo e honorários.
+- **Pedidos e provisão:** tabela de pedidos com probabilidade de perda (Provável/Possível/Remota) e valor provável; provisão sugerida pela soma dos pedidos prováveis, sobrescrevível (`provisao_manual`); probabilidade do processo = a do pior pedido; `risco` segue manual.
+- **Audiências e prazos:** tabela que mantém um ToDo (e um Event nas audiências) por linha sem duplicar, encerra ao informar o resultado e cancela ao remover; job diário às 07:00 alerta prazos vencidos ou a até 3 dias (`juridico/agenda.py`).
+- **Financeiro:** depósitos judiciais/recursais, acordos e custas com totais calculados; resultado (procedente/improcedente/acordo) e data de encerramento. Campos do DataJud seguem imutáveis.
+- **Relatórios:** Provisão de Processos, Passivo de Processos, Processos por Colaborador e Aging de Processos, reutilizando os filtros da Relação de Processos (`montar_filtros`/`listar_processos`), que ganhou filtros por natureza e responsável.
+- **Lista:** Nome da Parte volta a aparecer na lista do Processo Judicial (Natureza e Grau saem da lista e seguem como filtros).
+- Inclui as Fases 1 e 2 (v2.4.0): partes sem cadastro e tabela de partes com parte principal.
+
 ## Não lançado
 
 - **Compras/Estoque: workspaces enxutos.** Layout dos workspaces Compras e Estoque definido em código (`compras/workspaces.py`) e reaplicado a cada migrate: atalhos na ordem do fluxo com contadores por usuário, poucos cards e só funções usadas no site (de 141/144 para 19/18 linhas de link); card numerado do fluxo em primeiro em cada um (*Fluxo de compras* em Compras, *Fluxo do recebimento e estoque* em Estoque); saíram cartões numéricos, gráfico, Grupo de Fornecedores, Preço do Item, Grupo de Itens, Marca, Armazém, Unidade de Medida, atalhos Learn/Dashboard e a cópia antiga em inglês dos links. Barra de etapas com os mesmos nomes do sistema (Solicitação de Compras, Ordem de Compra, Recebimento de Compra, Nota Fiscal de Compra).

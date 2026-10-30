@@ -975,3 +975,259 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		processo.save()
 		self.assertEqual(processo.partes[0].nome, "Novo Nome")
 		self.assertEqual(processo.nome_parte, "Novo Nome")
+
+	def test_classificacao_interna_e_pasta_unica_por_empresa(self):
+		from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import execute
+
+		primeiro = self._processo_sem_cadastro(
+			"processo-class-1",
+			nome_parte="Titular",
+			cpf_parte="52998224725",
+			natureza="Trabalhista",
+			tipo_acao="  Reclamação trabalhista ",
+			pasta_interna=" PAS-001 ",
+			responsavel_interno="Administrator",
+		)
+		primeiro.save()
+		self.assertEqual(primeiro.tipo_acao, "Reclamação trabalhista")
+		self.assertEqual(primeiro.pasta_interna, "PAS-001")
+		segundo = self._processo_sem_cadastro(
+			"processo-class-2", nome_parte="Outro", cpf_parte="52998224725", pasta_interna="PAS-001"
+		)
+		with self.assertRaises(frappe.ValidationError):
+			segundo.save()
+		self._atualizar_modified(segundo)
+		segundo.pasta_interna = "PAS-002"
+		segundo.save()
+		_, dados = execute({"natureza": "Trabalhista", "responsavel_interno": "Administrator"})
+		self.assertEqual([linha.name for linha in dados], ["processo-class-1"])
+		self.assertTrue(frappe.get_meta("Processo Judicial").track_changes)
+
+	def test_patch_define_natureza_trabalhista_apenas_nos_vazios(self):
+		from integracoes_customizadas.patches import definir_natureza_processo_judicial
+
+		antigo = self._processo_sem_cadastro("processo-class-3", nome_parte="Antigo", cpf_parte="52998224725")
+		antigo.save()
+		civel = self._processo_sem_cadastro(
+			"processo-class-4", natureza="Cível", nome_parte="Cível", cpf_parte="52998224725"
+		)
+		civel.save()
+		frappe.db.set_value("Processo Judicial", antigo.name, "natureza", None)
+		definir_natureza_processo_judicial.execute()
+		definir_natureza_processo_judicial.execute()
+		self.assertEqual(frappe.db.get_value("Processo Judicial", antigo.name, "natureza"), "Trabalhista")
+		self.assertEqual(frappe.db.get_value("Processo Judicial", civel.name, "natureza"), "Cível")
+
+	def test_advogados_validam_oab_e_permanecem_editaveis(self):
+		from integracoes_customizadas.juridico.doctype.processo_judicial.processo_judicial import _normalizar_oab
+
+		self.assertEqual(_normalizar_oab("sp 123.456"), "123456/SP")
+		self.assertEqual(_normalizar_oab("0123/mg"), "123/MG")
+		self.assertIsNone(_normalizar_oab("  "))
+		for invalida in ("123", "ABC 1", "1234567/SP", "12#4/SP"):
+			with self.assertRaises(frappe.ValidationError):
+				_normalizar_oab(invalida)
+
+		processo = self._processo_sem_cadastro("processo-adv-1", nome_parte="Titular", cpf_parte="52998224725")
+		processo.append("advogados", {"nome": "Ana", "tipo": "Interno", "oab": "SP 111", "honorarios": 100})
+		processo.append("advogados", {"nome": "Bia", "tipo": "Externo", "oab": "222/RJ", "escritorio": "Silva"})
+		processo.save()
+		self.assertEqual([a.oab for a in processo.advogados], ["111/SP", "222/RJ"])
+
+		# Tabela editável depois do cadastro, sem tocar nos dados do DataJud.
+		self._atualizar_modified(processo)
+		processo.advogados[0].honorarios = 250
+		processo.save()
+		self.assertEqual(frappe.get_doc("Processo Judicial", processo.name).advogados[0].honorarios, 250)
+
+		for ajuste in (
+			{"escritorio": None},  # externo sem escritório
+			{"honorarios": -1},
+			{"oab": "111/sp"},  # repetida
+		):
+			self._atualizar_modified(processo)
+			linha = processo.advogados[1]
+			original = {k: linha.get(k) for k in ajuste}
+			linha.update(ajuste)
+			with self.assertRaises(frappe.ValidationError):
+				processo.save()
+			linha.update(original)
+
+	def test_provisao_a_partir_dos_pedidos(self):
+		processo = self._processo_sem_cadastro("processo-prov-1", nome_parte="Titular", cpf_parte="52998224725", risco="Baixo")
+		processo.save()
+		self.assertFalse(processo.probabilidade_perda)
+		self.assertFalse(processo.data_provisao)
+
+		processo.append("pedidos", {"descricao": "Horas extras", "valor_pedido": 1000, "probabilidade_perda": "Possível", "valor_provavel": 500})
+		processo.append("pedidos", {"descricao": "Adicional", "valor_pedido": 800, "probabilidade_perda": "Remota"})
+		processo.save()
+		self.assertEqual(processo.probabilidade_perda, "Possível")
+		self.assertEqual(processo.valor_provisionado, 0)
+		self.assertEqual(processo.risco, "Baixo")
+
+		self._atualizar_modified(processo)
+		processo.append("pedidos", {"descricao": "Verbas", "valor_pedido": 900, "probabilidade_perda": "Provável", "valor_provavel": 300})
+		processo.append("pedidos", {"descricao": "Multa", "valor_pedido": 200, "probabilidade_perda": "Provável", "valor_provavel": 100})
+		processo.save()
+		self.assertEqual(processo.probabilidade_perda, "Provável")
+		self.assertEqual(processo.valor_provisionado_sugerido, 400)
+		self.assertEqual(processo.valor_provisionado, 400)
+		self.assertEqual(str(processo.data_provisao), frappe.utils.today())
+		self.assertEqual(processo.risco, "Baixo")
+
+		# Manual: sobrescreve e o cálculo da sugestão continua visível.
+		self._atualizar_modified(processo)
+		processo.provisao_manual = 1
+		processo.valor_provisionado = 350
+		processo.save()
+		self.assertEqual(processo.valor_provisionado, 350)
+		self.assertEqual(processo.valor_provisionado_sugerido, 400)
+		self._atualizar_modified(processo)
+		processo.provisao_manual = 0
+		processo.save()
+		self.assertEqual(processo.valor_provisionado, 400)
+
+	def test_pedido_provavel_exige_valor_e_sem_pedidos_probabilidade_e_manual(self):
+		processo = self._processo_sem_cadastro("processo-prov-2", nome_parte="Titular", cpf_parte="52998224725")
+		processo.probabilidade_perda = "Remota"
+		processo.save()
+		self.assertEqual(processo.probabilidade_perda, "Remota")
+		self.assertEqual(str(processo.data_provisao), frappe.utils.today())
+		self._atualizar_modified(processo)
+		processo.append("pedidos", {"descricao": "Verbas", "valor_pedido": 900, "probabilidade_perda": "Provável"})
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+
+	def test_audiencias_e_prazos_geram_agenda_sem_duplicar(self):
+		from frappe.utils import add_days, now_datetime
+
+		from integracoes_customizadas.juridico import agenda
+
+		def contar(doctype, campo, nome):
+			return frappe.db.count(doctype, {campo: nome})
+
+		processo = self._processo_sem_cadastro("processo-agenda-1", nome_parte="Titular", cpf_parte="52998224725")
+		inicio = add_days(now_datetime(), 10)
+		processo.append("audiencias", {"categoria": "Audiência", "tipo": "Instrução", "data_hora": inicio, "local": "Vara 1", "responsavel": "Administrator"})
+		processo.append("audiencias", {"categoria": "Prazo", "tipo": "Recurso", "data_hora": add_days(now_datetime(), 2), "responsavel": "Administrator"})
+		processo.save()
+		processo.reload()
+		audiencia, prazo = processo.audiencias
+		self.assertEqual(contar("ToDo", "reference_name", processo.name), 2)
+		self.assertTrue(audiencia.evento and not prazo.evento)
+		self.assertEqual(frappe.db.count("Event", {"name": audiencia.evento}), 1)
+
+		# Reexecução e alteração de data não duplicam; a data do ToDo acompanha.
+		self._atualizar_modified(processo)
+		processo.save()
+		processo.reload()
+		self._atualizar_modified(processo)
+		processo.audiencias[0].data_hora = add_days(now_datetime(), 12)
+		processo.save()
+		self.assertEqual(contar("ToDo", "reference_name", processo.name), 2)
+		self.assertEqual(
+			str(frappe.db.get_value("ToDo", processo.audiencias[0].todo, "date")),
+			str(add_days(now_datetime(), 12).date()),
+		)
+
+		# Alerta: só o prazo próximo, uma única vez.
+		agenda.alertar_prazos()
+		agenda.alertar_prazos()
+		self.assertEqual(
+			frappe.db.count("Notification Log", {"document_type": "Processo Judicial", "document_name": processo.name}), 1
+		)
+
+		# Resultado encerra a tarefa e o evento; remover a linha cancela.
+		processo.reload()
+		self._atualizar_modified(processo)
+		processo.audiencias[0].resultado = "Realizada"
+		processo.save()
+		self.assertEqual(frappe.db.get_value("ToDo", processo.audiencias[0].todo, "status"), "Closed")
+		self.assertEqual(frappe.db.get_value("Event", processo.audiencias[0].evento, "status"), "Closed")
+		prazo_todo = processo.audiencias[1].todo
+		self._atualizar_modified(processo)
+		processo.remove(processo.audiencias[1])
+		processo.save()
+		self.assertEqual(frappe.db.get_value("ToDo", prazo_todo, "status"), "Cancelled")
+		self.assertEqual(contar("ToDo", "reference_name", processo.name), 2)
+
+	def test_financeiro_totais_resultado_e_tabelas_editaveis(self):
+		processo = self._processo_sem_cadastro("processo-fin-1", nome_parte="Titular", cpf_parte="52998224725")
+		processo.append("depositos", {"tipo": "Recursal", "data": frappe.utils.today(), "valor": 1000, "situacao": "Depositado"})
+		processo.append("depositos", {"tipo": "Judicial", "data": frappe.utils.today(), "valor": 400, "situacao": "Levantado"})
+		processo.append("acordos", {"data": frappe.utils.today(), "valor": 700, "parcelas": 2, "situacao": "Pago", "data_pagamento": frappe.utils.today()})
+		processo.append("acordos", {"data": frappe.utils.today(), "valor": 50, "situacao": "Descumprido", "data_pagamento": frappe.utils.today()})
+		processo.append("custas", {"data": frappe.utils.today(), "tipo": "Perícia", "valor": 120.5, "pago": 0, "data_pagamento": frappe.utils.today()})
+		processo.save()
+		self.assertEqual(processo.saldo_depositado, 1000)
+		self.assertEqual(processo.total_acordos, 700)
+		self.assertEqual(processo.total_custas, 120.5)
+		self.assertIsNone(processo.acordos[1].data_pagamento)
+		self.assertIsNone(processo.custas[0].data_pagamento)
+
+		# Os campos do DataJud seguem protegidos, as novas tabelas não.
+		self._atualizar_modified(processo)
+		processo.depositos[0].situacao = "Levantado"
+		processo.resultado = "Acordo"
+		processo.data_encerramento = frappe.utils.today()
+		processo.save()
+		self.assertEqual(processo.saldo_depositado, 0)
+		self._atualizar_modified(processo)
+		processo.tribunal = "TRF9"
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+		processo.tribunal = frappe.db.get_value("Processo Judicial", processo.name, "tribunal")
+
+		for ajuste in (
+			{"data_encerramento": frappe.utils.add_days(frappe.utils.today(), 1)},
+			{"data_encerramento": "2000-01-01"},
+			{"resultado": None},
+		):
+			self._atualizar_modified(processo)
+			original = {k: processo.get(k) for k in ajuste}
+			processo.update(ajuste)
+			with self.assertRaises(frappe.ValidationError):
+				processo.save()
+			processo.update(original)
+		self._atualizar_modified(processo)
+		processo.custas[0].valor = -1
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+
+	def test_relatorios_de_gestao(self):
+		import importlib
+
+		def executar(pasta, filtros=None):
+			modulo = importlib.import_module(f"integracoes_customizadas.juridico.report.{pasta}.{pasta}")
+			return modulo.execute(filtros or {})[1]
+
+		def criar(identificador, **valores):
+			processo = self._processo_sem_cadastro(identificador, nome_parte="Titular", cpf_parte="52998224725", **valores)
+			processo.save()
+			return processo
+
+		sem_prov = criar("processo-rel-1", natureza="Trabalhista", risco="Alto")
+		com_prov = criar("processo-rel-2", natureza="Trabalhista", risco="Alto", cargo_funcao="Enfermeiro")
+		com_prov.append("pedidos", {"descricao": "Verbas", "valor_pedido": 900, "probabilidade_perda": "Provável", "valor_provavel": 600})
+		com_prov.append("depositos", {"tipo": "Recursal", "data": frappe.utils.today(), "valor": 250, "situacao": "Depositado"})
+		com_prov.save()
+		empresa = com_prov.empresa
+
+		linhas = [l for l in executar("passivo_de_processos", {"company": empresa}) if l.name == "processo-rel-2"]
+		self.assertEqual(linhas[0].valor_provisionado, 600)
+		self.assertEqual(linhas[0].passivo_liquido, 350)
+
+		grupos = executar("provisão_de_processos", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"})
+		provavel = next(g for g in grupos if g["probabilidade_perda"] == "Provável")
+		self.assertEqual(provavel["quantidade"], 1)
+		self.assertEqual(provavel["passivo_liquido"], 350)
+		self.assertEqual(sum(g["quantidade"] for g in grupos), 2)
+
+		por_cargo = executar("processos_por_colaborador", {"company": empresa})
+		self.assertIn("Enfermeiro", [g["cargo"] for g in por_cargo])
+
+		aging = executar("aging_de_processos", {"company": empresa})
+		self.assertTrue(aging and all(g["faixa"] for g in aging))
+		self.assertEqual(sum(g["quantidade"] for g in aging), frappe.db.count("Processo Judicial", {"empresa": empresa, "status_processo": "Em andamento"}))
+		self.assertTrue(sem_prov.name)

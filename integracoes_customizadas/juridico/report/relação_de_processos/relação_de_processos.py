@@ -7,7 +7,8 @@ from frappe import _
 from frappe.utils import getdate
 
 
-def execute(filters=None):
+def montar_filtros(filters):
+	"""Traduz os filtros dos relatórios jurídicos em filtros do get_list (reutilizado por todos)."""
 	filters = frappe._dict(filters or {})
 	query_filters = []
 	if filters.get("company"):
@@ -22,6 +23,10 @@ def execute(filters=None):
 		"status_processo",
 		"situacao_cadastro",
 		"risco",
+		"natureza",
+		"responsavel_interno",
+		"probabilidade_perda",
+		"resultado",
 		"tribunal",
 		"grau",
 	):
@@ -43,7 +48,23 @@ def execute(filters=None):
 		)
 	if filters.get("de") and filters.get("ate") and getdate(filters.de) > getdate(filters.ate):
 		frappe.throw(_("A data inicial não pode ser posterior à data final."))
+	return query_filters
 
+
+def listar_processos(filters, fields):
+	"""Lista os processos permitidos ao usuário, filtrados como na Relação de Processos."""
+	# get_list aplica as permissões do DocType, inclusive ao filtrar pela tabela filha.
+	return frappe.get_list(
+		"Processo Judicial",
+		fields=fields,
+		filters=montar_filtros(filters),
+		order_by="data_ajuizamento desc, name asc",
+		limit_page_length=0,
+		distinct=True,
+	)
+
+
+def execute(filters=None):
 	fields = [
 		"name",
 		"numero_processo",
@@ -57,6 +78,9 @@ def execute(filters=None):
 		"status_processo",
 		"situacao_cadastro",
 		"risco",
+		"natureza",
+		"pasta_interna",
+		"responsavel_interno",
 		"tribunal",
 		"grau",
 		"orgao_julgador_nome",
@@ -67,15 +91,7 @@ def execute(filters=None):
 		"valor_condenacao",
 		"moeda",
 	]
-	# get_list aplica as permissões do DocType, inclusive ao filtrar pela tabela filha.
-	data = frappe.get_list(
-		"Processo Judicial",
-		fields=fields,
-		filters=query_filters,
-		order_by="data_ajuizamento desc, name asc",
-		limit_page_length=0,
-		distinct=True,
-	)
+	data = listar_processos(filters, fields)
 	assuntos = defaultdict(list)
 	for start in range(0, len(data), 500):
 		names = [row.name for row in data[start : start + 500]]
@@ -124,6 +140,15 @@ def get_columns():
 		{"fieldname": "assuntos", "label": _("Assuntos"), "fieldtype": "Data", "width": 230},
 		{"fieldname": "data_ajuizamento", "label": _("Ajuizamento"), "fieldtype": "Datetime", "width": 150},
 		{"fieldname": "risco", "label": _("Risco"), "fieldtype": "Data", "width": 90},
+		{"fieldname": "natureza", "label": _("Natureza"), "fieldtype": "Data", "width": 100},
+		{"fieldname": "pasta_interna", "label": _("Pasta"), "fieldtype": "Data", "width": 110},
+		{
+			"fieldname": "responsavel_interno",
+			"label": _("Responsável"),
+			"fieldtype": "Link",
+			"options": "User",
+			"width": 150,
+		},
 		{
 			"fieldname": "valor_causa",
 			"label": _("Valor da Causa"),
