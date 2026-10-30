@@ -7,23 +7,36 @@
     "aba_processo",
     "secao_identificacao",
     "numero_processo",
-    "situacao_cadastro",
-    "status_processo",
-    "datajud_id",
-    "coluna_identificacao",
     "tribunal",
     "grau",
+    "coluna_identificacao",
+    "situacao_cadastro",
+    "status_processo",
     "nivel_sigilo",
+    "datajud_id",
+    "secao_gestao",
+    "empresa",
+    "polo_empresa",
+    "coluna_gestao",
+    "risco",
+    "fase_processo",
     "secao_cadastro",
+    "partes",
+    "secao_parte_principal",
     "tipo_parte",
     "doctype_parte",
     "parte",
+    "coluna_parte_principal",
     "nome_parte",
+    "cpf_parte",
+    "parte_vinculada",
+    "secao_ex_colaborador",
+    "data_admissao",
+    "cargo_funcao",
+    "coluna_ex_colaborador",
+    "data_demissao",
+    "motivo_desligamento",
     "consulta_token",
-    "coluna_cadastro",
-    "empresa",
-    "risco",
-    "fase_processo",
     "secao_classificacao",
     "classe_nome",
     "classe_codigo",
@@ -262,14 +275,15 @@
     {
       "fieldname": "secao_cadastro",
       "fieldtype": "Section Break",
-      "label": "Partes"
+      "label": "Partes do Processo"
     },
     {
       "fieldname": "tipo_parte",
       "fieldtype": "Select",
       "label": "Tipo da Parte",
       "options": "\nEmployee\nCustomer\nSupplier\nTerceiros",
-      "description": "Cadastre pacientes em Contatos e selecione Terceiros."
+      "description": "Cadastre pacientes em Contatos e selecione Terceiros. Espelha a parte principal da tabela.",
+      "read_only_depends_on": "eval:doc.partes && doc.partes.length"
     },
     {
       "fieldname": "doctype_parte",
@@ -283,15 +297,19 @@
       "fieldtype": "Dynamic Link",
       "label": "Parte",
       "options": "doctype_parte",
-      "depends_on": "eval:doc.tipo_parte"
+      "depends_on": "eval:doc.tipo_parte",
+      "read_only_depends_on": "eval:doc.partes && doc.partes.length",
+      "description": "Espelha a parte principal da tabela."
     },
     {
       "fieldname": "nome_parte",
       "fieldtype": "Data",
       "label": "Nome da Parte",
-      "read_only": 1,
+      "read_only": 0,
       "in_list_view": 1,
-      "hidden": 1
+      "read_only_depends_on": "eval:doc.parte || (doc.partes && doc.partes.length)",
+      "depends_on": "eval:doc.tipo_parte",
+      "description": "Preenchido automaticamente quando há vínculo; informe manualmente para ex-colaboradores sem cadastro. Espelha a parte principal da tabela."
     },
     {
       "fieldname": "consulta_token",
@@ -348,10 +366,6 @@
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "coluna_cadastro",
-      "fieldtype": "Column Break"
-    },
-    {
       "fieldname": "coluna_classificacao",
       "fieldtype": "Column Break"
     },
@@ -388,10 +402,94 @@
       "fieldtype": "Tab Break",
       "label": "Conexões",
       "show_dashboard": 1
+    },
+    {
+      "fieldname": "cpf_parte",
+      "fieldtype": "Data",
+      "label": "CPF/CNPJ da Parte",
+      "depends_on": "eval:doc.tipo_parte",
+      "in_standard_filter": 1,
+      "search_index": 1,
+      "length": 18,
+      "read_only_depends_on": "eval:doc.partes && doc.partes.length",
+      "description": "Espelha a parte principal da tabela."
+    },
+    {
+      "fieldname": "parte_vinculada",
+      "fieldtype": "Check",
+      "label": "Parte Vinculada a Cadastro",
+      "read_only": 1,
+      "no_copy": 1,
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "secao_ex_colaborador",
+      "fieldtype": "Section Break",
+      "label": "Dados do Colaborador (sem cadastro)",
+      "depends_on": "eval:doc.tipo_parte=='Employee' && !doc.parte"
+    },
+    {
+      "fieldname": "data_admissao",
+      "fieldtype": "Date",
+      "label": "Data de Admissão"
+    },
+    {
+      "fieldname": "cargo_funcao",
+      "fieldtype": "Data",
+      "label": "Cargo/Função"
+    },
+    {
+      "fieldname": "coluna_ex_colaborador",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "data_demissao",
+      "fieldtype": "Date",
+      "label": "Data de Desligamento"
+    },
+    {
+      "fieldname": "motivo_desligamento",
+      "fieldtype": "Select",
+      "label": "Motivo do Desligamento",
+      "options": "\nSem justa causa\nJusta causa\nPedido de demissão\nAcordo (art. 484-A)\nTérmino de contrato\nOutro"
+    },
+    {
+      "fieldname": "partes",
+      "fieldtype": "Table",
+      "label": "Partes",
+      "options": "Processo Judicial Parte"
+    },
+    {
+      "fieldname": "polo_empresa",
+      "fieldtype": "Select",
+      "label": "Polo da Empresa",
+      "options": "\nAtivo\nPassivo",
+      "in_standard_filter": 1,
+      "description": "Obrigatório para finalizar o cadastro."
+    },
+    {
+      "fieldname": "secao_gestao",
+      "fieldtype": "Section Break",
+      "label": "Gestão"
+    },
+    {
+      "fieldname": "coluna_gestao",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "secao_parte_principal",
+      "fieldtype": "Section Break",
+      "label": "Parte Principal (espelho)",
+      "collapsible": 1,
+      "collapsible_depends_on": "eval:doc.partes && doc.partes.length"
+    },
+    {
+      "fieldname": "coluna_parte_principal",
+      "fieldtype": "Column Break"
     }
   ],
   "links": [],
-  "modified": "2026-09-16 00:00:00.000000",
+  "modified": "2026-10-30 00:00:00.000000",
   "modified_by": "Administrator",
   "module": "Juridico",
   "name": "Processo Judicial",

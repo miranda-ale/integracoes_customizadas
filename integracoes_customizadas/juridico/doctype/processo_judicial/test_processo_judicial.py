@@ -87,7 +87,8 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		doc.parte = contato.name
 		doc.save()
 		self.assertEqual(doc.doctype_parte, "Contact")
-		self.assertEqual(doc.nome_parte, "Paciente Jurídico")
+		# Nomes de cadastro são normalizados em caixa alta e sem acento (normalizacao/maiusculas.py).
+		self.assertEqual(doc.nome_parte, "PACIENTE JURIDICO")
 		self.assertIn(
 			"Cadastre pacientes em Contatos",
 			frappe.get_meta("Processo Judicial").get_field("tipo_parte").description,
@@ -390,9 +391,10 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			blocos = frappe.parse_json(workspace.doc.content)
 			self.assertEqual(
 				[block["type"] for block in blocos],
-				["number_card"] * 3 + ["shortcut"] * 4 + ["card", "card", "custom_block", "card"],
+				["custom_block"] + ["shortcut"] * 5 + ["card"] * 4,
 			)
-			self.assertEqual(len(workspace.get_number_cards()), 3)
+			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
+			self.assertEqual(len(workspace.get_number_cards()), 0)
 			self.assertTrue(
 				{"Processo Judicial", "Configurações DataJud", "Processos Judiciais"}.issubset(
 					{item["link_to"] for item in workspace.get_shortcuts()}
@@ -404,7 +406,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertEqual(caixas["Judicial"][0]["link_to"], "Processo Judicial")
 			self.assertEqual(caixas["Configurações"][0]["label"], "Configurações de Processos Judiciais")
 			self.assertEqual(caixas["Configurações"][0]["link_to"], "Configurações DataJud")
-			self.assertIn("Relatórios", [block.custom_block_name for block in workspace.get_custom_blocks()])
+			self.assertIn("Juridico Indicadores", [block.custom_block_name for block in workspace.get_custom_blocks()])
 			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
 			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
 			self.assertTrue(frappe.has_permission("Processo Judicial", "read"))
@@ -431,7 +433,8 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		try:
 			frappe.set_user(usuario)
 			workspace = Workspace({"name": "Jurídico"})
-			self.assertEqual(len(workspace.get_number_cards()), 3)
+			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
+			self.assertEqual(len(workspace.get_number_cards()), 0)
 			atalhos = {item["link_to"] for item in workspace.get_shortcuts()}
 			self.assertIn("Processo Judicial", atalhos)
 			self.assertIn("Processos Judiciais", atalhos)
@@ -439,7 +442,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			caixas = {card["label"] for card in workspace.get_links()}
 			self.assertIn("Judicial", caixas)
 			self.assertNotIn("Configurações", caixas)
-			self.assertIn("Relatórios", [block.custom_block_name for block in workspace.get_custom_blocks()])
+			self.assertIn("Juridico Indicadores", [block.custom_block_name for block in workspace.get_custom_blocks()])
 			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
 			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
 			self.assertFalse(frappe.has_permission("Configurações DataJud", "read"))
@@ -696,3 +699,279 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertGreater(campos.index("processo_relacionado"), campos.index("aba_conexoes"))
 		conexoes = get_open_count("Processo Judicial", destino)["count"]["external_links_found"]
 		self.assertIn({"doctype": "Processo Judicial", "count": 1, "open_count": 0}, conexoes)
+
+	def _processo_sem_cadastro(self, identificador, **valores):
+		datajud._espelhar_ocorrencia(identificador, _fonte(identificador, "9" * 20))
+		processo = frappe.get_doc("Processo Judicial", identificador)
+		processo.update(
+			{
+				"tipo_parte": "Employee",
+				"empresa": frappe.get_all("Company", pluck="name", limit=1)[0],
+				"polo_empresa": "Passivo",
+				"situacao_cadastro": "Cadastrado",
+				**valores,
+			}
+		)
+		return processo
+
+	def test_ex_colaborador_sem_cadastro_exige_nome_e_cpf(self):
+		processo = self._processo_sem_cadastro("processo-ex-colab-1")
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+
+		processo.modified = frappe.db.get_value("Processo Judicial", processo.name, "modified")
+		processo.nome_parte = "  Maria Ex-Colaboradora "
+		processo.cpf_parte = "529.982.247-25"
+		processo.data_admissao = "2020-01-01"
+		processo.data_demissao = "2022-06-30"
+		processo.motivo_desligamento = "Sem justa causa"
+		processo.save()
+		self.assertEqual(processo.nome_parte, "Maria Ex-Colaboradora")
+		self.assertEqual(processo.cpf_parte, "529.982.247-25")
+		self.assertFalse(processo.parte_vinculada)
+
+	def test_cpf_invalido_e_datas_incoerentes_sao_recusados(self):
+		processo = self._processo_sem_cadastro("processo-ex-colab-2", nome_parte="Fulano", cpf_parte="111.111.111-11")
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+		processo.modified = frappe.db.get_value("Processo Judicial", processo.name, "modified")
+		processo.cpf_parte = "52998224725"
+		processo.data_admissao = "2022-01-01"
+		processo.data_demissao = "2021-01-01"
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+
+	def test_vinculo_posterior_por_cpf(self):
+		from integracoes_customizadas.juridico.parte import vincular_colaborador
+
+		if not frappe.get_meta("Employee").has_field("custom_cpf"):
+			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
+		colaborador = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"naming_series": "EMP-",
+				"first_name": "Maria Vinculo",
+				"company": frappe.get_all("Company", pluck="name", limit=1)[0],
+				"gender": frappe.get_all("Gender", pluck="name", limit=1)[0],
+				"date_of_birth": "1990-05-08",
+				"date_of_joining": "2020-01-01",
+				"status": "Active",
+				"custom_cpf": "52998224725",
+			}
+		).insert(ignore_mandatory=True)
+		processo = self._processo_sem_cadastro(
+			"processo-ex-colab-3", nome_parte="Maria", cpf_parte="52998224725"
+		)
+		processo.save()
+		resultado = vincular_colaborador(processo.name)
+		self.assertTrue(resultado["vinculado"])
+		processo.reload()
+		self.assertEqual(processo.parte, colaborador.name)
+		self.assertTrue(processo.parte_vinculada)
+
+	def test_importacao_em_massa_dispensa_consulta_datajud(self):
+		doc = frappe.get_doc(
+			{"doctype": "Processo Judicial", "datajud_id": "importado-1", "numero_processo": "5" * 20}
+		)
+		frappe.flags.in_import = True
+		try:
+			doc.insert()
+		finally:
+			frappe.flags.in_import = False
+		self.assertTrue(frappe.db.exists("Processo Judicial", "importado-1"))
+
+	def _employee(self, nome, cpf=None):
+		return frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"naming_series": "EMP-",
+				"first_name": nome,
+				"company": frappe.get_all("Company", pluck="name", limit=1)[0],
+				"gender": frappe.get_all("Gender", pluck="name", limit=1)[0],
+				"date_of_birth": "1990-05-08",
+				"date_of_joining": "2020-01-01",
+				"status": "Active",
+				**({"custom_cpf": cpf} if cpf else {}),
+			}
+		).insert(ignore_mandatory=True)
+
+	def _atualizar_modified(self, processo):
+		processo.modified = frappe.db.get_value("Processo Judicial", processo.name, "modified")
+
+	def test_principal_e_espelhada_nos_campos_de_topo(self):
+		processo = self._processo_sem_cadastro("processo-partes-1")
+		processo.append("partes", {"papel": "Reclamada", "tipo_parte": "Customer", "nome": "Empresa X"})
+		processo.append(
+			"partes",
+			{
+				"papel": "Reclamante",
+				"tipo_parte": "Employee",
+				"nome": " Maria Principal ",
+				"documento": "52998224725",
+				"principal": 1,
+			},
+		)
+		processo.save()
+		self.assertEqual(
+			(processo.tipo_parte, processo.nome_parte, processo.cpf_parte, processo.doctype_parte),
+			("Employee", "Maria Principal", "529.982.247-25", "Employee"),
+		)
+		self.assertFalse(processo.parte_vinculada)
+		self.assertEqual(len(processo.partes), 2)
+
+	def test_campos_de_topo_geram_a_linha_principal(self):
+		processo = self._processo_sem_cadastro(
+			"processo-partes-2", nome_parte="Ana", cpf_parte="52998224725"
+		)
+		processo.save()
+		self.assertEqual(len(processo.partes), 1)
+		linha = processo.partes[0]
+		self.assertEqual((linha.principal, linha.papel, linha.nome), (1, "Reclamante", "Ana"))
+		# Nova gravação não duplica a linha.
+		processo.save()
+		self.assertEqual(len(processo.partes), 1)
+
+	def test_exige_exatamente_uma_principal(self):
+		processo = self._processo_sem_cadastro("processo-partes-3")
+		processo.append("partes", {"papel": "Reclamante", "tipo_parte": "Employee", "nome": "A", "principal": 1})
+		processo.append("partes", {"papel": "Testemunha", "tipo_parte": "Terceiros", "nome": "B", "principal": 1})
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+		self._atualizar_modified(processo)
+		processo.partes[1].principal = 0
+		processo.partes[0].principal = 0
+		with self.assertRaises(frappe.ValidationError):
+			processo.save()
+		self._atualizar_modified(processo)
+		processo.partes[0].principal = 1
+		processo.partes[0].documento = "52998224725"
+		processo.save()
+		self.assertEqual(processo.nome_parte, "A")
+
+	def test_validacoes_das_partes_e_do_cadastro(self):
+		processo = self._processo_sem_cadastro("processo-partes-4")
+		processo.append("partes", {"papel": "Reclamante", "tipo_parte": "Employee", "principal": 1})
+		with self.assertRaises(frappe.ValidationError):  # sem nome nem vínculo
+			processo.save()
+		self._atualizar_modified(processo)
+		processo.partes[0].nome = "Fulano"
+		processo.partes[0].documento = "111.111.111-11"
+		with self.assertRaises(frappe.ValidationError):  # documento inválido
+			processo.save()
+		self._atualizar_modified(processo)
+		processo.partes[0].documento = "52998224725"
+		processo.polo_empresa = None
+		with self.assertRaises(frappe.ValidationError):  # polo obrigatório ao finalizar
+			processo.save()
+		self._atualizar_modified(processo)
+		processo.polo_empresa = "Ativo"
+		processo.empresa = None
+		with self.assertRaises(frappe.ValidationError):  # empresa obrigatória ao finalizar
+			processo.save()
+		self._atualizar_modified(processo)
+		processo.empresa = frappe.get_all("Company", pluck="name", limit=1)[0]
+		processo.save()
+		self.assertEqual(processo.polo_empresa, "Ativo")
+		# Rascunho não exige polo nem empresa.
+		rascunho = self._processo_sem_cadastro(
+			"processo-partes-5", situacao_cadastro="Rascunho", empresa=None, polo_empresa=None
+		)
+		rascunho.append("partes", {"papel": "Reclamante", "tipo_parte": "Employee", "nome": "R", "principal": 1})
+		rascunho.save()
+
+	def test_migracao_da_parte_atual_e_idempotente(self):
+		from integracoes_customizadas.patches.migrar_parte_para_tabela_processo_judicial import execute
+
+		datajud._espelhar_ocorrencia("processo-partes-6", _fonte("processo-partes-6", "7" * 20))
+		frappe.db.set_value(
+			"Processo Judicial",
+			"processo-partes-6",
+			{"tipo_parte": "Employee", "doctype_parte": "Employee", "nome_parte": "Legado", "cpf_parte": "529.982.247-25"},
+		)
+		execute()
+		execute()
+		linhas = frappe.get_all(
+			"Processo Judicial Parte",
+			filters={"parent": "processo-partes-6"},
+			fields=["papel", "tipo_parte", "nome", "documento", "principal"],
+		)
+		self.assertEqual(
+			linhas,
+			[
+				frappe._dict(
+					papel="Reclamante",
+					tipo_parte="Employee",
+					nome="Legado",
+					documento="529.982.247-25",
+					principal=1,
+				)
+			],
+		)
+		# Processo sem parte não ganha linha.
+		datajud._espelhar_ocorrencia("processo-partes-7", _fonte("processo-partes-7", "6" * 20))
+		execute()
+		self.assertFalse(frappe.db.exists("Processo Judicial Parte", {"parent": "processo-partes-7"}))
+
+	def test_conexao_do_employee_considera_partes_nao_principais(self):
+		from integracoes_customizadas.juridico.dashboard import get_open_count
+
+		colaborador = self._employee("Testemunha Conexão")
+		titular = self._employee("Titular Conexão")
+		processo = self._processo_sem_cadastro("processo-partes-8")
+		processo.append(
+			"partes", {"papel": "Reclamante", "tipo_parte": "Employee", "parte": titular.name, "principal": 1}
+		)
+		processo.append(
+			"partes", {"papel": "Testemunha", "tipo_parte": "Employee", "parte": colaborador.name}
+		)
+		processo.save()
+		self.assertEqual(processo.parte, titular.name)
+		for employee in (titular, colaborador):
+			externos = get_open_count("Employee", employee.name)["count"]["external_links_found"]
+			self.assertIn({"doctype": "Processo Judicial", "count": 1, "open_count": 0}, externos)
+
+	def test_vincular_colaborador_atualiza_a_linha_principal(self):
+		from integracoes_customizadas.juridico.parte import vincular_colaborador
+
+		if not frappe.get_meta("Employee").has_field("custom_cpf"):
+			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
+		colaborador = self._employee("Vinculo Tabela", "11144477735")
+		processo = self._processo_sem_cadastro("processo-partes-9", nome_parte="Sem Cadastro", cpf_parte="11144477735")
+		processo.save()
+		self.assertTrue(vincular_colaborador(processo.name)["vinculado"])
+		processo.reload()
+		self.assertEqual(processo.partes[0].parte, colaborador.name)
+		self.assertEqual(processo.parte, colaborador.name)
+		self.assertTrue(processo.parte_vinculada)
+
+	def test_relatorio_filtra_por_qualquer_parte_e_lista_outras(self):
+		from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import execute
+
+		colaborador = self._employee("Relatório Parte")
+		processo = self._processo_sem_cadastro("processo-partes-10")
+		processo.append(
+			"partes",
+			{
+				"papel": "Reclamante",
+				"tipo_parte": "Employee",
+				"nome": "Titular",
+				"documento": "52998224725",
+				"principal": 1,
+			},
+		)
+		processo.append(
+			"partes", {"papel": "Testemunha", "tipo_parte": "Employee", "parte": colaborador.name}
+		)
+		processo.save()
+		_, dados = execute({"parte": colaborador.name, "tipo_parte": "Employee", "polo_empresa": "Passivo"})
+		self.assertEqual([linha.name for linha in dados], ["processo-partes-10"])
+		self.assertIn("(Testemunha)", dados[0].outras_partes)
+		self.assertEqual(dados[0].polo_empresa, "Passivo")
+
+	def test_edicao_direta_dos_campos_de_topo_acompanha_a_principal(self):
+		processo = self._processo_sem_cadastro("processo-partes-11", nome_parte="Antigo", cpf_parte="52998224725")
+		processo.save()
+		processo.nome_parte = "Novo Nome"
+		processo.save()
+		self.assertEqual(processo.partes[0].nome, "Novo Nome")
+		self.assertEqual(processo.nome_parte, "Novo Nome")

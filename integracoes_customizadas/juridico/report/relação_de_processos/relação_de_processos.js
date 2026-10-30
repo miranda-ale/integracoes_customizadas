@@ -1,6 +1,7 @@
 frappe.query_reports["Relação de Processos"] = {
 	filters: [
 		{ fieldname: "company", label: __("Empresa"), fieldtype: "Link", options: "Company" },
+		{ fieldname: "sem_vinculo", label: __("Sem cadastro vinculado"), fieldtype: "Check" },
 		{
 			fieldname: "tipo_parte",
 			label: __("Tipo da Parte"),
@@ -27,6 +28,12 @@ frappe.query_reports["Relação de Processos"] = {
 			fieldtype: "Dynamic Link",
 			options: "doctype_parte",
 			depends_on: "eval:doc.tipo_parte",
+		},
+		{
+			fieldname: "polo_empresa",
+			label: __("Polo da Empresa"),
+			fieldtype: "Select",
+			options: "\nAtivo\nPassivo",
 		},
 		{
 			fieldname: "fase_processo",
@@ -81,6 +88,7 @@ frappe.query_reports["Relação de Processos"] = {
 				<h3>{{ frappe.utils.escape_html(row.numero_processo || row.name) }}</h3>
 				<table>
 					<tr><td><span class="rotulo">{{ __("Empresa") }}</span>{{ frappe.utils.escape_html(row.empresa || "—") }}</td><td><span class="rotulo">{{ __("Parte") }}</span>{{ frappe.utils.escape_html(row.nome_parte || row.parte || "—") }}</td></tr>
+					<tr><td><span class="rotulo">{{ __("Polo da Empresa") }}</span>{{ frappe.utils.escape_html(row.polo_empresa || "—") }}</td><td><span class="rotulo">{{ __("Outras Partes") }}</span>{{ frappe.utils.escape_html(row.outras_partes || "—") }}</td></tr>
 					<tr><td><span class="rotulo">{{ __("Fase / Situação") }}</span>{{ frappe.utils.escape_html([row.fase_processo, row.status_processo].filter(Boolean).join(" / ") || "—") }}</td><td><span class="rotulo">{{ __("Tribunal / Grau") }}</span>{{ frappe.utils.escape_html([row.tribunal, row.grau].filter(Boolean).join(" / ") || "—") }}</td></tr>
 					<tr><td><span class="rotulo">{{ __("Classe") }}</span>{{ frappe.utils.escape_html(row.classe_nome || "—") }}</td><td><span class="rotulo">{{ __("Órgão julgador") }}</span>{{ frappe.utils.escape_html(row.orgao_julgador_nome || "—") }}</td></tr>
 					<tr><td colspan="2"><span class="rotulo">{{ __("Assuntos") }}</span>{{ frappe.utils.escape_html(row.assuntos || "—") }}</td></tr>

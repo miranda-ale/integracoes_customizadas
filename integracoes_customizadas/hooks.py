@@ -21,7 +21,7 @@ override_doctype_dashboards = {
 # Apps
 # ------------------
 
-required_apps = ["erpnext", "hrms"]
+required_apps = ["erpnext", "hrms", "rh_brasil", "busca_cnpj"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -234,6 +234,9 @@ scheduler_events = {
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "integracoes_customizadas.event.get_events"
 # }
+override_whitelisted_methods = {
+	"frappe.desk.notifications.get_open_count": "integracoes_customizadas.juridico.dashboard.get_open_count",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
