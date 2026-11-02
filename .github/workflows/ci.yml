@@ -77,24 +77,32 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install MariaDB Client
-        run: sudo apt-get install mariadb-client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mariadb-client
+          # o cliente 10.11 exige TLS por padrão e o service mariadb não tem SSL
+          printf '%s\n' '[client]' 'skip-ssl' > ~/.my.cnf
 
       - name: Setup
         run: |
           pip install frappe-bench
           bench init --skip-redis-config-generation --skip-assets --frappe-branch version-15 --python "$(which python)" ~/frappe-bench
-          mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
-          mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
+          mariadb --skip-ssl --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
+          mariadb --skip-ssl --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
       - name: Install
         working-directory: /home/runner/frappe-bench
         run: |
           bench get-app erpnext --branch version-15
           bench get-app hrms --branch version-15
+          bench get-app busca_cnpj https://github.com/miranda-ale/busca_cnpj.git
+          # clm e rh_brasil são repositórios privados e estão em required_apps: precisam do segredo CLM_REPO_TOKEN
+          bench get-app clm "https://x-access-token:${{ secrets.CLM_REPO_TOKEN }}@github.com/still-pulse/clm.git"
+          bench get-app rh_brasil "https://x-access-token:${{ secrets.CLM_REPO_TOKEN }}@github.com/still-pulse/rh_brasil.git"
           bench get-app integracoes_customizadas $GITHUB_WORKSPACE
           bench setup requirements --dev
           bench new-site --db-root-password root --admin-password admin test_site
-          bench --site test_site install-app erpnext hrms integracoes_customizadas
+          bench --site test_site install-app erpnext hrms busca_cnpj clm rh_brasil integracoes_customizadas
           bench build
         env:
           CI: 'Yes'
