@@ -2,6 +2,10 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## v4.0.0 — DocTypes de Tipo de Deficiência · 2026-11-02
+
+- **Tipo de Deficiencia** e **Tipo de Deficiencia Item** passam a ser entregues pelo app. O Custom Field `Employee.custom_tipo_de_deficiencia` (Table MultiSelect) apontava para um DocType que só existia no banco de produção, e em site novo o fixture `custom_field.json` era ignorado ("DocType Tipo de Deficiencia Item not found").
+
 ## v3.0.0 — Gestão jurídica do Processo Judicial (Fase 3) · 2026-10-30
 
 - **Classificação interna:** natureza (Trabalhista, Cível, Tributário, Outros), tipo de ação, objeto, pasta/código interno (único por empresa) e responsável interno; `track_changes` ligado; patch marca os processos existentes como Trabalhista.

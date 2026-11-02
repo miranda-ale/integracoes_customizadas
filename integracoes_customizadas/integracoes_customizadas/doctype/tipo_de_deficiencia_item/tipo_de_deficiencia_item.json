@@ -1,0 +1,31 @@
+{
+	"actions": [],
+	"creation": "2026-11-02 20:00:00.000000",
+	"doctype": "DocType",
+	"editable_grid": 1,
+	"engine": "InnoDB",
+	"field_order": [
+		"tipo_de_deficiencia"
+	],
+	"fields": [
+		{
+			"fieldname": "tipo_de_deficiencia",
+			"fieldtype": "Link",
+			"in_list_view": 1,
+			"label": "Tipo de Deficiencia",
+			"options": "Tipo de Deficiencia",
+			"reqd": 1
+		}
+	],
+	"istable": 1,
+	"links": [],
+	"modified": "2026-11-02 20:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Integracoes Customizadas",
+	"name": "Tipo de Deficiencia Item",
+	"owner": "Administrator",
+	"permissions": [],
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": []
+}
