@@ -170,10 +170,26 @@ A cada `migrate`, `politicas/acesso_doctypes.py` avisa sobre DocTypes órfãos o
 
 ```bash
 cd $PATH_TO_YOUR_BENCH
-bench get-app https://github.com/miranda-ale/integracoes_customizadas --branch develop
-bench --site <site> install-app integracoes_customizadas
+# 1. pacotes de sistema declarados pelos apps (OCR, Pango do WeasyPrint); precisa de sudo
+bash apps/integracoes_customizadas/scripts/install_system_deps.sh   # --dry-run só lista (sem o app ainda: sudo apt install ocrmypdf tesseract-ocr-por ghostscript qpdf pngquant libpango-1.0-0 libpangoft2-1.0-0)
+
+# 2. apps, na ordem das dependências (ERPNext e HRMS sempre no version-15)
+bench get-app erpnext --branch version-15
+bench get-app hrms --branch version-15
+bench get-app still-pulse/clm --branch main
+bench get-app still-pulse/rh_brasil --branch main
+bench get-app miranda-ale/busca_cnpj --branch main
+bench get-app miranda-ale/integracoes_customizadas --branch main
+# opcionais da suíte: still-pulse/assinatura_eletronica, still-pulse/pulse_gestor, still-pulse/pdf_ocr,
+# still-pulse/theme_bhcl_erp_next (bhcl_theme), still-pulse/bhcl_site (todos --branch main)
+
+# 3. instalação no site, nesta ordem
+bench --site <site> install-app erpnext hrms busca_cnpj clm rh_brasil integracoes_customizadas
 bench --site <site> migrate
 ```
+
+O `required_apps` fixa `frappe/hrms@version-15` e `frappe/erpnext@version-15`; sem o `@branch` o bench usaria o branch padrão (`develop`, v17). O `--resolve-deps` só lê o `hooks.py` de repositórios acessíveis sem autenticação; para os privados, clone na ordem abaixo.
+
 
 O `migrate` executa os `after_migrate` (Provas, Jurídico, campo da Notification, card Bionexo, Compras e
 verificação de acesso) e os patches pendentes.

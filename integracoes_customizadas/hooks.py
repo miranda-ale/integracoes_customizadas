@@ -21,7 +21,7 @@ override_doctype_dashboards = {
 # Apps
 # ------------------
 
-required_apps = ["erpnext", "hrms", "rh_brasil", "busca_cnpj"]
+required_apps = ["frappe/erpnext@version-15", "frappe/hrms@version-15", "still-pulse/rh_brasil@main", "miranda-ale/busca_cnpj@main"]  # uma linha só: o bench lê com regex
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [

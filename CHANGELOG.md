@@ -5,6 +5,8 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 ## v4.0.0 — DocTypes de Tipo de Deficiência · 2026-11-02
 
 - **Tipo de Deficiencia** e **Tipo de Deficiencia Item** passam a ser entregues pelo app. O Custom Field `Employee.custom_tipo_de_deficiencia` (Table MultiSelect) apontava para um DocType que só existia no banco de produção, e em site novo o fixture `custom_field.json` era ignorado ("DocType Tipo de Deficiencia Item not found").
+- `required_apps` fixa `frappe/erpnext@version-15`, `frappe/hrms@version-15`, `still-pulse/rh_brasil@main` e `miranda-ale/busca_cnpj@main` (uma linha só: o bench lê com regex). O README usava `--branch develop` (inexistente).
+- `scripts/install_system_deps.sh` instala os pacotes apt declarados em `[deploy.dependencies.apt]` pelos apps do bench (`--dry-run` só lista).
 
 ## v3.0.0 — Gestão jurídica do Processo Judicial (Fase 3) · 2026-10-30
 
