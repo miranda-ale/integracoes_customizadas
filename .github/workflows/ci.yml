@@ -111,6 +111,8 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site test_site set-config allow_tests true
+          # o Warehouse Type "Transit" só nasce no setup wizard do ERPNext, que o CI não roda
+          bench --site test_site execute frappe.client.insert --kwargs '{"doc": {"doctype": "Warehouse Type", "name": "Transit"}}'
           bench --site test_site run-tests --app integracoes_customizadas
         env:
           TYPE: server
