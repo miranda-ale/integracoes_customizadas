@@ -25,8 +25,16 @@ done
 [ -d "$bench_path/apps" ] || { echo "Não achei $bench_path/apps (use --bench-path)." >&2; exit 1; }
 
 # uma linha por app: "<app>: pacote pacote ..."
-declarados="$(python3 - "$bench_path/apps" <<'PY'
-import sys, tomllib
+python="$bench_path/env/bin/python"
+[ -x "$python" ] || python=python3
+
+declarados="$("$python" - "$bench_path/apps" <<'PY'
+import sys
+
+try:
+    import tomllib
+except ImportError:  # Python 3.10
+    import tomli as tomllib
 from pathlib import Path
 
 for pyproject in sorted(Path(sys.argv[1]).glob("*/pyproject.toml")):

@@ -2,6 +2,10 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## v4.0.1 — Declarações de dependências · 2026-11-02
+
+- `scripts/install_system_deps.sh` usa o Python do bench e cai para `tomli` no Python 3.10 (`tomllib` só existe a partir do 3.11).
+
 ## v4.0.0 — DocTypes de Tipo de Deficiência · 2026-11-02
 
 - **Tipo de Deficiencia** e **Tipo de Deficiencia Item** passam a ser entregues pelo app. O Custom Field `Employee.custom_tipo_de_deficiencia` (Table MultiSelect) apontava para um DocType que só existia no banco de produção, e em site novo o fixture `custom_field.json` era ignorado ("DocType Tipo de Deficiencia Item not found").
