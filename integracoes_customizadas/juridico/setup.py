@@ -80,12 +80,29 @@ def after_migrate():
 	frappe.clear_cache(doctype="Processo Judicial")
 
 
+def _style_do_bloco() -> str:
+	"""Layout local + contraste .ind-alerta (Shadow DOM exige CSS dentro do bloco)."""
+	layout = (BLOCOS_DIR / "style.css").read_text(encoding="utf-8")
+	alerta = BLOCOS_DIR / "ind_alerta.css"
+	ssot = None
+	try:
+		ssot = Path(frappe.get_app_path("bhcl_theme")) / "public" / "css" / "ind_tiles.css"
+	except Exception:
+		ssot = None
+	extra = ""
+	if ssot and ssot.is_file():
+		extra = ssot.read_text(encoding="utf-8")
+	elif alerta.is_file():
+		extra = alerta.read_text(encoding="utf-8")
+	return f"{layout.rstrip()}\n\n{extra}" if extra else layout
+
+
 def ensure_indicadores_block():
 	"""Cria/atualiza o Custom HTML Block dos indicadores (HTML/JS/CSS versionados no app)."""
 	valores = {
 		"html": (BLOCOS_DIR / "indicadores_juridico.html").read_text(encoding="utf-8"),
 		"script": (BLOCOS_DIR / "indicadores_juridico.js").read_text(encoding="utf-8"),
-		"style": (BLOCOS_DIR / "style.css").read_text(encoding="utf-8"),
+		"style": _style_do_bloco(),
 		"private": 0,
 	}
 	if frappe.db.exists("Custom HTML Block", INDICADORES_BLOCK):

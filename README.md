@@ -1,6 +1,6 @@
 # Integrações Customizadas (`integracoes_customizadas`)
 
-Conjunto de integrações e customizações do ERPNext/HRMS para a BHCL. Versão atual: **3.0.0** (ver
+Conjunto de integrações e customizações do ERPNext/HRMS para a BHCL. Versão atual: **4.0.2** (ver
 [CHANGELOG.md](CHANGELOG.md)). O app reúne quatro frentes, que compartilham alguns serviços (por exemplo, o
 `busca_cnpj` na importação Bionexo e o layout de e-mail do `clm`):
 

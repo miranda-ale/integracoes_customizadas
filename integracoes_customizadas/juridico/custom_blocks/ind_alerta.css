@@ -1,0 +1,86 @@
+/* Contraste .ind-alerta para Custom HTML Blocks (Shadow DOM).
+   data-theme fica FORA do shadow — use :host-context, não [data-theme] sozinho.
+   SSOT espelhado em bhcl_theme/public/css/ind_tiles.css e nos ensure_* dos apps. */
+
+.ind-tile {
+	color: inherit;
+}
+
+.ind-alerta {
+	border-color: #e57373 !important;
+	border-left-color: #c62828 !important;
+	background: #fdecec !important;
+	color: #5c1f1f;
+}
+
+.ind-alerta .ind-titulo,
+.ind-alerta .ind-detalhe {
+	color: #7a2e2e !important;
+}
+
+.ind-alerta .ind-valor,
+.ind-alerta .ind-aviso {
+	color: #b71c1c !important;
+}
+
+.ind-alerta .ind-selo {
+	background: #c62828 !important;
+	color: #fff !important;
+}
+
+/* Escuro via contexto do host (Shadow DOM) */
+:host-context([data-theme="dark"]) .ind-alerta {
+	background: #3b1c1c !important;
+	border-color: #8a3a3a !important;
+	border-left-color: #ff8a80 !important;
+	color: #ffe8e6 !important;
+}
+
+:host-context([data-theme="dark"]) .ind-alerta .ind-titulo,
+:host-context([data-theme="dark"]) .ind-alerta .ind-detalhe {
+	color: #ffc9c4 !important;
+}
+
+:host-context([data-theme="dark"]) .ind-alerta .ind-valor {
+	color: #ffe8e6 !important;
+}
+
+:host-context([data-theme="dark"]) .ind-alerta .ind-aviso {
+	color: #ff8a80 !important;
+}
+
+:host-context([data-theme="dark"]) .ind-alerta .ind-selo {
+	background: #c62828 !important;
+	color: #fff !important;
+}
+
+/* Fallback se o style for injetado fora de shadow */
+html[data-theme="dark"] .ind-alerta,
+body[data-theme="dark"] .ind-alerta,
+[data-theme="dark"] .ind-alerta {
+	background: #3b1c1c !important;
+	border-color: #8a3a3a !important;
+	border-left-color: #ff8a80 !important;
+	color: #ffe8e6 !important;
+}
+
+html[data-theme="dark"] .ind-alerta .ind-titulo,
+html[data-theme="dark"] .ind-alerta .ind-detalhe,
+body[data-theme="dark"] .ind-alerta .ind-titulo,
+body[data-theme="dark"] .ind-alerta .ind-detalhe,
+[data-theme="dark"] .ind-alerta .ind-titulo,
+[data-theme="dark"] .ind-alerta .ind-detalhe {
+	color: #ffc9c4 !important;
+}
+
+html[data-theme="dark"] .ind-alerta .ind-valor,
+body[data-theme="dark"] .ind-alerta .ind-valor,
+[data-theme="dark"] .ind-alerta .ind-valor {
+	color: #ffe8e6 !important;
+}
+
+html[data-theme="dark"] .ind-alerta .ind-aviso,
+body[data-theme="dark"] .ind-alerta .ind-aviso,
+[data-theme="dark"] .ind-alerta .ind-aviso {
+	color: #ff8a80 !important;
+}

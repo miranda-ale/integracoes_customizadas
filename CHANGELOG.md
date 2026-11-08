@@ -2,6 +2,11 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## v4.0.2 — Estilos dos indicadores jurídicos · 2026-11-08
+
+- O bloco de indicadores combina o layout local com o CSS de contraste do `bhcl_theme`, com fallback para `ind_alerta.css` quando o tema não está instalado. Os estilos permanecem disponíveis dentro do Shadow DOM do bloco.
+- Remove regras de alerta duplicadas do CSS local do Jurídico.
+
 ## v4.0.1 — Declarações de dependências · 2026-11-02
 
 - `scripts/install_system_deps.sh` usa o Python do bench e cai para `tomli` no Python 3.10 (`tomllib` só existe a partir do 3.11).

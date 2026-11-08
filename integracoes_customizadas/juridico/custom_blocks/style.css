@@ -1,3 +1,5 @@
+/* Layout do bloco Jurídico. Contraste de .ind-alerta: SSOT em
+   bhcl_theme/public/css/ind_tiles.css (app_include no Desk). */
 .ind-bloco { padding: 12px 16px; }
 .ind-topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
 .ind-topo h5 { margin: 0; font-weight: 600; }
@@ -9,13 +11,10 @@
 .ind-valor { font-size: 32px; font-weight: 700; line-height: 1.2; margin: 4px 0; }
 .ind-detalhe { font-size: 12px; color: var(--text-muted, #6c7680); }
 .ind-alerta { border-color: #e57373; border-left-color: #c62828; background: #fdecec; }
-.ind-alerta .ind-valor { color: #c62828; }
 .ind-selo { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #c62828; color: #fff; text-transform: none; white-space: nowrap; }
 .ind-aviso { margin-top: 6px; font-size: 12px; font-weight: 600; color: #c62828; }
 .ind-rodape { margin-top: 10px; font-size: 11px; color: var(--text-muted, #6c7680); }
 .ind-vazio { color: var(--text-muted, #6c7680); padding: 12px 0; }
-[data-theme="dark"] .ind-alerta { background: #3b1c1c; }
-[data-theme="dark"] .ind-aviso, [data-theme="dark"] .ind-alerta .ind-valor { color: #ff8a80; }
 .ind-assuntos { margin-top: 14px; }
 .ind-assuntos h6 { margin: 0 0 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted, #6c7680); }
 .ind-barra { display: grid; grid-template-columns: minmax(120px, 280px) 1fr 40px; gap: 8px; align-items: center; font-size: 12px; margin: 4px 0; }
