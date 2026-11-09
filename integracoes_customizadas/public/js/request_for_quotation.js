@@ -23,8 +23,10 @@ frappe.ui.form.on("Request for Quotation", {
 		frm.add_custom_button(
 			__("Mapa de Preços"),
 			() => {
-				frappe.set_route("query-report", "Mapa de Precos RFQ").then(() => {
-					frappe.query_report.set_filter_value({ request_for_quotation: frm.doc.name });
+				// route_options é aplicado pelo próprio query-report ao carregar; set_filter_value
+				// logo após set_route corria contra o carregamento e falhava na primeira abertura.
+				frappe.set_route("query-report", "Mapa de Precos RFQ", {
+					request_for_quotation: frm.doc.name,
 				});
 			},
 			__("View")
