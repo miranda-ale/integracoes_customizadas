@@ -2,6 +2,10 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## v4.0.3 — Mapa de Preços RFQ filtrado na primeira visita · 2026-11-09
+
+- O botão "Mapa de Preços" abre o relatório já filtrado pela origem na primeira visita: usa `route_options` em vez de `set_filter_value` após `set_route`, que corria contra o carregamento do relatório.
+
 ## v4.0.2 — Estilos dos indicadores jurídicos · 2026-11-08
 
 - O bloco de indicadores combina o layout local com o CSS de contraste do `bhcl_theme`, com fallback para `ind_alerta.css` quando o tema não está instalado. Os estilos permanecem disponíveis dentro do Shadow DOM do bloco.
