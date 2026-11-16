@@ -27,7 +27,11 @@ Avisos (nunca bloqueiam): número divergente da chave, CNPJ do emitente diferent
 ## Permissões
 
 Não há papel novo. O `Stock User` já cria e submete Purchase Receipt e lê Purchase Order; **não** acessa Purchase
-Invoice. Criar *Custom DocPerm* substituiria todas as permissões padrão do DocType, por isso não foi usado.
+Invoice. Não foi criado *Custom DocPerm* aqui porque os papéis padrão de Compras/Estoque já são os "donos" dos
+DocTypes da cadeia; não é por `Custom DocPerm` substituir permissões padrão — ele é **aditivo** (soma uma linha
+de permissão, não substitui nem remove as existentes de outros papéis), como mostra o precedente do `clm`
+(ADR-006, `docs/adr-006-leitura-minima-em-doctypes-vinculados.md` naquele repositório) e como este app agora
+também documenta em [docs/adr-001-leitura-minima-em-doctypes-vinculados.md](adr-001-leitura-minima-em-doctypes-vinculados.md).
 Cada unidade fica restrita à sua Company/Warehouse por *User Permission*. Relatórios: *Pedidos a Receber* para Stock
 User/Manager e Purchase User/Manager; *Recebidos a Faturar* para Purchase e Accounts User/Manager.
 

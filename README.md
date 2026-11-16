@@ -243,6 +243,7 @@ pre-commit install
 - [docs/fluxo-compras.md](docs/fluxo-compras.md)
 - [docs/juridico-dashboard.md](docs/juridico-dashboard.md)
 - [docs/modulo_provas.md](docs/modulo_provas.md)
+- [docs/adr-001-leitura-minima-em-doctypes-vinculados.md](docs/adr-001-leitura-minima-em-doctypes-vinculados.md)
 
 ## Licença
 
