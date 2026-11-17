@@ -2,6 +2,22 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17
+
+- Novo DocType `DataJud Sync Log`: grava endpoint, método, status HTTP, tempo de resposta, corpo (1.000
+  caracteres), tipo de exceção e traceback, agrupando falhas por execução e tipo de erro em vez de um
+  registro por processo. A chave da API nunca é gravada em claro (só os 4 primeiros caracteres).
+- `Configurações DataJud` ganha circuit breaker: abre após falhas seguidas (3 de autenticação, 5 de limite de
+  requisições/indisponibilidade), pausando a sincronização automática; erro de autenticação só reabre quando a
+  chave é trocada, os demais reabrem sozinhos com backoff exponencial (15, 30, 60... min). Resume o estado
+  (última sincronização, último erro, falhas consecutivas) direto no cadastro.
+- A sincronização agendada vira uma única tarefa em lote por execução (antes, uma por processo), com health
+  check prévio, timeout curto por requisição e orçamento de tempo total, numa fila dedicada (`datajud`) —
+  deixa de competir com tarefas interativas (como o dossiê do colaborador) na fila `long`.
+- Administradores são notificados por e-mail quando o circuito abre e quando volta ao normal.
+- Ver [docs/datajud-qualidade-de-logs.md](docs/datajud-qualidade-de-logs.md) e
+  [ADR-002](docs/adr-002-qualidade-e-legibilidade-de-logs.md).
+
 ## v4.0.3 — Mapa de Preços RFQ filtrado na primeira visita · 2026-11-09
 
 - O botão "Mapa de Preços" abre o relatório já filtrado pela origem na primeira visita: usa `route_options` em vez de `set_filter_value` após `set_route`, que corria contra o carregamento do relatório.

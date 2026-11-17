@@ -453,34 +453,29 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(
 			frappe.db.get_value(
 				"Scheduled Job Type",
-				{"method": "integracoes_customizadas.juridico.datajud.atualizar_processos_acompanhados"},
+				{"method": "integracoes_customizadas.juridico.datajud.agendar_sincronizacao"},
 				"cron_format",
 			),
 			"0 3 * * 1-5",
 		)
-		processos = [
-			frappe._dict(numero_processo=NUMERO, tribunal="TRF1"),
-			frappe._dict(numero_processo="1" * 20, tribunal="TRE-AC"),
-		]
-		with (
-			patch.object(datajud, "_chave_publica", return_value="chave"),
-			patch.object(datajud.frappe, "get_all", return_value=processos),
-			patch.object(datajud.frappe, "enqueue") as enqueue,
-		):
-			datajud.atualizar_processos_acompanhados()
-			self.assertEqual(
-				datajud.frappe.get_all.call_args.kwargs["filters"], {"status_processo": "Em andamento"}
-			)
-		self.assertEqual(enqueue.call_count, 2)
-		self.assertTrue(all(call.kwargs["queue"] == "long" for call in enqueue.call_args_list))
-		self.assertEqual({call.kwargs["alias"] for call in enqueue.call_args_list}, {"trf1", "tre-ac"})
+		with patch.object(datajud.frappe, "enqueue") as enqueue:
+			datajud.agendar_sincronizacao()
+		self.assertEqual(enqueue.call_count, 1)
+		chamada = enqueue.call_args
+		self.assertEqual(chamada.kwargs["queue"], datajud.FILA_LOTE)
+		self.assertEqual(chamada.kwargs["job_id"], datajud.JOB_ID_LOTE)
+		self.assertTrue(chamada.kwargs["deduplicate"])
+		self.assertEqual(
+			chamada.args[0], "integracoes_customizadas.juridico.datajud.sincronizar_processos_acompanhados"
+		)
+		# Falha isolada de um processo não grava mais um Error Log por processo: só retorna False.
 		with (
 			patch.object(datajud, "_ids_em_andamento", return_value={IDENTIFICADOR}),
 			patch.object(datajud, "consultar_numero", side_effect=datajud.DataJudError("falha")),
 			patch.object(datajud.frappe, "log_error") as log,
 		):
-			datajud.atualizar_um_processo(NUMERO, "trf1")
-		self.assertEqual(log.call_count, 1)
+			self.assertFalse(datajud.atualizar_um_processo(NUMERO, "trf1"))
+		log.assert_not_called()
 
 	def test_status_manual_e_migracao(self):
 		from integracoes_customizadas.juridico.setup import after_migrate
@@ -535,10 +530,11 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			frappe.db.set_value("Processo Judicial", nome, "status_processo", "Encerrado")
 		with (
 			patch.object(datajud, "_chave_publica", return_value="chave"),
-			patch.object(datajud.frappe, "enqueue") as enqueue,
+			patch.object(datajud, "_verificar_saude", return_value=(True, None)),
+			patch.object(datajud, "atualizar_um_processo", return_value=True) as atualizar,
 		):
-			datajud.atualizar_processos_acompanhados()
-		pares = [(call.kwargs["numero"], call.kwargs["alias"]) for call in enqueue.call_args_list]
+			datajud.sincronizar_processos_acompanhados()
+		pares = [(call.args[0], call.args[1]) for call in atualizar.call_args_list]
 		self.assertEqual(pares.count((datajud._numero_cnj_formatado(numero_ativo), "trf1")), 1)
 		self.assertNotIn((datajud._numero_cnj_formatado(numero_encerrado), "tre-ac"), pares)
 

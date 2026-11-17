@@ -69,8 +69,12 @@ Há ainda recursos transversais: [normalização de cadastros em caixa alta](#no
 - **Partes:** tabela de partes com parte principal, inclusive partes sem cadastro e identificação de
   ex-colaboradores; a opção *Terceiros* (pacientes) liga a Contatos.
 - **Configurações DataJud:** consulta por número CNJ e tribunal, busca manual de andamentos e acompanhamento
-  automático dos processos em andamento (dias úteis às 03:00, com distribuição para a fila longa). Timeout de
-  100 s; em falha, os dados anteriores são preservados. Anexo por movimentação, com leitura de submovimentos.
+  automático dos processos em andamento (dias úteis às 03:00, em lote único numa fila dedicada `datajud`, nunca
+  mais um processo por tarefa). Timeout de 100 s nas consultas interativas (12 s em lote); em falha, os dados
+  anteriores são preservados, o erro é classificado e agrupado em **DataJud Sync Log**, e um circuit breaker
+  pausa a sincronização automática após falhas seguidas (ver
+  [docs/datajud-qualidade-de-logs.md](docs/datajud-qualidade-de-logs.md)). Anexo por movimentação, com leitura
+  de submovimentos.
 - **Vínculos** com Colaborador, Cliente, Fornecedor, Contato e processos relacionados, nos painéis de conexões.
 
 **Gestão jurídica (v3.0.0)**
@@ -244,6 +248,8 @@ pre-commit install
 - [docs/juridico-dashboard.md](docs/juridico-dashboard.md)
 - [docs/modulo_provas.md](docs/modulo_provas.md)
 - [docs/adr-001-leitura-minima-em-doctypes-vinculados.md](docs/adr-001-leitura-minima-em-doctypes-vinculados.md)
+- [docs/adr-002-qualidade-e-legibilidade-de-logs.md](docs/adr-002-qualidade-e-legibilidade-de-logs.md)
+- [docs/datajud-qualidade-de-logs.md](docs/datajud-qualidade-de-logs.md)
 
 ## Licença
 
