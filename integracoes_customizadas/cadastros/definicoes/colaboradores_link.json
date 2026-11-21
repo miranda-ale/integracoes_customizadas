@@ -1,0 +1,33 @@
+{
+ "doctype": "DocType",
+ "name": "Colaboradores Link",
+ "istable": 1,
+ "editable_grid": 1,
+ "module": "HR",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "allow_rename": 1,
+ "custom": 1,
+ "index_web_pages_for_search": 1,
+ "grid_page_length": 50,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "fields": [
+  {
+   "fieldname": "colaboradores",
+   "label": "Colaboradores",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "nome_colaborador",
+   "label": "Nome do colaborador",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "read_only": 1,
+   "fetch_from": "colaboradores.first_name"
+  }
+ ],
+ "permissions": []
+}

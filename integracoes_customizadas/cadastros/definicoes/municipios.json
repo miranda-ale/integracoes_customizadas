@@ -1,0 +1,115 @@
+{
+ "doctype": "DocType",
+ "name": "Municipios",
+ "module": "HR",
+ "autoname": "format:{uf} - {municipio}",
+ "naming_rule": "Expression",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "allow_rename": 1,
+ "allow_import": 1,
+ "custom": 1,
+ "index_web_pages_for_search": 1,
+ "grid_page_length": 50,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "fields": [
+  {
+   "fieldname": "cod_ibge_uf",
+   "label": "Código UF IBGE",
+   "fieldtype": "Int",
+   "length": 2
+  },
+  {
+   "fieldname": "uf",
+   "label": "UF",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "in_preview": 1
+  },
+  {
+   "fieldname": "column_break_czkq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cod_ibge_mun",
+   "label": "Código IBGE Município",
+   "fieldtype": "Int",
+   "length": 7
+  },
+  {
+   "fieldname": "municipio",
+   "label": "Município",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "in_preview": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "import": 1,
+   "share": 1,
+   "print": 1,
+   "email": 1
+  },
+  {
+   "role": "Purchase User",
+   "select": 1,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "HR User",
+   "select": 1,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "HR Manager",
+   "select": 1,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "Purchase Manager",
+   "select": 1,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "Usuário SESMT",
+   "select": 1,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "Employee Self Service",
+   "select": 1,
+   "export": 1
+  }
+ ]
+}

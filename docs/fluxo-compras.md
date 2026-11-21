@@ -58,8 +58,8 @@ nomes usados no resto do sistema).
 por padrão as seções de impostos do Recebimento (*Impostos e Taxas* e *Detalhamento de Impostos e Taxas*), do Pedido
 e da Fatura de Compra (*Impostos e Taxas*), como *Desconto Adicional*. Rótulos em inglês de toda a cadeia
 (MR, RFQ, SQ, PO, PR, PI e itens) foram traduzidos em `bhcl_theme/translations/pt*.csv`; o cliente busca a chave
-exata (inclusive espaço no fim, como em `"Accounting Dimensions "`), e `tests/test_traducoes_compras.py` avisa
-quando um rótulo novo aparece sem tradução.
+exata (inclusive espaço no fim, como em `"Accounting Dimensions "`); este app não tem arquivos de tradução (dono único: `bhcl_theme`)
+e `tests/test_traducoes_compras.py` cobre só os rótulos que o próprio app cria (`custom_compras_*` e campos Bionexo).
 
 ## Workspaces Compras e Estoque
 

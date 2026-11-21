@@ -1,6 +1,6 @@
 # Copyright (c) 2026, StillPulse and contributors
 # For license information, please see license.txt
-"""Política de acesso: todo DocType dos apps customizados tem um local de acesso, visível só a quem pode lê-lo.
+"""Política de acesso: todo DocType deste app tem um local de acesso, visível só a quem pode lê-lo.
 
 Um DocType (não filho) está "acessível" quando:
 1. aparece como link ou atalho de DocType num Workspace público e não oculto;
@@ -15,15 +15,19 @@ exigida pelo teste `tests/test_politica_acesso.py`.
 
 import frappe
 
-APPS_UPSTREAM = {"frappe", "erpnext", "hrms"}
+APP = "integracoes_customizadas"
 # DocTypes de apoio sem lista própria que não precisam de atalho (justificar cada entrada).
 EXCECOES = frozenset()
 
 
+def modulos_do_app():
+	"""Módulos deste app (modules.txt). Os DocTypes de outros apps são fiscalizados nos repositórios donos."""
+	return frappe.get_module_list(APP)
+
+
 def doctypes_dos_apps_customizados():
-	"""DocTypes não filhos e não virtuais dos módulos dos apps customizados instalados."""
-	apps = set(frappe.get_installed_apps()) - APPS_UPSTREAM
-	modulos = frappe.get_all("Module Def", filters={"app_name": ["in", list(apps)]}, pluck="name")
+	"""DocTypes não filhos e não virtuais dos módulos deste app."""
+	modulos = modulos_do_app()
 	if not modulos:
 		return []
 	return frappe.get_all(

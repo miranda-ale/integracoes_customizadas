@@ -1,0 +1,220 @@
+{
+ "doctype": "DocType",
+ "name": "Canal de Denuncias",
+ "search_fields": "den_assunto, den_causas, den_causas",
+ "editable_grid": 1,
+ "track_changes": 1,
+ "module": "Gestor Online",
+ "autoname": "DEN-.YYYY.-.#####",
+ "naming_rule": "Expression",
+ "title_field": "den_assunto",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "max_attachments": 5,
+ "is_submittable": 1,
+ "custom": 1,
+ "default_view": "List",
+ "index_web_pages_for_search": 1,
+ "row_format": "Dynamic",
+ "protect_attached_files": 1,
+ "fields": [
+  {
+   "fieldname": "den_relacionamento",
+   "label": "Qual sua relação com a BHCL?",
+   "fieldtype": "Select",
+   "options": "\nColaborador(a)\nFornecedor / Prestador de Serviços\nPaciente / Acompanhante\nOutros\nPrefiro não informar",
+   "reqd": 1
+  },
+  {
+   "fieldname": "den_opcao_identificar",
+   "label": "Deseja se identificar?",
+   "fieldtype": "Select",
+   "options": "\nSim\nNão",
+   "reqd": 1
+  },
+  {
+   "fieldname": "den_nome",
+   "label": "Nome",
+   "fieldtype": "Data",
+   "options": "Name",
+   "mandatory_depends_on": "eval: doc.den_opcao_identificar == \"Sim\"",
+   "depends_on": "eval: doc.den_opcao_identificar == \"Sim\""
+  },
+  {
+   "fieldname": "den_email",
+   "label": "E-mail",
+   "fieldtype": "Data",
+   "options": "Email"
+  },
+  {
+   "fieldname": "section_break_nuuk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "den_assunto",
+   "label": "Assunto",
+   "fieldtype": "Data",
+   "length": 50
+  },
+  {
+   "fieldname": "deb_data",
+   "label": "Data da Ocorrência",
+   "fieldtype": "Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "den_continua_ocorrendo",
+   "label": "O incidente continua ocorrendo?",
+   "fieldtype": "Select",
+   "options": "\nSim\nNão\nTalvez / Não sei dizer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "label": "Status",
+   "fieldtype": "Select",
+   "options": "\nAberto\nInvestigação\nConcluído com Sanção\nConcluído sem Sanção",
+   "reqd": 1,
+   "default": "Aberto",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "detalhes_denuncia",
+   "label": "Detalhes da Denúncia",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "den_empresa",
+   "label": "Unidade",
+   "fieldtype": "Link",
+   "options": "Company",
+   "reqd": 1,
+   "link_filters": "[[\"Company\",\"company_name\",\"not in\",[\"MOGI - Beneficência Hospitalar de Cesário Lange\",\"ALPHAVILLE - Beneficência Hospitalar de Cesário Lange\",\"MATRIZ - Beneficência Hospitalar de Cesário Lange\",\"UPAS GUARULHOS - Beneficência Hospitalar de Cesário Lange\",\"TABOÃO - Beneficência Hospitalar de Cesário Lange\"]]]"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "den_tipo",
+   "label": "Tipo de Denúncia",
+   "fieldtype": "Select",
+   "options": "\nAssédio moral\nÁlcool, drogas e armas de fogo\nAgressão física\nAssédio sexual\nAtuações relacionadas a prestadores\nConflito de interesses\nCorrupção\nDescumprimento às políticas e código de conduta\nDesvios\nDiscriminação\nExercício ilegal da profissão\nFraude contábil ou fiscal\nFurtos\nLavagem de dinheiro\nMeio ambiente\nRelacionamento afetivo/amoroso inadequado\nSegurança do trabalho\nOutras irregularidades",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "den_descricao",
+   "label": "Descrição",
+   "fieldtype": "Text",
+   "reqd": 1
+  },
+  {
+   "fieldname": "den_anexos",
+   "label": "Evidências",
+   "fieldtype": "Attach"
+  },
+  {
+   "fieldname": "investigation_details_section",
+   "label": "Detalhes da Investigacao",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "den_causas",
+   "label": "Causas da Denuncia",
+   "fieldtype": "Text",
+   "mandatory_depends_on": "eval: doc.status == \"Investigated\" || doc.status ==  \"Resolved\""
+  },
+  {
+   "fieldname": "den_colaboradores_envolvidos",
+   "label": "Colaboradores Envolvidos",
+   "fieldtype": "Table",
+   "options": "Colaboradores Link"
+  },
+  {
+   "fieldname": "resolution_details_section",
+   "label": "Detalhes da Resoluca",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "den_data_resolucao",
+   "label": "Data da Resolucao",
+   "fieldtype": "Date",
+   "mandatory_depends_on": "eval: doc.status == \"Resolved\""
+  },
+  {
+   "fieldname": "den_detalhes_resolucao",
+   "label": "Detalhes da Resolucao",
+   "fieldtype": "Small Text",
+   "mandatory_depends_on": "eval: doc.status == \"Resolved\""
+  },
+  {
+   "fieldname": "column_break_16",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "label": "Amended From",
+   "fieldtype": "Link",
+   "options": "Canal de Denuncias",
+   "search_index": 1,
+   "print_hide": 1,
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "select": 1,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1,
+   "print": 1,
+   "email": 1
+  },
+  {
+   "role": "HR Manager",
+   "select": 1,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1,
+   "print": 1,
+   "email": 1
+  },
+  {
+   "role": "HR User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1,
+   "print": 1,
+   "email": 1
+  }
+ ]
+}

@@ -2,7 +2,7 @@
 
 ## Dependências
 
-- `required_apps = ["erpnext", "hrms", "rh_brasil", "busca_cnpj"]`: não são frentes independentes. O Jurídico e a
+- `required_apps = ["frappe", "erpnext", "hrms", "rh_brasil", "busca_cnpj"]`: não são frentes independentes. O Jurídico e a
   importação Bionexo usam `busca_cnpj`; o Jurídico usa `rh_brasil.documentos`.
 - Dependências **fracas, não declaradas**: `clm` (`email_layout`, e-mail institucional, só se instalado) e
   `assinatura_eletronica` (`servicos.canais`, formatação de WhatsApp). Com guarda, não importe sem checar

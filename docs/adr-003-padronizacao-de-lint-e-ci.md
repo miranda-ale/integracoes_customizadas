@@ -12,7 +12,7 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 
 ## Decisão
 
-1. **Python: mínimo 3.11 mantido** (`target-version = "py311"`, `requires-python = ">=3.11"`, `linter.yml` em 3.11),
+1. **Python: mínimo 3.11 mantido** (`target-version = "py311"`, `requires-python = ">=3.11"`, `linter.yml` em 3.12, ver decisão 18),
    por restrição de produção: as imagens de produção/homologação estão confirmadas em Python 3.12. **Alvo de
    migração ao Frappe v16: `>=3.13`** (`target-version = "py313"`, `requires-python = ">=3.13"`, `linter.yml` e
    `ci.yml` coerentes), a executar na migração. O `ci.yml` passou a rodar Python 3.12 (antes 3.14), para refletir a
@@ -51,19 +51,41 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     `missing-argument-type-hint`. Validado contra `frappe.utils.typing_validations` (v15): `None`, string JSON e
     lista passam; `dict` e `int` são rejeitados.
 
-15. **CI: stubs de DocTypes inexistentes e `bench migrate` antes dos testes.** Os Custom Fields de `Employee` e
-    `Designation` em `fixtures/custom_field.json` apontam para os DocTypes `Municipios` (`Employee-custom_naturalidade_cidade`),
-    `CBO` (`Designation-custom_cbo`) e `Dependentes` (`Employee-custom_dependentes`), e o workspace Jurídico tem um
-    card para `Canal de Denuncias`. Nenhum existe em app do grupo (provavelmente criados à mão em produção). Sem
-    eles, a criação dos test records do hrms falha com `WrongOptionsDoctypeLinkError` e o card Ética some. O passo
-    "Run Tests" do `ci.yml` chama `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem
-    hook, só em teste; stubs no módulo `Custom`, que não é do app). **A instalação limpa do app ainda depende
-    desses DocTypes**: incluí-los no app é a issue #8 (exige o esquema real de produção).
-    O passo também roda `bench migrate` antes dos testes: o `install-app` não executa os hooks `after_migrate`
-    (workspaces, cards de Compras/Bionexo, bloco de indicadores do Jurídico), que em produção rodam a cada
-    migrate; sem isso a política de acesso e o workspace Jurídico falhavam só no CI.
-    O Custom Field `Item.custom_código_bionexo` e os campos Bionexo da RFQ agora são criados pelo
-    `after_install` do app (`bionexo/setup.py`), não mais pelo setup de teste.
+15. **CI: `bench migrate` antes dos testes.** O `install-app` não executa os hooks `after_migrate` (workspaces,
+    cards de Compras/Bionexo, bloco de indicadores do Jurídico, atalhos), que em produção rodam a cada migrate; sem
+    isso a política de acesso e o workspace Jurídico falhavam só no CI. O passo "Run Tests" do `ci.yml` roda
+    `bench migrate` antes dos testes. (A versão anterior desta decisão criava stubs de DocTypes no setup de teste;
+    eles foram removidos, ver decisão 16.)
+16. **DocTypes de cadastro criados pela interface em produção agora são instalados pelo app (issue #8).**
+    `Municipios`, `CBO`, `Dependentes`, `Colaboradores Link` (tabela do Canal) e `Canal de Denuncias` não pertencem
+    a nenhum app do grupo e são referenciados pelos Custom Fields de `Employee`/`Designation` (fixtures) e pelo
+    card Ética do workspace Jurídico. As definições estão em `integracoes_customizadas/cadastros/definicoes/*.json`,
+    extraídas do site de produção (sem dados), e `cadastros/instalacao.py` as cria em `after_install` e
+    `after_migrate` **somente se o DocType não existir**: nunca altera campos, nomeação ou permissões de um site que
+    já os tem. Por isso os JSON ficam fora de `<módulo>/doctype/`, que o `migrate` sincroniza por cima do existente.
+    Os DocTypes são `custom=1` e mantêm o módulo de produção (`HR`; `Gestor Online`, cujo Module Def é criado se
+    faltar). As permissões são as de produção; papel inexistente no site é ignorado. O Custom Field
+    `Item.custom_código_bionexo` e `Request for Quotation.custom_tipo_de_contratacao` seguem o export (insert_after,
+    hidden, filtros, Property Setter `in_list_view`), criados com `update=False` e Property Setters só se ausentes.
+    Os stubs de `tests/site_setup.py` foram removidos.
+17. **Política de acesso restrita aos módulos deste app (issue #11).** `politicas/acesso_doctypes.verificar()` varre
+    só os DocTypes dos módulos de `modules.txt` (Integracoes Customizadas, Provas, Juridico); os dos outros apps
+    (CLM, SST, Ponto, hrms) são fiscalizados nos repositórios donos. `politicas/atalhos.py` (`after_migrate`)
+    acrescenta, sem remover nada, os links ausentes dos DocTypes do app ao primeiro workspace existente
+    (Integrations, HR, Recruitment, Jurídico). As traduções de rótulos do ERPNext são do `bhcl_theme`: este app não
+    tem `translations/*.csv` e `test_traducoes_compras.py` cobre só os rótulos que ele cria.
+18. **Padrão institucional de CI/linter.** Python 3.12 no `ci.yml` e no `linter.yml` (piso 3.11 mantido no
+    pyproject; nunca 3.14); actions alinhadas (`checkout@v7`, `setup-python@v7`, `setup-node@v7`, `cache@v6`);
+    `pre-commit/action` substituída por três passos (instalar pre-commit, cache de `~/.cache/pre-commit`,
+    `pre-commit run --all-files`); job `pip-audit-frappe` separado e informativo (`continue-on-error`) para
+    frappe, erpnext e hrms `version-15` (resolve decisão 10); `required_apps` inclui `frappe`; dependências fracas
+    (`clm` para o e-mail institucional, `assinatura_eletronica` para o WhatsApp) ficam documentadas no `hooks.py` e no
+    `pyproject.toml` e protegidas por guarda (`get_installed_apps()`/`ImportError`), de propósito fora do
+    `required_apps`.
+19. **Designation obrigatório só no teste (issue #12).** Os Custom Fields de Designation do fixture são
+    obrigatórios em produção; os test records do hrms não os preenchem. O passo "Run Tests" chama
+    `tests.site_setup.relaxar_obrigatoriedade_designation` depois do `migrate` (que reaplica `reqd=1`). O fixture
+    `custom_field.json` não muda.
 
 ## Consequências
 
@@ -89,4 +111,5 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 
 - Atualizar prettier (2.7.1) e eslint (8.44.0) na preparação para v16/v17.
 - Migrar o alvo Python para `>=3.13` na migração ao v16 (produção/homologação hoje em Python 3.12).
-- Ampliar o pip-audit para cobrir as dependências `erpnext`/`hrms` (hoje comentadas no `pyproject`).
+- Achados antigos do semgrep (66 na varredura completa) seguem sem correção nem supressão; tratar em rodada própria.
+- Atalhos/leitores dos DocTypes de CLM, SST e Ponto: nos repositórios donos.

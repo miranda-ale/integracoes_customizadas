@@ -11,7 +11,15 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 - Instalação limpa: `after_install` cria `Request for Quotation.custom_id_bionexo`/`custom_link_bionexo`,
   `Item.custom_código_bionexo` e os Property Setters da RFQ que antes só vinham de patches (o Frappe marca os
   patches como executados na instalação). Não altera sites existentes.
-- Traduções pt-BR de 6 rótulos do ERPNext usados na cadeia de compras (`translations/pt-BR.csv` e `pt.csv`).
+- Instala os DocTypes `Municipios`, `CBO`, `Dependentes`, `Colaboradores Link` e `Canal de Denuncias` (definições
+  reais de produção em `cadastros/definicoes/`), criados em `after_install`/`after_migrate` só quando não existem.
+- `Item.custom_código_bionexo` segue a definição de produção; `Request for Quotation.custom_tipo_de_contratacao` e
+  os campos Bionexo também são criados no `after_migrate` (só se ausentes).
+- Atalhos de Workspace para os DocTypes do app (WhatsApp, Tipo de Deficiência, DataJud Sync Log, Provas), só
+  acrescentando os links ausentes. A política de acesso passa a varrer só os módulos deste app.
+- Traduções do ERPNext ficam no `bhcl_theme`; o teste de traduções cobre só os rótulos que este app cria.
+- CI e linter em Python 3.12, actions alinhadas, `pre-commit` em passos próprios e `pip-audit` informativo para
+  frappe/erpnext/hrms; `required_apps` inclui `frappe`.
 
 ## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17
 

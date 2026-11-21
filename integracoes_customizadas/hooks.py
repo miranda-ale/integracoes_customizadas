@@ -21,7 +21,11 @@ override_doctype_dashboards = {
 # Apps
 # ------------------
 
+# Dependências FRACAS, não declaradas em required_apps de propósito (o app funciona sem elas; sempre com guarda):
+# `clm` (email_layout, e-mail institucional: `email_institucional.py`, checa get_installed_apps() e ImportError) e
+# `assinatura_eletronica` (servicos.canais, formatação de WhatsApp: `whatsapp/modelos.py`, checa ImportError).
 required_apps = [
+	"frappe/frappe@version-15",
 	"frappe/erpnext@version-15",
 	"frappe/hrms@version-15",
 	"still-pulse/rh_brasil@main",
@@ -125,12 +129,17 @@ after_install = "integracoes_customizadas.setup.after_install"
 # Migration
 # ---------
 after_migrate = [
+	# Cadastros que em produção nasceram pela interface (só cria o que não existe) e campos Bionexo
+	"integracoes_customizadas.cadastros.instalacao.garantir_cadastros",
+	"integracoes_customizadas.bionexo.setup.garantir_campos_na_instalacao",
 	"integracoes_customizadas.provas.setup.after_migrate",
 	"integracoes_customizadas.juridico.setup.after_migrate",
 	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
 	"integracoes_customizadas.bionexo.setup.ensure_buying_card",
 	"integracoes_customizadas.compras.setup.after_migrate",
-	# Política: todo DocType dos apps customizados tem atalho em Workspace e leitor (apenas avisa)
+	# Atalhos de Workspace para os DocTypes deste app (só acrescenta os ausentes)
+	"integracoes_customizadas.politicas.atalhos.garantir_atalhos",
+	# Política: todo DocType deste app tem atalho em Workspace e leitor (apenas avisa)
 	"integracoes_customizadas.politicas.acesso_doctypes.avisar_violacoes",
 ]
 

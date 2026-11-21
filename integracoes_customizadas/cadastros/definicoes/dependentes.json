@@ -1,0 +1,58 @@
+{
+ "doctype": "DocType",
+ "name": "Dependentes",
+ "istable": 1,
+ "editable_grid": 1,
+ "module": "HR",
+ "autoname": "field:cpf",
+ "naming_rule": "By fieldname",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "custom": 1,
+ "index_web_pages_for_search": 1,
+ "grid_page_length": 50,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "fields": [
+  {
+   "fieldname": "dados_section",
+   "label": "Dados",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "nome",
+   "label": "Nome",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cpf",
+   "label": "CPF",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "data_de_nascimento",
+   "label": "Data de Nascimento",
+   "fieldtype": "Date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_filter": 1,
+   "in_preview": 1
+  },
+  {
+   "fieldname": "parentesco",
+   "label": "Parentesco",
+   "fieldtype": "Select",
+   "options": "\nCônjuge / Companheiro(a)\nFIlho(a) / Enteado (a)\nPai / Mãe\nIrmão / Irmã\nOutros",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_filter": 1,
+   "in_standard_filter": 1
+  }
+ ],
+ "permissions": []
+}
