@@ -115,7 +115,7 @@
  ],
  "issingle": 1,
  "module": "Juridico",
- "name": "Configurações DataJud",
+ "name": "DataJud Settings",
  "permissions": [
   {"role": "System Manager", "read": 1, "write": 1}
  ]

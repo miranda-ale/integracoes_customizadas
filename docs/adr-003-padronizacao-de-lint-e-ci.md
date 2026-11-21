@@ -26,7 +26,7 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
    app dependente `busca_cnpj`, usado em `processo_judicial.js`). Nenhum `overrides` foi necessário (não há
    variáveis injetadas pelo Frappe, como `root_element`).
 8. **Arquivos JS com Jinja excluídos por caminho exato**: nenhum. O único JS com sintaxe Jinja
-   (`juridico/report/relação_de_processos/relação_de_processos.js`) mantém o Jinja dentro de uma template string
+   (`juridico/report/relacao_de_processos/relacao_de_processos.js`) mantém o Jinja dentro de uma template string
    e passa em prettier e eslint normalmente.
 9. **JS formatado pelo prettier em commit exclusivo de estilo**: 6 arquivos `.js`.
 10. **pip-audit roda só no CI e audita apenas o `pyproject`**; as dependências `erpnext`/`hrms` ficam comentadas,

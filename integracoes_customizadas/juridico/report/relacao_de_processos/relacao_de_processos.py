@@ -52,7 +52,7 @@ def montar_filtros(filters):
 
 
 def listar_processos(filters, fields):
-	"""Lista os processos permitidos ao usuário, filtrados como na Relação de Processos."""
+	"""Lista os processos permitidos ao usuário, filtrados como na Relacao de Processos."""
 	# get_list aplica as permissões do DocType, inclusive ao filtrar pela tabela filha.
 	return frappe.get_list(
 		"Processo Judicial",

@@ -113,7 +113,7 @@ class TestColetorAgrupaPorExecucao(FrappeTestCase):
 
 class TestCircuitBreaker(FrappeTestCase):
 	def _config_zerada(self):
-		config = frappe.get_single("Configurações DataJud")
+		config = frappe.get_single("DataJud Settings")
 		config.circuito_aberto = 0
 		config.circuito_tipo_falha = None
 		config.circuito_motivo = None
@@ -174,17 +174,17 @@ class TestCircuitBreaker(FrappeTestCase):
 		self.assertEqual(config.falhas_consecutivas, 0)
 
 	def test_trocar_a_chave_reabre_o_circuito_de_autenticacao(self):
-		config = frappe.get_single("Configurações DataJud")
+		config = frappe.get_single("DataJud Settings")
 		config.api_key = "chave-antiga-0000"
 		config.save(ignore_permissions=True)
 		with patch.object(datajud, "_notificar_administradores"):
 			for _ in range(3):
 				datajud._abrir_ou_manter_circuito(config, datajud.ERRO_AUTENTICACAO)
 		config.save(ignore_permissions=True)
-		self.assertTrue(frappe.get_single("Configurações DataJud").circuito_aberto)
+		self.assertTrue(frappe.get_single("DataJud Settings").circuito_aberto)
 
-		nova_config = frappe.get_single("Configurações DataJud")
+		nova_config = frappe.get_single("DataJud Settings")
 		nova_config.api_key = "chave-nova-1111"
 		nova_config.save(ignore_permissions=True)
 
-		self.assertFalse(frappe.get_single("Configurações DataJud").circuito_aberto)
+		self.assertFalse(frappe.get_single("DataJud Settings").circuito_aberto)

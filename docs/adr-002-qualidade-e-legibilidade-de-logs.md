@@ -32,7 +32,7 @@ diagnosticar a causa sem precisar reler o código-fonte, e sem inundar o Error L
    consecutivas) no próprio cadastro de configuração da integração, para que confirmar "está funcionando?" não
    exija abrir o Error Log.
 
-Esta diretriz é o motivo por trás do design do DataJud (`DataJud Sync Log` + resumo em `Configurações DataJud`) e
+Esta diretriz é o motivo por trás do design do DataJud (`DataJud Sync Log` + resumo em `DataJud Settings`) e
 vale para qualquer integração externa futura ou existente neste app (WhatsApp/Evolution, Bionexo, `busca_cnpj`
 etc.): ao tocar numa integração externa por outro motivo, aproveite para alinhar o log dela a este padrão.
 

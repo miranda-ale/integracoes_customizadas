@@ -32,18 +32,18 @@ hora, com `contagem=1`. A sincronização **em lote** (ver abaixo) acumula tudo 
 final da execução — por isso nunca mais de um registro por tipo de erro e execução, mesmo com 56 processos
 falhando ao mesmo tempo.
 
-`Configurações DataJud` resume o estado em campos próprios (`ultima_sincronizacao_sucesso`, `ultimo_erro`,
+`DataJud Settings` resume o estado em campos próprios (`ultima_sincronizacao_sucesso`, `ultimo_erro`,
 `ultimo_erro_status_http`, `falhas_consecutivas`), sem precisar abrir o Error Log.
 
 ## Circuit breaker
 
-`Configurações DataJud` também guarda o estado do circuito (`circuito_aberto`, `circuito_tipo_falha`,
+`DataJud Settings` também guarda o estado do circuito (`circuito_aberto`, `circuito_tipo_falha`,
 `circuito_motivo`, `circuito_aberto_em`, `circuito_nivel_backoff`, `circuito_proxima_tentativa`):
 
 - Abre depois de falhas seguidas do mesmo tipo: 3 de `Autenticação` ou 5 de `Limite de Requisições`/`Indisponível`
   (`LIMITE_FALHAS_CIRCUITO`). Uma falha de tipo diferente reinicia a contagem.
-- **Autenticação**: não tenta de novo sozinho — só a troca da chave em `Configurações DataJud` reabre o circuito
-  (`ConfiguraçõesDataJud.validate()` detecta `has_value_changed("api_key")` e reseta os campos do circuito).
+- **Autenticação**: não tenta de novo sozinho — só a troca da chave em `DataJud Settings` reabre o circuito
+  (`DataJudSettings.validate()` detecta `has_value_changed("api_key")` e reseta os campos do circuito).
 - **Limite de requisições / Indisponível**: reabre sozinho com backoff exponencial (`BACKOFF_INICIAL_MINUTOS = 15`,
   dobrando a cada falha até `BACKOFF_MAXIMO_MINUTOS = 240`).
 - Abrir ou fechar o circuito notifica os `System Manager` por e-mail (`_notificar_administradores`).

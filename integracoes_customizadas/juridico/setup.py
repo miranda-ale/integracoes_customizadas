@@ -7,7 +7,7 @@ import frappe
 
 from integracoes_customizadas.juridico.datajud import _descricao_movimento
 
-WORKSPACE = "Jurídico"
+WORKSPACE = "Juridico"
 BLOCOS_DIR = Path(__file__).resolve().parent / "custom_blocks"
 INDICADORES_BLOCK = "Juridico Indicadores"
 INDICADORES_ID = "juridico-indicadores-block"

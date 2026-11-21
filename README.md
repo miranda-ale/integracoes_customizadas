@@ -68,7 +68,7 @@ Há ainda recursos transversais: [normalização de cadastros em caixa alta](#no
   assuntos e movimentações. Dados vindos do DataJud ficam protegidos contra edição manual.
 - **Partes:** tabela de partes com parte principal, inclusive partes sem cadastro e identificação de
   ex-colaboradores; a opção *Terceiros* (pacientes) liga a Contatos.
-- **Configurações DataJud:** consulta por número CNJ e tribunal, busca manual de andamentos e acompanhamento
+- **DataJud Settings:** consulta por número CNJ e tribunal, busca manual de andamentos e acompanhamento
   automático dos processos em andamento (dias úteis às 03:00, em lote único numa fila dedicada `datajud`, nunca
   mais um processo por tarefa). Timeout de 100 s nas consultas interativas (12 s em lote); em falha, os dados
   anteriores são preservados, o erro é classificado e agrupado em **DataJud Sync Log**, e um circuit breaker
@@ -95,8 +95,8 @@ Há ainda recursos transversais: [normalização de cadastros em caixa alta](#no
 - **Dashboard View** *Processos Judiciais*: cartões (total, em andamento, encerrados) e gráficos por situação,
   risco, fase, tribunal, localidade IBGE e assuntos mais frequentes; painel **Juridico Indicadores** no workspace
   (ver [docs/juridico-dashboard.md](docs/juridico-dashboard.md)).
-- Relatórios: **Relação de Processos** (filtros por empresa, parte, fase, situação, assunto, tribunal, grau, risco,
-  natureza, responsável, número e período; impressão/PDF próprios), **Provisão de Processos**, **Passivo de
+- Relatórios: **Relacao de Processos** (filtros por empresa, parte, fase, situação, assunto, tribunal, grau, risco,
+  natureza, responsável, número e período; impressão/PDF próprios), **Provisao de Processos**, **Passivo de
   Processos**, **Processos por Colaborador** e **Aging de Processos**.
 - Workspace **Jurídico** (com atalho para Pareceres Jurídicos do `clm`) e papel **Usuário Jurídico**. O legado
   *Contencioso* foi removido por patches.

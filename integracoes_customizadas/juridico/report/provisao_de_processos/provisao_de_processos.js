@@ -1,4 +1,4 @@
-frappe.query_reports["Provisão de Processos"] = {
+frappe.query_reports["Provisao de Processos"] = {
 	filters: [
 		{ fieldname: "company", label: __("Empresa"), fieldtype: "Link", options: "Company" },
 		{

@@ -7,7 +7,7 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 - Novo DocType `DataJud Sync Log`: grava endpoint, método, status HTTP, tempo de resposta, corpo (1.000
   caracteres), tipo de exceção e traceback, agrupando falhas por execução e tipo de erro em vez de um
   registro por processo. A chave da API nunca é gravada em claro (só os 4 primeiros caracteres).
-- `Configurações DataJud` ganha circuit breaker: abre após falhas seguidas (3 de autenticação, 5 de limite de
+- `DataJud Settings` ganha circuit breaker: abre após falhas seguidas (3 de autenticação, 5 de limite de
   requisições/indisponibilidade), pausando a sincronização automática; erro de autenticação só reabre quando a
   chave é trocada, os demais reabrem sozinhos com backoff exponencial (15, 30, 60... min). Resume o estado
   (última sincronização, último erro, falhas consecutivas) direto no cadastro.
@@ -44,7 +44,7 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 - **Pedidos e provisão:** tabela de pedidos com probabilidade de perda (Provável/Possível/Remota) e valor provável; provisão sugerida pela soma dos pedidos prováveis, sobrescrevível (`provisao_manual`); probabilidade do processo = a do pior pedido; `risco` segue manual.
 - **Audiências e prazos:** tabela que mantém um ToDo (e um Event nas audiências) por linha sem duplicar, encerra ao informar o resultado e cancela ao remover; job diário às 07:00 alerta prazos vencidos ou a até 3 dias (`juridico/agenda.py`).
 - **Financeiro:** depósitos judiciais/recursais, acordos e custas com totais calculados; resultado (procedente/improcedente/acordo) e data de encerramento. Campos do DataJud seguem imutáveis.
-- **Relatórios:** Provisão de Processos, Passivo de Processos, Processos por Colaborador e Aging de Processos, reutilizando os filtros da Relação de Processos (`montar_filtros`/`listar_processos`), que ganhou filtros por natureza e responsável.
+- **Relatórios:** Provisao de Processos, Passivo de Processos, Processos por Colaborador e Aging de Processos, reutilizando os filtros da Relacao de Processos (`montar_filtros`/`listar_processos`), que ganhou filtros por natureza e responsável.
 - **Lista:** Nome da Parte volta a aparecer na lista do Processo Judicial (Natureza e Grau saem da lista e seguem como filtros).
 - Inclui as Fases 1 e 2 (v2.4.0): partes sem cadastro e tabela de partes com parte principal.
 
@@ -141,12 +141,12 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 ## v1.11.0 — mudanças desde v1.10.0
 
 - **Jurídico:** anexo por movimentação com coluna visível na tabela do processo, descrição composta a partir dos complementos tabelados e leitura de submovimentos; anexos existentes são preservados nas atualizações do DataJud.
-- **Partes:** opção Terceiros vinculada a Contatos para cadastro de pacientes, também disponível no filtro da Relação de Processos.
+- **Partes:** opção Terceiros vinculada a Contatos para cadastro de pacientes, também disponível no filtro da Relacao de Processos.
 
 ## v1.10.0 — mudanças desde v1.5.4
 
-- **v1.6.0 — Integração judicial:** criação do módulo Jurídico, do Workspace, dos DocTypes Processo Judicial, Assunto Judicial, Configurações DataJud, assuntos e movimentos; consulta ao DataJud por número CNJ e tribunal, registro dos dados e migrações de cadastro e permissões.
+- **v1.6.0 — Integração judicial:** criação do módulo Jurídico, do Workspace, dos DocTypes Processo Judicial, Assunto Judicial, DataJud Settings, assuntos e movimentos; consulta ao DataJud por número CNJ e tribunal, registro dos dados e migrações de cadastro e permissões.
 - **v1.7.0 — Cadastro e acompanhamento:** cadastro em rascunho ou concluído, vinculação de empresa e parte, classificação de fase, risco e situação, proteção dos dados recebidos do DataJud, atualização periódica de processos em andamento e testes do fluxo judicial.
 - **v1.8.0 — Consulta manual e conexões:** busca manual de andamentos, vínculos de processos com colaboradores, clientes, fornecedores e processos relacionados, com acesso pelas respectivas telas.
 - **v1.9.0 — Indicadores:** Dashboard View “Processos Judiciais” com três cartões numéricos e seis gráficos de situação, risco, fase, tribunal, localidade IBGE e assuntos frequentes; reorganização do Workspace Jurídico.
-- **v1.10.0 — Relatório:** “Relação de Processos” com filtros por empresa, tipo e nome da parte, fase, situação, situação cadastral, assunto, tribunal, grau, risco, número e período de ajuizamento. Inclui os principais dados cadastrados, impressão e PDF em formato próprio com o letter-head padrão do Frappe e link na caixa Relatórios do Workspace.
+- **v1.10.0 — Relatório:** “Relacao de Processos” com filtros por empresa, tipo e nome da parte, fase, situação, situação cadastral, assunto, tribunal, grau, risco, número e período de ajuizamento. Inclui os principais dados cadastrados, impressão e PDF em formato próprio com o letter-head padrão do Frappe e link na caixa Relatórios do Workspace.

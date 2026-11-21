@@ -3,7 +3,7 @@ from frappe import _
 from frappe.model.document import Document
 
 
-class ConfiguraçõesDataJud(Document):
+class DataJudSettings(Document):
 	def validate(self):
 		if frappe.session.user != "Administrator" and "System Manager" not in frappe.get_roles():
 			frappe.throw(

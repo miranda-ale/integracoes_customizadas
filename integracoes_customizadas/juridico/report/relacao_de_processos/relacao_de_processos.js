@@ -1,4 +1,4 @@
-frappe.query_reports["Relação de Processos"] = {
+frappe.query_reports["Relacao de Processos"] = {
 	filters: [
 		{ fieldname: "company", label: __("Empresa"), fieldtype: "Link", options: "Company" },
 		{ fieldname: "sem_vinculo", label: __("Sem cadastro vinculado"), fieldtype: "Check" },
