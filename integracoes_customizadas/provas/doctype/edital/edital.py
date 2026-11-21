@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import escape_html, getdate, now_datetime, today
+from frappe.utils import escape_html, getdate
 
 from integracoes_customizadas import email_institucional
 

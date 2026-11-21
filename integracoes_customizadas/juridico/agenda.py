@@ -35,7 +35,7 @@ def _encerrar(linha, status):
 
 def _manter(processo, linha):
 	titulo = f"{linha.categoria}: {linha.tipo or processo.numero_processo or processo.name}"
-	descricao = _("{0} – processo {1}{2}").format(
+	descricao = _("{0} – processo {1}{2}").format(  # noqa: RUF001
 		titulo, processo.numero_processo or processo.name, f" ({linha.local})" if linha.local else ""
 	)
 	usuario = linha.responsavel or processo.responsavel_interno or processo.owner
@@ -116,7 +116,7 @@ def alertar_prazos():
 				"type": "Alert",
 				"document_type": "Processo Judicial",
 				"document_name": linha.parent,
-				"subject": _("Prazo {0} vence em {1} – processo {2}").format(
+				"subject": _("Prazo {0} vence em {1} – processo {2}").format(  # noqa: RUF001
 					linha.tipo or "",
 					getdate(linha.data_hora).strftime("%d/%m/%Y"),
 					processo.numero_processo or linha.parent,
