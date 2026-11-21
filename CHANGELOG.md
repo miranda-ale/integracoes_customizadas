@@ -18,7 +18,7 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 - Atalhos de Workspace para os DocTypes do app (WhatsApp, Tipo de Deficiência, DataJud Sync Log, Provas), só
   acrescentando os links ausentes. A política de acesso passa a varrer só os módulos deste app.
 - Traduções do ERPNext ficam no `bhcl_theme`; o teste de traduções cobre só os rótulos que este app cria.
-- CI e linter em Python 3.12, actions alinhadas, `pre-commit` em passos próprios e `pip-audit` informativo para
+- CI e linter em Python 3.12, actions alinhadas, `pre-commit` em passos próprios e `pip-audit` do ambiente informativo para
   frappe/erpnext/hrms; `required_apps` inclui `frappe`.
 
 ## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17

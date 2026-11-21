@@ -37,13 +37,24 @@ def _garantir_modulo(modulo: str):
 		)
 
 
+def _permissao_valida(permissao: dict, definicao: dict) -> dict:
+	"""O Frappe rejeita `import` num DocType sem `allow_import`; em produção a permissão existe, mas não tem efeito."""
+	if permissao.get("import") and not definicao.get("allow_import"):
+		return {k: v for k, v in permissao.items() if k != "import"}
+	return permissao
+
+
 def garantir_doctype(definicao: dict) -> bool:
 	"""Cria o DocType se ele não existir; devolve True quando criou. Nunca altera um existente."""
 	nome = definicao["name"]
 	if frappe.db.exists("DocType", nome):
 		return False
 	doc = {k: v for k, v in definicao.items() if k != "permissions"}
-	doc["permissions"] = [p for p in definicao.get("permissions", []) if frappe.db.exists("Role", p["role"])]
+	doc["permissions"] = [
+		_permissao_valida(p, definicao)
+		for p in definicao.get("permissions", [])
+		if frappe.db.exists("Role", p["role"])
+	]
 	_garantir_modulo(doc["module"])
 	frappe.get_doc(doc).insert(ignore_permissions=True)
 	return True

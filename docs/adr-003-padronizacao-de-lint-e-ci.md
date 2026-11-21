@@ -77,7 +77,7 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 18. **Padrão institucional de CI/linter.** Python 3.12 no `ci.yml` e no `linter.yml` (piso 3.11 mantido no
     pyproject; nunca 3.14); actions alinhadas (`checkout@v7`, `setup-python@v7`, `setup-node@v7`, `cache@v6`);
     `pre-commit/action` substituída por três passos (instalar pre-commit, cache de `~/.cache/pre-commit`,
-    `pre-commit run --all-files`); job `pip-audit-frappe` separado e informativo (`continue-on-error`) para
+    `pre-commit run --all-files`); job `deps-vulnerable-check-environment` separado e informativo (`continue-on-error`) para
     frappe, erpnext e hrms `version-15` (resolve decisão 10); `required_apps` inclui `frappe`; dependências fracas
     (`clm` para o e-mail institucional, `assinatura_eletronica` para o WhatsApp) ficam documentadas no `hooks.py` e no
     `pyproject.toml` e protegidas por guarda (`get_installed_apps()`/`ImportError`), de propósito fora do
