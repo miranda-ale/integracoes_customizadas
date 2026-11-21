@@ -1,4 +1,4 @@
-# Copyright (c) 2026, BHCL and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 """Rótulos da cadeia de compras sem tradução pt-BR (o cliente busca a chave exata, inclusive espaço no fim)."""
 

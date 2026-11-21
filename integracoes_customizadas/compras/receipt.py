@@ -1,4 +1,4 @@
-# Copyright (c) 2026, BHCL and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 """Nota Fiscal registrada no Purchase Receipt pela unidade que recebe (campos `custom_compras_nf_*`).
 

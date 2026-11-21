@@ -1,4 +1,4 @@
-# Copyright (c) 2026, BHCL and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 """Layout enxuto dos workspaces Compras (Buying) e Estoque (Stock), reaplicado a cada migrate.
 

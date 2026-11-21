@@ -1,4 +1,4 @@
-# Copyright (c) 2026, BHCL and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 """Etapas do ciclo de compras de materiais (Solicitação -> Cotação -> Pedido -> Recebimento -> Fatura).
 

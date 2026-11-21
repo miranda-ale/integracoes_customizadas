@@ -1,4 +1,4 @@
-# Copyright (c) 2026, BHCL and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 #
 # Comparative price map for a Request for Quotation: one item per row, one supplier per column.

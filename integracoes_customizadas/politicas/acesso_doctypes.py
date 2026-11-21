@@ -1,4 +1,4 @@
-# Copyright (c) 2026, StillPulse and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 """Política de acesso: todo DocType dos apps customizados tem um local de acesso, visível só a quem pode lê-lo.
 

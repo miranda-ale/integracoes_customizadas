@@ -1,9 +1,9 @@
 app_name = "integracoes_customizadas"
 app_title = "Integracoes Customizadas"
-app_publisher = "Alessandro Miranda"
+app_publisher = "StillPulse Tecnologia LTDA"
 app_description = "Modulo de integracoes customizadas para o ERPNext"
 app_email = "alessandro.siqueira@outlook.com"
-app_license = "mit"
+app_license = "Proprietary"
 
 fixtures = [
 	{"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
@@ -21,12 +21,7 @@ override_doctype_dashboards = {
 # Apps
 # ------------------
 
-required_apps = [
-	"frappe/erpnext@version-15",
-	"frappe/hrms@version-15",
-	"still-pulse/rh_brasil@main",
-	"miranda-ale/busca_cnpj@main",
-]  # uma linha só: o bench lê com regex
+required_apps = ["frappe/frappe@version-15", "frappe/erpnext@version-15", "frappe/hrms@version-15", "still-pulse/rh_brasil@main", "still-pulse/busca_cnpj@main"]  # single line: bench reads it with a regex
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
