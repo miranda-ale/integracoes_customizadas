@@ -51,16 +51,19 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     `missing-argument-type-hint`. Validado contra `frappe.utils.typing_validations` (v15): `None`, string JSON e
     lista passam; `dict` e `int` são rejeitados.
 
-15. **CI: stubs de DocTypes inexistentes no setup de teste.** Os Custom Fields de `Employee` e `Designation` em
-    `fixtures/custom_field.json` apontam para os DocTypes `Municipios` (`Employee-custom_naturalidade_cidade`), `CBO`
-    (`Designation-custom_cbo`) e `Dependentes` (`Employee-custom_dependentes`), que não existem em nenhum app do
-    grupo (provavelmente criados à mão em produção). Sem eles, a criação dos test records do hrms falha com
-    `WrongOptionsDoctypeLinkError`. O passo "Run Tests" do `ci.yml` chama
-    `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem hook, só em teste; stubs no
-    módulo `Custom`, que não é do app). O mesmo script cria o Custom Field `Item.custom_código_bionexo`, usado por
-    `importacao_bionexo.py` e também ausente de fixtures/patches. **A
-    instalação limpa do app depende desses DocTypes, que não estão no app**: tarefa de produto separada (criá-los
-    no app ou remover/condicionar os campos).
+15. **CI: stubs de DocTypes inexistentes e `bench migrate` antes dos testes.** Os Custom Fields de `Employee` e
+    `Designation` em `fixtures/custom_field.json` apontam para os DocTypes `Municipios` (`Employee-custom_naturalidade_cidade`),
+    `CBO` (`Designation-custom_cbo`) e `Dependentes` (`Employee-custom_dependentes`), e o workspace Jurídico tem um
+    card para `Canal de Denuncias`. Nenhum existe em app do grupo (provavelmente criados à mão em produção). Sem
+    eles, a criação dos test records do hrms falha com `WrongOptionsDoctypeLinkError` e o card Ética some. O passo
+    "Run Tests" do `ci.yml` chama `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem
+    hook, só em teste; stubs no módulo `Custom`, que não é do app). **A instalação limpa do app ainda depende
+    desses DocTypes**: incluí-los no app é a issue #8 (exige o esquema real de produção).
+    O passo também roda `bench migrate` antes dos testes: o `install-app` não executa os hooks `after_migrate`
+    (workspaces, cards de Compras/Bionexo, bloco de indicadores do Jurídico), que em produção rodam a cada
+    migrate; sem isso a política de acesso e o workspace Jurídico falhavam só no CI.
+    O Custom Field `Item.custom_código_bionexo` e os campos Bionexo da RFQ agora são criados pelo
+    `after_install` do app (`bionexo/setup.py`), não mais pelo setup de teste.
 
 ## Consequências
 

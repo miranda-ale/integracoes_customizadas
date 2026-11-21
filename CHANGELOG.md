@@ -2,6 +2,17 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## Não lançado
+
+- Corrige o circuit breaker do DataJud: a contagem de falhas seguidas recomeçava em 1 a cada execução (o tipo da
+  falha só era gravado ao abrir), então o circuito nunca abria. Agora o tipo da sequência em andamento fica em
+  `circuito_tipo_falha` enquanto o circuito está fechado.
+- `juridico/parte.py`: a busca de colaborador por CPF usa o query builder em vez de SQL com f-string.
+- Instalação limpa: `after_install` cria `Request for Quotation.custom_id_bionexo`/`custom_link_bionexo`,
+  `Item.custom_código_bionexo` e os Property Setters da RFQ que antes só vinham de patches (o Frappe marca os
+  patches como executados na instalação). Não altera sites existentes.
+- Traduções pt-BR de 6 rótulos do ERPNext usados na cadeia de compras (`translations/pt-BR.csv` e `pt.csv`).
+
 ## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17
 
 - Novo DocType `DataJud Sync Log`: grava endpoint, método, status HTTP, tempo de resposta, corpo (1.000

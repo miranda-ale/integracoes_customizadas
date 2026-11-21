@@ -1,23 +1,21 @@
 # Copyright (c) 2026, Alessandro Miranda and contributors
 # For license information, please see license.txt
 
-"""Prepara um site novo (CI) com o que em produção foi criado à mão e o app não instala.
-
-Stubs dos DocTypes que os Custom Fields do fixture referenciam e o Custom Field `Item.custom_código_bionexo`
-(usado por `importacao_bionexo.py` e pelos testes de importação).
+"""Prepara um site novo (CI) com os DocTypes que em produção foram criados à mão e o app não instala.
 
 Os Custom Fields de `Employee` e `Designation` apontam para os DocTypes `Municipios`, `CBO` e `Dependentes`,
-que não pertencem a este app (em produção foram criados à mão). Sem eles, a criação dos test records do hrms
-falha com `WrongOptionsDoctypeLinkError`. Não é chamado por hook e não altera sites de produção. Idempotente.
+e o workspace Jurídico tem um card para `Canal de Denuncias`; nenhum deles pertence a um app do grupo. Sem
+eles, a criação dos test records do hrms falha com `WrongOptionsDoctypeLinkError` e o card Ética some do
+workspace. São stubs mínimos, só de teste: não é chamado por hook e não altera sites de produção. Idempotente.
+Remover um stub daqui exige antes incluir o DocType real no app (issue #8).
 """
 
 from __future__ import annotations
 
 import frappe
-from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 # nome -> eh tabela filha
-DOCTYPES_STUB = {"Municipios": False, "CBO": False, "Dependentes": True}
+DOCTYPES_STUB = {"Municipios": False, "CBO": False, "Dependentes": True, "Canal de Denuncias": False}
 
 
 def criar_doctypes_stub():
@@ -36,8 +34,4 @@ def criar_doctypes_stub():
 				"permissions": [] if eh_tabela else [{"role": "System Manager", "read": 1}],
 			}
 		).insert(ignore_permissions=True)
-	create_custom_fields(
-		{"Item": [{"fieldname": "custom_código_bionexo", "label": "Código Bionexo", "fieldtype": "Data"}]},
-		update=False,
-	)
 	frappe.db.commit()
