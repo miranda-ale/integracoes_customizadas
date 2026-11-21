@@ -21,7 +21,13 @@ override_doctype_dashboards = {
 # Apps
 # ------------------
 
-required_apps = ["frappe/frappe@version-15", "frappe/erpnext@version-15", "frappe/hrms@version-15", "still-pulse/rh_brasil@main", "still-pulse/busca_cnpj@main"]  # single line: bench reads it with a regex
+required_apps = [
+	"frappe/frappe@version-15",
+	"frappe/erpnext@version-15",
+	"frappe/hrms@version-15",
+	"still-pulse/rh_brasil@main",
+	"still-pulse/busca_cnpj@main",
+]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
