@@ -742,6 +742,11 @@ def _abrir_ou_manter_circuito(config, tipo_erro, *, status_http=None, mensagem=N
 	config.ultimo_erro_status_http = status_http
 	limite = LIMITE_FALHAS_CIRCUITO.get(tipo_erro)
 	if not limite or config.falhas_consecutivas < limite:
+		if not config.circuito_aberto:
+			# Guarda o tipo da sequência em andamento: sem isso a contagem recomeça em 1 a cada execução
+			# (o tipo só era gravado ao abrir) e o circuito nunca abre. Com o circuito aberto o tipo é o
+			# de quem abriu, e a pausa por autenticação continua exigindo a troca da chave.
+			config.circuito_tipo_falha = tipo_erro
 		return
 	ja_estava_aberto = bool(config.circuito_aberto)
 	config.circuito_aberto = 1

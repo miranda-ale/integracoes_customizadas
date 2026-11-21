@@ -127,13 +127,13 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 	def test_http_errors_and_retry(self):
 		with patch.object(datajud.requests, "post") as post, patch.object(datajud.time, "sleep"):
 			post.side_effect = [
-				Mock(status_code=429),
+				Mock(status_code=429, text=""),
 				Mock(status_code=200, json=lambda: {"hits": {"hits": []}}),
 			]
 			self.assertIn("hits", datajud._post("trf1", {}, "chave"))
 			self.assertEqual(post.call_count, 2)
 			post.side_effect = None
-			post.return_value = Mock(status_code=401)
+			post.return_value = Mock(status_code=401, text="")
 			with self.assertRaises(datajud.DataJudError):
 				datajud._post("trf1", {}, "chave")
 			post.side_effect = [
@@ -532,6 +532,10 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		datajud._espelhar_ocorrencia("agendamento-encerrado-outro-par", fonte_outro)
 		for nome in ("agendamento-encerrado-mesmo-par", "agendamento-encerrado-outro-par"):
 			frappe.db.set_value("Processo Judicial", nome, "status_processo", "Encerrado")
+		# A sincronização só roda com a chave configurada e grava a Configurações DataJud (api_key é obrigatória).
+		config = frappe.get_single("Configurações DataJud")
+		config.api_key = "chave-de-teste"
+		config.save(ignore_permissions=True)
 		with (
 			patch.object(datajud, "_chave_publica", return_value="chave"),
 			patch.object(datajud, "_verificar_saude", return_value=(True, None)),
@@ -956,6 +960,18 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(processo.partes[0].parte, colaborador.name)
 		self.assertEqual(processo.parte, colaborador.name)
 		self.assertTrue(processo.parte_vinculada)
+
+	def test_busca_por_cpf_ignora_pontuacao_e_rejeita_ambiguidade(self):
+		from integracoes_customizadas.juridico.parte import _employee_por_cpf
+
+		if not frappe.get_meta("Employee").has_field("custom_cpf"):
+			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
+		unico = self._employee("Cpf Pontuado", "529.982.247-25")
+		self.assertEqual(_employee_por_cpf("52998224725", "custom_cpf"), unico.name)
+		self.assertEqual(_employee_por_cpf("529.982.247-25", "custom_cpf"), unico.name)
+		self.assertIsNone(_employee_por_cpf("11111111111", "custom_cpf"))
+		self._employee("Cpf Duplicado", "52998224725")
+		self.assertIsNone(_employee_por_cpf("52998224725", "custom_cpf"))
 
 	def test_relatorio_filtra_por_qualquer_parte_e_lista_outras(self):
 		from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import execute

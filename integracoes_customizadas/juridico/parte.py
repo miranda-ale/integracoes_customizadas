@@ -3,6 +3,7 @@
 import frappe
 from busca_cnpj.cnpj import validar_cpf
 from frappe import _
+from pypika.functions import Replace
 
 
 def _campo_cpf_employee() -> str | None:
@@ -14,11 +15,10 @@ def _employee_por_cpf(cpf: str, campo: str) -> str | None:
 	digitos = "".join(c for c in cpf if c.isdigit())
 	if not validar_cpf(digitos):
 		return None
-	encontrados = frappe.db.sql(
-		f"""select name from `tabEmployee`
-		where replace(replace(replace(`{campo}`, '.', ''), '-', ''), ' ', '') = %s
-		limit 2""",
-		digitos,
+	employee = frappe.qb.DocType("Employee")
+	cpf_somente_digitos = Replace(Replace(Replace(employee.field(campo), ".", ""), "-", ""), " ", "")
+	encontrados = (
+		frappe.qb.from_(employee).select(employee.name).where(cpf_somente_digitos == digitos).limit(2).run()
 	)
 	# Mais de um resultado é ambíguo (ex.: recontratação); não vincula automaticamente.
 	return encontrados[0][0] if len(encontrados) == 1 else None

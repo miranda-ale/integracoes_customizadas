@@ -138,6 +138,25 @@ class TestCircuitBreaker(FrappeTestCase):
 		self.assertIsNone(config.circuito_proxima_tentativa)
 		self.assertFalse(datajud._circuito_permite_execucao(config))
 
+	def test_contagem_acumula_entre_execucoes_persistidas(self):
+		"""Regressão: cada execução do cron recarrega a configuração; a contagem não pode zerar a cada uma."""
+		config = self._config_zerada()
+		config.api_key = "chave-de-teste"
+		config.save(ignore_permissions=True)
+		with patch.object(datajud, "_notificar_administradores") as notificar:
+			for esperado in (1, 2):
+				config = frappe.get_single("Configurações DataJud")
+				datajud._abrir_ou_manter_circuito(config, datajud.ERRO_AUTENTICACAO)
+				config.save(ignore_permissions=True)
+				self.assertEqual(frappe.get_single("Configurações DataJud").falhas_consecutivas, esperado)
+				self.assertFalse(frappe.get_single("Configurações DataJud").circuito_aberto)
+			notificar.assert_not_called()
+			config = frappe.get_single("Configurações DataJud")
+			datajud._abrir_ou_manter_circuito(config, datajud.ERRO_AUTENTICACAO)
+			config.save(ignore_permissions=True)
+		self.assertTrue(frappe.get_single("Configurações DataJud").circuito_aberto)
+		notificar.assert_called_once()
+
 	def test_abre_apos_5_falhas_seguidas_de_indisponibilidade_com_backoff(self):
 		config = self._config_zerada()
 		with patch.object(datajud, "_notificar_administradores"):
