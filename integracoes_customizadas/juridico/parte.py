@@ -3,6 +3,7 @@
 import frappe
 from busca_cnpj.cnpj import validar_cpf
 from frappe import _
+from pypika import Field
 from pypika.functions import Replace
 
 
@@ -16,7 +17,7 @@ def _employee_por_cpf(cpf: str, campo: str) -> str | None:
 	if not validar_cpf(digitos):
 		return None
 	employee = frappe.qb.DocType("Employee")
-	cpf_somente_digitos = Replace(Replace(Replace(employee.field(campo), ".", ""), "-", ""), " ", "")
+	cpf_somente_digitos = Replace(Replace(Replace(Field(campo, table=employee), ".", ""), "-", ""), " ", "")
 	encontrados = (
 		frappe.qb.from_(employee).select(employee.name).where(cpf_somente_digitos == digitos).limit(2).run()
 	)

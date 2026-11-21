@@ -966,12 +966,16 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 
 		if not frappe.get_meta("Employee").has_field("custom_cpf"):
 			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
-		unico = self._employee("Cpf Pontuado", "529.982.247-25")
-		self.assertEqual(_employee_por_cpf("52998224725", "custom_cpf"), unico.name)
-		self.assertEqual(_employee_por_cpf("529.982.247-25", "custom_cpf"), unico.name)
+		unico = self._employee("Cpf Pontuado", "390.533.447-05")
+		self.addCleanup(frappe.delete_doc, "Employee", unico.name, force=True)
+		self.assertEqual(_employee_por_cpf("39053344705", "custom_cpf"), unico.name)
+		self.assertEqual(_employee_por_cpf("390.533.447-05", "custom_cpf"), unico.name)
 		self.assertIsNone(_employee_por_cpf("11111111111", "custom_cpf"))
-		self._employee("Cpf Duplicado", "52998224725")
-		self.assertIsNone(_employee_por_cpf("52998224725", "custom_cpf"))
+		# O rh_brasil impede o cadastro duplicado; a ambiguidade (ex.: recontratação) é forçada direto no banco.
+		duplicado = self._employee("Cpf Duplicado")
+		self.addCleanup(frappe.delete_doc, "Employee", duplicado.name, force=True)
+		frappe.db.set_value("Employee", duplicado.name, "custom_cpf", "39053344705")
+		self.assertIsNone(_employee_por_cpf("39053344705", "custom_cpf"))
 
 	def test_relatorio_filtra_por_qualquer_parte_e_lista_outras(self):
 		from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import execute
