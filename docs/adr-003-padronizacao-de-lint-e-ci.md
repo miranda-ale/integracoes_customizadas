@@ -18,7 +18,7 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
    `ci.yml` coerentes), a executar na migração. O `ci.yml` passou a rodar Python 3.12 (antes 3.14), para refletir a
    produção: o 3.14 é incompatível com o Frappe v15 (o freezegun quebra na coleta de testes com
    `AttributeError: module 'uuid' has no attribute '_load_system_functions'`).
-2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` do CLM, **acrescida** de `UP030`, `UP031`, `UP032`, `UP037` e `UP040` (ver decisão 13).
+2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` do CLM, sem ignores adicionais de `UP` (ver decisão 13).
 3. **pyupgrade coberto pela regra `UP` do ruff**, sem hook separado.
 4. **F401 NÃO é ignorado**: imports mortos foram removidos; reexportações/efeito colateral são mantidos com
    `# noqa: F401  # <motivo>`. Strings visíveis ao usuário com caractere unicode ambíguo (ex.: travessão) recebem
@@ -38,15 +38,27 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     então a cobertura é pequena (ver Pendências).
 11. **commitlint mantido** e `pre-commit install` documentado em `AGENTS.md`.
 12. **Sem tag e sem mudança de `__version__`** nesta padronização.
-13. **Ignores `UP030/031/032/037/040` restaurados** (existiam antes do alinhamento ao CLM). `UP032` convertia
-    `"...".format(conditions=...)` em f-string nas consultas SQL dos relatórios de Provas
-    (`candidatos_por_etapa`, `candidatos_por_status`, `comparativo_entre_editais`), o que o semgrep
-    (`frappe-sql-format-injection`, diff-aware) passou a tratar como código novo. As três consultas voltaram ao
-    `.format(conditions=...)` original; `conditions` é montado só com fragmentos fixos e os valores vão por
-    parâmetros nomeados. Sem `# nosemgrep`.
+13. **Consultas SQL de Provas: f-string da `main` mantida, com `# nosemgrep: frappe-sql-format-injection`.**
+    As três consultas (`candidatos_por_etapa`, `candidatos_por_status`, `comparativo_entre_editais`) seguem como na
+    `main` (f-string, que o `ruff --fix` do UP032 produziu). Verificado que `conditions` é montado só com fragmentos
+    constantes (`" AND e.name = %(edital)s"` etc.) e que todos os valores vão por parâmetros nomeados, sem
+    interpolar entrada do usuário; por isso o achado é falso positivo e é suprimido, com comentário de
+    justificativa, na linha imediatamente anterior à chamada. Alternativa descartada: voltar ao
+    `.format(conditions=...)` e restaurar os ignores `UP030/031/032/037/040`. A premissa de que o `.format` evitaria
+    o semgrep era falsa: a regra detecta `.format()` e f-string igualmente, e a reversão só aumentaria o diff contra
+    a `main` e enfraqueceria o ruff. Os ignores `UP` extras, portanto, **não** foram restaurados.
 14. **`get_open_count` (`juridico/dashboard.py`) com `items: str | list | None = None`**, exigido pela regra
     `missing-argument-type-hint`. Validado contra `frappe.utils.typing_validations` (v15): `None`, string JSON e
     lista passam; `dict` e `int` são rejeitados.
+
+15. **CI: stubs de DocTypes inexistentes no setup de teste.** Os Custom Fields de `Employee` e `Designation` em
+    `fixtures/custom_field.json` apontam para os DocTypes `Municipios` (`Employee-custom_naturalidade_cidade`), `CBO`
+    (`Designation-custom_cbo`) e `Dependentes` (`Employee-custom_dependentes`), que não existem em nenhum app do
+    grupo (provavelmente criados à mão em produção). Sem eles, a criação dos test records do hrms falha com
+    `WrongOptionsDoctypeLinkError`. O passo "Run Tests" do `ci.yml` chama
+    `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem hook, só em teste). **A
+    instalação limpa do app depende desses DocTypes, que não estão no app**: tarefa de produto separada (criá-los
+    no app ou remover/condicionar os campos).
 
 ## Consequências
 

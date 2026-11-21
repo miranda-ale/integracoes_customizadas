@@ -113,6 +113,8 @@ jobs:
           bench --site test_site set-config allow_tests true
           # o before_tests do ERPNext (setup wizard de teste) não roda com --app de outro app
           bench --site test_site execute erpnext.setup.utils.before_tests
+          # os Custom Fields do fixture apontam para DocTypes que só existem em produção (Municipios, CBO, Dependentes)
+          bench --site test_site execute integracoes_customizadas.tests.site_setup.criar_doctypes_stub
           bench --site test_site run-tests --app integracoes_customizadas
         env:
           TYPE: server
