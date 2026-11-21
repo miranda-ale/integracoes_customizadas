@@ -3,6 +3,8 @@
 import json
 
 import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
 WORKSPACE = "Buying"
 CARD_LABEL = "Bionexo"
@@ -46,3 +48,40 @@ def ensure_buying_card():
 		ws.flags.ignore_links = True
 		ws.save()
 		frappe.clear_cache()
+
+
+def garantir_campos_na_instalacao():
+	"""Instalação limpa: cria o que o código da importação Bionexo usa e que, nos sites antigos, vem de patches.
+
+	O Frappe marca todos os patches como executados ao instalar um app, então
+	`patches/bionexo_to_request_for_quotation.py` nunca roda num site novo e a RFQ ficaria sem `custom_id_bionexo`
+	(a consulta da importação falharia com coluna inexistente). Roda só no `after_install` e com `update=False`:
+	nunca altera um campo que já exista, então não tem efeito em sites de produção.
+	"""
+	create_custom_fields(
+		{
+			"Request for Quotation": [
+				{
+					"fieldname": "custom_id_bionexo",
+					"label": "ID Bionexo",
+					"fieldtype": "Data",
+					"insert_after": "custom_tipo_de_contratacao",
+				},
+				{
+					"fieldname": "custom_link_bionexo",
+					"label": "Link Bionexo",
+					"fieldtype": "Data",
+					"options": "URL",
+					"insert_after": "custom_id_bionexo",
+				},
+			],
+			"Item": [{"fieldname": "custom_código_bionexo", "label": "Código Bionexo", "fieldtype": "Data"}],
+		},
+		update=False,
+	)
+	# Mesmo efeito dos patches `bionexo_to_request_for_quotation` e `rfq_suppliers_allow_on_submit`.
+	make_property_setter("Request for Quotation", "suppliers", "reqd", 0, "Check")
+	make_property_setter("Request for Quotation", "suppliers", "allow_on_submit", 1, "Check")
+	for fieldname in ("supplier_name", "email_id"):
+		make_property_setter("Request for Quotation Supplier", fieldname, "allow_on_submit", 1, "Check")
+	frappe.clear_cache()

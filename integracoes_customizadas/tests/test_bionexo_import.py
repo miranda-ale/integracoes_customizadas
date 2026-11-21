@@ -10,6 +10,7 @@ from integracoes_customizadas.bionexo.importacao import (
 	rfq_por_material_request,
 	vinculos_da_rfq,
 )
+from integracoes_customizadas.normalizacao.maiusculas import normalizar
 
 MODULO = "integracoes_customizadas.integracoes_customizadas.doctype.importacao_bionexo.importacao_bionexo"
 PARSER = f"{MODULO}.parse_relatorio"
@@ -27,6 +28,9 @@ def cnpj(base12: str) -> str:
 
 
 CNPJ_ALFA, CNPJ_BETA, CNPJ_GAMA = cnpj("910000010001"), cnpj("910000020001"), cnpj("910000030001")
+# O hook de normalização grava nomes de cadastro em caixa alta; o Supplier nasce com o nome já normalizado.
+FORNECEDOR_ALFA = normalizar("_TST Alfa Distribuidora")
+FORNECEDOR_BETA = normalizar("_TST Beta Hospitalar")
 
 
 def resposta(nome_linhas, qty, rate, total, status, extra=""):
@@ -241,7 +245,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 			cls.itens.append(codigo)
 		frappe.db.set_value("Item", "_TST-BNX-B", "custom_código_bionexo", "BNX-COD-B")
 
-		for nome, numero in (("_TST Alfa Distribuidora", CNPJ_ALFA), ("_TST Beta Hospitalar", CNPJ_BETA)):
+		for nome, numero in ((FORNECEDOR_ALFA, CNPJ_ALFA), (FORNECEDOR_BETA, CNPJ_BETA)):
 			if not frappe.db.exists("Supplier", nome):
 				frappe.get_doc({"doctype": "Supplier", "supplier_name": nome, "tax_id": numero}).insert()
 
@@ -300,7 +304,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 			[("_TST-BNX-A", "Identificado"), ("_TST-BNX-B", "Identificado"), (None, "Não identificado")],
 		)
 		situacoes = {f.cnpj: (f.supplier, f.situacao) for f in doc.fornecedores}
-		self.assertEqual(situacoes[CNPJ_ALFA], ("_TST Alfa Distribuidora", "Encontrado"))
+		self.assertEqual(situacoes[CNPJ_ALFA], (FORNECEDOR_ALFA, "Encontrado"))
 		self.assertEqual(situacoes[CNPJ_GAMA], (None, "Não cadastrado"))
 		self.assertEqual(doc.status, "Pendências")
 		with self.assertRaises(frappe.ValidationError):
@@ -343,8 +347,8 @@ class TestImportacaoBionexo(FrappeTestCase):
 			self.assertTrue(all(i.request_for_quotation == self.rfq for i in orcamento.items))
 
 		ordens = {c.supplier: c.purchase_order for c in doc.cotacoes if c.purchase_order}
-		self.assertEqual(set(ordens), {"_TST Alfa Distribuidora", "_TST Beta Hospitalar"})
-		beta = frappe.get_doc("Purchase Order", ordens["_TST Beta Hospitalar"])
+		self.assertEqual(set(ordens), {FORNECEDOR_ALFA, FORNECEDOR_BETA})
+		beta = frappe.get_doc("Purchase Order", ordens[FORNECEDOR_BETA])
 		self.assertEqual(beta.docstatus, 0)
 		# Data da OC = confirmação mais recente no Bionexo entre os itens do fornecedor (B 20/10, C 21/10)
 		self.assertEqual(str(beta.transaction_date), "2026-10-21")
@@ -373,7 +377,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 		doc.submit()
 
 		fornecedores = {c.supplier for c in doc.cotacoes if c.supplier_quotation}
-		self.assertEqual(fornecedores, {"_TST Alfa Distribuidora", "_TST Beta Hospitalar"})
+		self.assertEqual(fornecedores, {FORNECEDOR_ALFA, FORNECEDOR_BETA})
 		itens = {
 			c.supplier: sorted(
 				i.item_code for i in frappe.get_doc("Supplier Quotation", c.supplier_quotation).items
@@ -381,8 +385,8 @@ class TestImportacaoBionexo(FrappeTestCase):
 			for c in doc.cotacoes
 			if c.supplier_quotation
 		}
-		self.assertEqual(itens["_TST Alfa Distribuidora"], ["_TST-BNX-A"])
-		self.assertEqual(itens["_TST Beta Hospitalar"], ["_TST-BNX-B", "_TST-BNX-C"])
+		self.assertEqual(itens[FORNECEDOR_ALFA], ["_TST-BNX-A"])
+		self.assertEqual(itens[FORNECEDOR_BETA], ["_TST-BNX-B", "_TST-BNX-C"])
 
 	def test_gera_pedido_de_cotacao_quando_a_solicitacao_nao_tem(self):
 		mr = frappe.get_doc(
@@ -421,7 +425,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 		self.assertEqual(sorted(i.item_code for i in rfq.items), sorted(self.itens))
 		self.assertEqual(
 			sorted(s.supplier for s in rfq.suppliers),
-			["_TST Alfa Distribuidora", "_TST Beta Hospitalar"],
+			[FORNECEDOR_ALFA, FORNECEDOR_BETA],
 		)
 		self.assertTrue(all(c.rfq_item for c in doc.cotacoes))
 
