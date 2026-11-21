@@ -56,7 +56,9 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     (`Designation-custom_cbo`) e `Dependentes` (`Employee-custom_dependentes`), que não existem em nenhum app do
     grupo (provavelmente criados à mão em produção). Sem eles, a criação dos test records do hrms falha com
     `WrongOptionsDoctypeLinkError`. O passo "Run Tests" do `ci.yml` chama
-    `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem hook, só em teste). **A
+    `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem hook, só em teste; stubs no
+    módulo `Custom`, que não é do app). O mesmo script cria o Custom Field `Item.custom_código_bionexo`, usado por
+    `importacao_bionexo.py` e também ausente de fixtures/patches. **A
     instalação limpa do app depende desses DocTypes, que não estão no app**: tarefa de produto separada (criá-los
     no app ou remover/condicionar os campos).
 
