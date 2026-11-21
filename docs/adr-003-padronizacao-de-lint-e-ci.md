@@ -13,10 +13,11 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 ## Decisão
 
 1. **Python: mínimo 3.11 mantido** (`target-version = "py311"`, `requires-python = ">=3.11"`, `linter.yml` em 3.11),
-   por restrição de produção: as imagens de produção/homologação rodam Python 3.11 ou 3.12 (versão exata a
-   confirmar). **Alvo de migração ao Frappe v16: `>=3.13`** (`target-version = "py313"`, `requires-python = ">=3.13"`,
-   `linter.yml` e `ci.yml` coerentes), a executar na migração. **Risco registrado:** o `ci.yml` roda Python 3.14,
-   que não reflete a produção (3.11/3.12); o CI pode aprovar código incompatível com as imagens atuais.
+   por restrição de produção: as imagens de produção/homologação estão confirmadas em Python 3.12. **Alvo de
+   migração ao Frappe v16: `>=3.13`** (`target-version = "py313"`, `requires-python = ">=3.13"`, `linter.yml` e
+   `ci.yml` coerentes), a executar na migração. O `ci.yml` passou a rodar Python 3.12 (antes 3.14), para refletir a
+   produção: o 3.14 é incompatível com o Frappe v15 (o freezegun quebra na coleta de testes com
+   `AttributeError: module 'uuid' has no attribute '_load_system_functions'`).
 2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` do CLM, **acrescida** de `UP030`, `UP031`, `UP032`, `UP037` e `UP040` (ver decisão 13).
 3. **pyupgrade coberto pela regra `UP` do ruff**, sem hook separado.
 4. **F401 NÃO é ignorado**: imports mortos foram removidos; reexportações/efeito colateral são mantidos com
@@ -70,6 +71,5 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 ## Pendências
 
 - Atualizar prettier (2.7.1) e eslint (8.44.0) na preparação para v16/v17.
-- Migrar o alvo Python para `>=3.13` na migração ao v16 e confirmar a versão exata das imagens de produção (3.11/3.12).
-- Alinhar o Python do `ci.yml` (3.14) à produção, ou registrar a divergência como aceita.
+- Migrar o alvo Python para `>=3.13` na migração ao v16 (produção/homologação hoje em Python 3.12).
 - Ampliar o pip-audit para cobrir as dependências `erpnext`/`hrms` (hoje comentadas no `pyproject`).
