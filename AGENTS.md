@@ -11,3 +11,4 @@ O restante das instruções do repositório está em `CLAUDE.md`. Regra de vers�
 
 - Rode `pre-commit install` uma vez após clonar o repositório.
 - O CI (`.github/workflows/linter.yml`) executa pre-commit, semgrep e pip-audit.
+- Decisões de padronização de lint e CI: [docs/adr-003-padronizacao-de-lint-e-ci.md](docs/adr-003-padronizacao-de-lint-e-ci.md).
