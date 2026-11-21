@@ -216,7 +216,7 @@ check) and the pending patches.
 ```text
 integracoes_customizadas/
 ├── whatsapp/        # api, conector, distribuidor, roteador, modelos, delivery, notification, setup, webhook
-├── juridico/        # datajud, parte, agenda, indicadores, relatorios, dashboard, setup, DocTypes, reports, workspace
+├── juridico/        # datajud, party, agenda_alerts, indicators, report_helpers, dashboard, setup, DocTypes, reports, workspace
 ├── provas/          # DocTypes, reports, print formats
 ├── bionexo/         # export_xml · import_pdf (PDF reading) · importacao · setup
 ├── procurement/         # receipt (NF) · process_view (stages) · workspaces · setup
