@@ -6,3 +6,8 @@ O restante das instruções do repositório está em `CLAUDE.md`. Regra de vers�
   dentro dele: com a `main` em `vX.Y.Z`, a feature nasce em `v(X+1).0.0` e segue `v(X+1).0.1`, `v(X+1).1.0`...
   enquanto estiver na branch. Se a `main` subir de major, a feature sobe junto. Confira a versão da `main`
   (`git show main:integracoes_customizadas/__init__.py`) e `git tag` antes de tagear, e não reutilize número existente.
+
+## Lint e pre-commit
+
+- Rode `pre-commit install` uma vez após clonar o repositório.
+- O CI (`.github/workflows/linter.yml`) executa pre-commit, semgrep e pip-audit.
