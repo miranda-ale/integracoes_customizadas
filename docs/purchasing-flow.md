@@ -1,90 +1,89 @@
-# Fluxo de compras de materiais: recebimento, Nota Fiscal e etapas
+# Materials purchasing flow: receipt, Nota Fiscal (tax invoice) and stages
 
-## Ciclo no ERPNext
+## ERPNext cycle
 
 `Material Request → (Request for Quotation → Supplier Quotation) → Purchase Order → Purchase Receipt → Purchase Invoice`
 
-Cotação (RFQ e Supplier Quotation) é opcional. Os vínculos ficam nas linhas dos itens (`material_request`,
-`supplier_quotation`, `purchase_order`, `purchase_receipt`); o Pedido de Compra acompanha `per_received` e
-`per_billed`. Compra de serviços segue a cadeia própria do `clm` e não passa por aqui.
+Quotation (RFQ and Supplier Quotation) is optional. The links live in the item rows (`material_request`,
+`supplier_quotation`, `purchase_order`, `purchase_receipt`); the Purchase Order tracks `per_received` and
+`per_billed`. Services purchasing follows the dedicated `clm` chain and does not go through here.
 
-## Fluxo da BHCL
+## Client flow
 
-1. **Compras** fecha o Pedido de Compra.
-2. A **unidade** abre o relatório **Pedidos a Receber** (atalho nos workspaces Compras e Estoque).
-   Só aparecem pedidos submetidos, não recebidos por completo, com ao menos um item de estoque e dentro dos
-   *User Permissions* do usuário (Company/Warehouse). *Receber* abre um Recebimento de Compra já preenchido.
-3. No recebimento a unidade confere as quantidades e preenche a seção **Nota Fiscal do Fornecedor**: número, série,
-   chave de acesso, data, valor e anexo. A chave é validada (44 posições e dígito verificador, inclusive CNPJ
-   alfanumérico) e preenche número e série. Os campos podem ser preenchidos depois de submeter.
-4. **Compras/Financeiro** abre **Recebidos a Faturar**: recebimentos submetidos ainda não faturados, com a NF
-   informada, a diferença para o valor recebido e o botão *Criar Fatura*. A Purchase Invoice herda `bill_no` e
-   `bill_date` do recebimento (se houver um único recebimento de origem).
+1. **Purchasing** closes the Purchase Order.
+2. The **unit** opens the **Pedidos a Receber** (orders to receive) report (shortcut in the Purchasing and Stock
+   workspaces). Only orders that are submitted, not fully received, with at least one stock item and within the
+   user's *User Permissions* (Company/Warehouse) appear. *Receive* opens a pre-filled Purchase Receipt.
+3. On receipt the unit checks the quantities and fills the **Supplier Nota Fiscal** section: number, series, access
+   key, date, amount and attachment. The key is validated (44 positions and check digit, including the alphanumeric
+   CNPJ) and fills number and series. The fields can be filled after submitting.
+4. **Purchasing/Finance** opens **Recebidos a Faturar** (received, to be invoiced): submitted receipts not yet invoiced,
+   with the NF informed, the difference to the received amount and the *Create Invoice* button. The Purchase
+   Invoice inherits `bill_no` and `bill_date` from the receipt (if there is a single source receipt).
 
-Avisos (nunca bloqueiam): número divergente da chave, CNPJ do emitente diferente do fornecedor (só quando o
-`tax_id` tem 14 caracteres), valor da NF diferente do recebido (tolerância: o maior entre R$ 1,00 e 0,5%).
+Warnings (never blocking): number different from the key, issuer CNPJ different from the supplier (only when
+`tax_id` has 14 characters), NF amount different from the received one (tolerance: the greater of R$ 1.00 and 0.5%).
 
-## Permissões
+## Permissions
 
-Não há papel novo. O `Stock User` já cria e submete Purchase Receipt e lê Purchase Order; **não** acessa Purchase
-Invoice. Não foi criado *Custom DocPerm* aqui porque os papéis padrão de Compras/Estoque já são os "donos" dos
-DocTypes da cadeia; não é por `Custom DocPerm` substituir permissões padrão — ele é **aditivo** (soma uma linha
-de permissão, não substitui nem remove as existentes de outros papéis), como mostra o precedente do `clm`
-(ADR-006, `docs/adr-006-leitura-minima-em-doctypes-vinculados.md` naquele repositório) e como este app agora
-também documenta em [docs/adr-001-leitura-minima-em-doctypes-vinculados.md](adr-001-leitura-minima-em-doctypes-vinculados.md).
-Cada unidade fica restrita à sua Company/Warehouse por *User Permission*. Relatórios: *Pedidos a Receber* para Stock
-User/Manager e Purchase User/Manager; *Recebidos a Faturar* para Purchase e Accounts User/Manager.
+There is no new role. `Stock User` already creates and submits Purchase Receipt and reads Purchase Order; it does
+**not** access Purchase Invoice. No *Custom DocPerm* was created here because the standard Purchasing/Stock roles are
+already the "owners" of the chain DocTypes; the reason is not that `Custom DocPerm` replaces standard permissions --
+it is **additive** (it adds a permission row, it does not replace or remove the existing ones of other roles), as the
+`clm` precedent shows (ADR-006, `docs/adr-006-leitura-minima-em-doctypes-vinculados.md` in that repository) and as
+this app now also documents in [docs/adr-001-minimal-read-on-linked-doctypes.md](adr-001-minimal-read-on-linked-doctypes.md).
+Each unit is restricted to its Company/Warehouse by *User Permission*. Reports: *Pedidos a Receber* for Stock
+User/Manager and Purchase User/Manager; *Recebidos a Faturar* for Purchase and Accounts User/Manager.
 
-## Etapas do processo
+## Process stages
 
-Barra recolhível no topo de Material Request (tipo Purchase), RFQ, Supplier Quotation, Purchase Order, Purchase
-Receipt e Purchase Invoice, no mesmo padrão do `clm` (`clm_process_steps`). Seis nós: Solicitação de Compras, **Pedido de
-Cotação** e **Cotação do Fornecedor** (os dois dentro de um contorno tracejado "Cotação · opcional", pois a compra
-pode seguir direto da Solicitação para a Ordem), Ordem de Compra, Recebimento de Compra e Nota Fiscal de Compra (mesmos
-nomes usados no resto do sistema).
+Collapsible bar at the top of Material Request (Purchase type), RFQ, Supplier Quotation, Purchase Order, Purchase
+Receipt and Purchase Invoice, in the same pattern as `clm` (`clm_process_steps`). Six nodes: Purchase Request,
+**Request for Quotation** and **Supplier Quotation** (both inside a dashed outline "Quotation · optional", since the
+purchase can go straight from the Request to the Order), Purchase Order, Purchase Receipt and Purchase Invoice (same
+names used in the rest of the system).
 
-- `compras/process_view.py`: `get_purchase_steps(doctype, name)` descobre a cadeia pelos vínculos dos itens (até 150
-  documentos), ignorando permissões, e marca como `restricted` o que o usuário não lê (só entra na contagem). Por
-  isso a unidade vê a fatura como etapa existente sem ter acesso a ela.
-- Status: `ok`, `pending`, `warn`, `none`. Alertas: entrega atrasada (`schedule_date`), recebimento parcial,
-  recebido sem NF, valor da NF divergente, recebimento aguardando fatura. Cancelados são ignorados.
-- A lista de etapas existe em Python (`STAGES`) e em JS (`compras.steps.STEPS`): mantenha as duas iguais.
-- Front-end: `public/js/compras_steps.js` e `public/css/compras_steps.css` (carregados por `app_include_*`;
-  incremente o `?v=` do `hooks.py` a cada mudança).
+- `compras/process_view.py`: `get_purchase_steps(doctype, name)` discovers the chain through the item links (up to
+  150 documents), ignoring permissions, and marks as `restricted` what the user cannot read (it only enters the
+  count). That is why the unit sees the invoice as an existing stage without having access to it.
+- Status: `ok`, `pending`, `warn`, `none`. Alerts: late delivery (`schedule_date`), partial receipt, received without
+  NF, NF amount mismatch, receipt awaiting invoice. Cancelled documents are ignored.
+- The stage list exists in Python (`STAGES`) and in JS (`compras.steps.STEPS`): keep both equal.
+- Front end: `public/js/compras_steps.js` and `public/css/compras_steps.css` (loaded by `app_include_*`; bump the
+  `?v=` in `hooks.py` on every change).
 
-## Formulário do Recebimento de Compra
+## Purchase Receipt form
 
-`compras/setup.py` (`after_migrate`, idempotente) cria os Custom Fields `custom_compras_nf_*` e deixa recolhidas
-por padrão as seções de impostos do Recebimento (*Impostos e Taxas* e *Detalhamento de Impostos e Taxas*), do Pedido
-e da Fatura de Compra (*Impostos e Taxas*), como *Desconto Adicional*. Rótulos em inglês de toda a cadeia
-(MR, RFQ, SQ, PO, PR, PI e itens) foram traduzidos em `bhcl_theme/translations/pt*.csv`; o cliente busca a chave
-exata (inclusive espaço no fim, como em `"Accounting Dimensions "`), e `tests/test_traducoes_compras.py` avisa
-quando um rótulo novo aparece sem tradução.
+`compras/setup.py` (`after_migrate`, idempotent) creates the `custom_compras_nf_*` Custom Fields and leaves the tax
+sections of the Receipt (*Taxes and Charges* and *Tax Breakup*), of the Order and of the Purchase Invoice (*Taxes and
+Charges*) collapsed by default, like *Additional Discount*. English labels of the whole chain (MR, RFQ, SQ, PO, PR,
+PI and items) were translated in `bhcl_theme/translations/pt*.csv`; the client looks up the exact key (including a
+trailing space, as in `"Accounting Dimensions "`), and `tests/test_traducoes_compras.py` warns when a new label
+appears without translation.
 
-## Workspaces Compras e Estoque
+## Purchasing and Stock workspaces
 
-O layout dos dois workspaces é definido em `compras/workspaces.py` (`LAYOUTS`) e reaplicado a cada `migrate`; ajustes
-feitos pela tela nesses dois workspaces são sobrescritos. Para mudar, edite `LAYOUTS`. A função só salva quando algo
-mudou, e alvos inexistentes (ex.: relatório removido do ERPNext) são ignorados.
+The layout of both workspaces is defined in `compras/workspaces.py` (`LAYOUTS`) and reapplied on every `migrate`;
+adjustments made through the UI in these two workspaces are overwritten. To change it, edit `LAYOUTS`. The function
+only saves when something changed, and nonexistent targets (e.g. a report removed from ERPNext) are ignored.
 
-- **Compras** (time de compras): atalhos na ordem do fluxo (Solicitação → Pedido de Cotação → Cotação → Ordem →
-  Pedidos a Receber → Recebimento → Recebidos a Faturar → Nota Fiscal), com contadores sem filtro de empresa (respeitam
-  as User Permissions), e os cards Fluxo de compras, Bionexo, Cadastros (Fornecedor, Item, Lista de Preços),
-  Relatórios e Configurações.
-- **Estoque** (almoxarifado): atalhos Pedidos a Receber, Recebimento, Movimento de Estoque, Saldo, Solicitação e
-  Item; cards Fluxo do recebimento e estoque, Consultas, Cadastros (só Item) e Configurações. Sem cartões numéricos
-  nem gráfico.
-- Cada workspace abre com um card do seu fluxo, numerado (num teste de uso, as pessoas não notavam os atalhos, só os
-  cards). Em Compras, **Fluxo de compras**: 1. Solicitação de Compras … 8. Nota Fiscal de Compra. Em Estoque,
-  **Fluxo do recebimento e estoque**: 1. Pedidos a Receber, 2. Recebimento de Compra, 3. Movimento de Estoque,
-  4. Saldo de Estoque, 5. Solicitação de Compras (reposição). Cada usuário vê só os links que pode ler.
-- Saíram as funções sem uso no site (0 registros em out/2026: Delivery Note, Pick List, Serial No, Scorecard,
-  Product Bundle, Pricing Rule, Quality Inspection, Landed Cost etc.), os atalhos Learn/Dashboard e a cópia antiga
-  em inglês dos links. Cópia do estado anterior: dump do `Workspace` antes da mudança (não versionado).
-- Um card só aparece com os links que o usuário pode ler; Configurações some para quem só tem Stock User.
-- As unidades com o módulo Compras ou Estoque bloqueado pelo Perfil de Módulos continuam sem ver esses workspaces.
+- **Purchasing** (purchasing team): shortcuts in flow order (Request → Request for Quotation → Quotation → Order →
+  Pedidos a Receber → Receipt → Recebidos a Faturar → Invoice), with counters without a company filter (they respect
+  User Permissions), and the cards Purchasing flow, Bionexo, Masters (Supplier, Item, Price List), Reports and
+  Settings.
+- **Stock** (warehouse): shortcuts Pedidos a Receber, Receipt, Stock Entry, Stock Balance, Request and Item; cards
+  Receiving and stock flow, Queries, Masters (Item only) and Settings. No number cards or chart.
+- Each workspace opens with a numbered card of its flow (in a usage test, people did not notice the shortcuts, only
+  the cards). In Purchasing, **Purchasing flow**: 1. Purchase Request ... 8. Purchase Invoice. In Stock,
+  **Receiving and stock flow**: 1. Pedidos a Receber, 2. Purchase Receipt, 3. Stock Entry, 4. Stock Balance,
+  5. Purchase Request (replenishment). Each user sees only the links they can read.
+- Removed: functions unused on the site (0 records in Oct/2026: Delivery Note, Pick List, Serial No, Scorecard,
+  Product Bundle, Pricing Rule, Quality Inspection, Landed Cost, etc.), the Learn/Dashboard shortcuts and the old
+  English copy of the links. Copy of the previous state: `Workspace` dump before the change (not versioned).
+- A card only appears with the links the user can read; Settings disappears for those who only have Stock User.
+- Units with the Purchasing or Stock module blocked by the Module Profile still do not see these workspaces.
 
-## Testes
+## Tests
 
 `bench --site dev run-tests --app integracoes_customizadas --module integracoes_customizadas.tests.test_compras_process`
-(e `test_workspaces_compras`, `test_traducoes_compras`)
+(and `test_workspaces_compras`, `test_traducoes_compras`)

@@ -1,192 +1,192 @@
-# Módulo de Provas e Gestão de Processos Seletivos
+# Exams module and recruitment process management
 
-**Versão:** 0.1.0  
+**Version:** 0.1.0  
 **App:** integracoes_customizadas  
-**Módulo:** Provas
+**Module:** Provas (Exams)
 
-## Visão Geral
+## Overview
 
-O módulo de Provas é uma extensão para o ERPNext/HRMS que permite a gestão completa de processos seletivos, incluindo:
+The Exams module ("Provas") is an ERPNext/HRMS extension that allows complete management of recruitment processes ("processos seletivos"), including:
 
-- Banco de questões organizado por disciplinas
-- Geração automática de provas
-- Gestão de editais de processos seletivos
-- Acompanhamento de candidatos por etapas
-- Relatórios gerenciais
-- Integração com os DocTypes padrão do HRMS (Job Applicant, Job Opening, Interview, Interview Round)
+- Question bank organized by subjects ("disciplinas")
+- Automatic exam generation
+- Management of recruitment notices ("editais", the public notice that opens a selection process)
+- Candidate tracking by stage
+- Management reports
+- Integration with the standard HRMS DocTypes (Job Applicant, Job Opening, Interview, Interview Round)
 
 ---
 
 ## DocTypes
 
-### 1. Disciplina
+### 1. Disciplina (Subject)
 
-Categoriza as questões por área de conhecimento.
+Categorizes questions by knowledge area.
 
-**Campos principais:**
-- `titulo`: Nome da disciplina
-- `aplicavel_a_todos`: Se marcado, questões desta disciplina podem ser aplicadas a qualquer cargo
-- `designations`: Lista de cargos aos quais a disciplina se aplica (quando não aplicável a todos)
-
----
-
-### 2. Questão
-
-Banco de questões para composição das provas.
-
-**Campos principais:**
-- `enunciado`: Texto da questão
-- `disciplina`: Link para Disciplina
-- `nivel_dificuldade`: Fácil, Médio ou Difícil
-- `designations`: Cargos aos quais a questão se aplica (opcional se disciplina for aplicável a todos)
-- `alternativas`: Tabela de alternativas com indicação da correta
-
-**Funcionalidades:**
-- Validação dinâmica: campo `designations` é opcional quando a disciplina é aplicável a todos os cargos
+**Main fields:**
+- `titulo`: Subject name
+- `aplicavel_a_todos`: If checked, questions of this subject can be applied to any position
+- `designations`: List of positions the subject applies to (when not applicable to all)
 
 ---
 
-### 3. Prova
+### 2. Questão (Question)
 
-Conjunto de questões vinculado a um Edital.
+Question bank used to compose the exams.
 
-**Campos principais:**
-- `titulo`: Nome da prova
-- `edital`: Link para o Edital (obrigatório)
-- `designation`: Cargo (preenchido automaticamente do Edital)
-- `data_aplicacao`: Data de aplicação
-- `duracao_minutos`: Tempo de duração
-- `questoes`: Tabela de questões selecionadas
-- `status`: Rascunho, Publicada, Aplicada, Encerrada
+**Main fields:**
+- `enunciado`: Question text
+- `disciplina`: Link to Disciplina
+- `nivel_dificuldade`: Easy, Medium or Hard
+- `designations`: Positions the question applies to (optional if the subject applies to all)
+- `alternativas`: Table of alternatives with the correct one marked
 
-**Funcionalidades:**
-- **Seleção de Questões via Dialog**: Popup com preview do conteúdo para facilitar a seleção
-- **Gerador Automático de Provas**: Define disciplinas, quantidade e dificuldade para seleção automática
+**Features:**
+- Dynamic validation: the `designations` field is optional when the subject applies to all positions
 
 ---
 
-### 4. Edital
+### 3. Prova (Exam)
 
-DocType central para gestão de processos seletivos.
+Set of questions linked to an Edital.
 
-**Campos principais:**
-- `titulo`: Nome do edital
-- `numero_edital`: Numeração oficial
-- `job_opening`: Vaga vinculada (Link para Job Opening)
-- `designation`: Cargo (preenchido automaticamente da vaga)
-- `data_publicacao`: Data de publicação
-- `data_inicio_inscricoes` / `data_fim_inscricoes`: Período de inscrições
-- `etapas`: Tabela de etapas do processo (Interview Rounds)
-- `candidatos`: Tabela de candidatos inscritos
+**Main fields:**
+- `titulo`: Exam name
+- `edital`: Link to the Edital (required)
+- `designation`: Position (filled automatically from the Edital)
+- `data_aplicacao`: Application date
+- `duracao_minutos`: Duration
+- `questoes`: Table of selected questions
+- `status`: Draft, Published, Applied, Closed (stored in pt-BR)
 
-**Funcionalidades:**
+**Features:**
+- **Question selection via Dialog**: popup with a content preview to ease selection
+- **Automatic exam generator**: define subjects, quantity and difficulty for automatic selection
 
-#### Importação de Candidatos
-- Importa candidatos da vaga selecionada
-- Funciona mesmo em formulários novos (não salvos)
-- Filtra automaticamente candidatos pela vaga
+---
 
-#### Gestão de Etapas
-- Etapas vinculadas a Interview Rounds
-- Ordem automática baseada na posição na tabela
-- Campos de data/hora prevista para cada etapa
+### 4. Edital (Recruitment notice)
 
-#### Avançar Candidatos
-- Seleção em lote de candidatos
-- Move para próxima etapa com um clique
-- Cria automaticamente registros de Interview
+Central DocType for recruitment process management.
 
-#### Criar Entrevistas
-- Gera Interviews para todos os candidatos de uma etapa
-- Preenche data e horário automaticamente
+**Main fields:**
+- `titulo`: Notice name
+- `numero_edital`: Official numbering
+- `job_opening`: Linked opening (Link to Job Opening)
+- `designation`: Position (filled automatically from the opening)
+- `data_publicacao`: Publication date
+- `data_inicio_inscricoes` / `data_fim_inscricoes`: Registration period
+- `etapas`: Table of process stages (Interview Rounds)
+- `candidatos`: Table of registered candidates
 
-#### Enviar E-mails
-- Notificação em lote para candidatos selecionados
+**Features:**
 
-#### Publicar no Blog
-- Gera publicação automática no blog do ERPNext
-- Inclui informações do edital formatadas
+#### Candidate import
+- Imports candidates of the selected opening
+- Works even on new (unsaved) forms
+- Automatically filters candidates by opening
+
+#### Stage management
+- Stages linked to Interview Rounds
+- Automatic order based on the position in the table
+- Planned date/time fields for each stage
+
+#### Advance candidates
+- Batch selection of candidates
+- Moves to the next stage with one click
+- Automatically creates Interview records
+
+#### Create interviews
+- Generates Interviews for all candidates of a stage
+- Fills in date and time automatically
+
+#### Send e-mails
+- Batch notification to selected candidates
+
+#### Publish to the blog
+- Generates an automatic post on the ERPNext blog
+- Includes the formatted notice information
 
 ---
 
 ### 5. Edital Etapa Item (Child Table)
 
-Etapas do processo seletivo.
+Stages of the recruitment process.
 
-**Campos:**
-- `interview_round`: Link para Interview Round
-- `data_prevista`: Data prevista
-- `hora_inicio` / `hora_fim`: Horário da etapa
-- `local`: Local de realização
-- `observacoes`: Notas adicionais
-- `ordem`: Preenchido automaticamente (idx)
+**Fields:**
+- `interview_round`: Link to Interview Round
+- `data_prevista`: Planned date
+- `hora_inicio` / `hora_fim`: Stage time
+- `local`: Venue
+- `observacoes`: Additional notes
+- `ordem`: Filled automatically (idx)
 
 ---
 
 ### 6. Edital Candidato Item (Child Table)
 
-Candidatos inscritos no edital.
+Candidates registered in the notice.
 
-**Campos:**
-- `job_applicant`: Link para Job Applicant
-- `applicant_name`: Nome do candidato
+**Fields:**
+- `job_applicant`: Link to Job Applicant
+- `applicant_name`: Candidate name
 - `email_id`: E-mail
-- `etapa_atual`: Etapa atual no processo
-- `status_candidato`: Status (Inscrito, Em Avaliação, Aprovado, Reprovado, Desistente)
+- `etapa_atual`: Current stage in the process
+- `status_candidato`: Status (Registered, Under evaluation, Approved, Rejected, Withdrawn; stored in pt-BR)
 
 ---
 
 ## Print Formats
 
 ### 1. Prova Completa
-Formato de impressão da prova com todas as questões e alternativas.
+Exam print format with all questions and alternatives.
 
 ### 2. Gabarito
-Gabarito da prova com respostas corretas.
+Answer key of the exam with the correct answers.
 
-### 3. Minuta do Edital
-Documento oficial do edital seguindo o regulamento de contratação de pessoal, incluindo:
-- Disposições gerais
-- Competências
-- Requisitos
-- Etapas do processo
-- Cronograma
-- Informações da vaga
+### 3. Minuta Edital
+Official notice document following the personnel hiring regulation, including:
+- General provisions
+- Responsibilities
+- Requirements
+- Process stages
+- Schedule
+- Opening information
 
 ---
 
-## Relatórios
+## Reports
 
 ### 1. Candidatos por Etapa
-Visualização de candidatos agrupados por etapa do processo seletivo.
+View of candidates grouped by recruitment stage.
 
-**Filtros:** Edital
+**Filters:** Edital
 
 ### 2. Candidatos por Status
-Distribuição de candidatos por status (Inscrito, Aprovado, Reprovado, etc.).
+Distribution of candidates by status (Registered, Approved, Rejected, etc.).
 
-**Filtros:** Edital  
-**Gráfico:** Pizza com distribuição por status
+**Filters:** Edital  
+**Chart:** Pie with distribution by status
 
 ### 3. Comparativo entre Editais
-Comparação de métricas entre diferentes editais.
+Comparison of metrics between different notices.
 
-**Métricas:** Total de candidatos, aprovados, reprovados, taxa de aprovação  
-**Gráfico:** Barras comparativas
+**Metrics:** Total candidates, approved, rejected, approval rate  
+**Chart:** Comparative bars
 
 ---
 
 ## Custom Fields
 
-O módulo cria automaticamente os seguintes Custom Fields nos DocTypes padrão:
+The module automatically creates the following Custom Fields on the standard DocTypes:
 
 ### Interview
-- `edital`: Link para Edital
+- `edital`: Link to Edital
 
 ### Job Applicant
-- `edital`: Link para Edital
+- `edital`: Link to Edital
 
-**Criação automática:** Os campos são criados via hook `after_migrate`, garantindo que existam após cada migração.
+**Automatic creation:** the fields are created through the `after_migrate` hook, ensuring they exist after every migration.
 
 ---
 
@@ -200,7 +200,7 @@ after_migrate = "integracoes_customizadas.provas.setup.after_migrate"
 
 ---
 
-## API / Métodos Whitelisted
+## API / Whitelisted methods
 
 ### setup.py
 
@@ -208,9 +208,9 @@ after_migrate = "integracoes_customizadas.provas.setup.after_migrate"
 @frappe.whitelist()
 def criar_custom_fields_edital()
 ```
-Cria manualmente os Custom Fields necessários para o módulo.
+Manually creates the Custom Fields the module needs.
 
-**Uso via console:**
+**Console usage:**
 ```python
 from integracoes_customizadas.provas.setup import criar_custom_fields_edital
 
@@ -223,31 +223,31 @@ criar_custom_fields_edital()
 @frappe.whitelist()
 def importar_candidatos(edital_name)
 ```
-Importa candidatos da vaga vinculada ao edital.
+Imports candidates of the opening linked to the notice.
 
 ```python
 @frappe.whitelist()
 def avancar_candidatos(edital_name, candidatos, nova_etapa)
 ```
-Move candidatos selecionados para uma nova etapa.
+Moves selected candidates to a new stage.
 
 ```python
 @frappe.whitelist()
 def criar_interviews_etapa(edital_name, etapa)
 ```
-Cria registros de Interview para candidatos de uma etapa.
+Creates Interview records for the candidates of a stage.
 
 ```python
 @frappe.whitelist()
 def enviar_emails_candidatos(edital_name, candidatos, assunto, mensagem)
 ```
-Envia e-mails para candidatos selecionados.
+Sends e-mails to selected candidates.
 
 ```python
 @frappe.whitelist()
 def gerar_publicacao_blog(edital_name)
 ```
-Gera publicação no blog com informações do edital.
+Generates a blog post with the notice information.
 
 ### prova.py
 
@@ -255,16 +255,16 @@ Gera publicação no blog com informações do edital.
 @frappe.whitelist()
 def gerar_questoes_automaticas(prova_name, config)
 ```
-Gera questões automaticamente baseado em configuração de disciplinas.
+Generates questions automatically based on a subject configuration.
 
 ---
 
-## Estrutura de Diretórios
+## Directory structure
 
 ```
 provas/
 ├── __init__.py
-├── setup.py                    # Instalação e Custom Fields
+├── setup.py                    # Installation and Custom Fields
 ├── doctype/
 │   ├── alternativa_questao/
 │   ├── disciplina/
@@ -288,48 +288,48 @@ provas/
 
 ---
 
-## Fluxo de Uso Típico
+## Typical usage flow
 
-1. **Configuração Inicial**
-   - Criar Disciplinas
-   - Cadastrar Questões no banco
+1. **Initial setup**
+   - Create Disciplinas
+   - Register Questions in the bank
 
-2. **Abertura de Processo Seletivo**
-   - Criar Job Opening (vaga)
-   - Criar Edital vinculado à vaga
-   - Definir etapas do processo (Interview Rounds)
+2. **Opening a recruitment process**
+   - Create a Job Opening
+   - Create an Edital linked to the opening
+   - Define the process stages (Interview Rounds)
 
-3. **Inscrições**
-   - Candidatos se inscrevem (Job Applicants)
-   - Importar candidatos para o Edital
+3. **Registrations**
+   - Candidates register (Job Applicants)
+   - Import candidates into the Edital
 
-4. **Aplicação de Provas**
-   - Criar Prova vinculada ao Edital
-   - Usar gerador automático ou selecionar questões manualmente
-   - Imprimir prova e gabarito
+4. **Exam application**
+   - Create a Prova linked to the Edital
+   - Use the automatic generator or select questions manually
+   - Print the exam and the answer key
 
-5. **Gestão do Processo**
-   - Avançar candidatos aprovados para próximas etapas
-   - Criar Interviews automaticamente
-   - Enviar comunicados por e-mail
+5. **Process management**
+   - Advance approved candidates to the next stages
+   - Create Interviews automatically
+   - Send e-mail announcements
 
-6. **Acompanhamento**
-   - Usar relatórios para análise
-   - Comparar editais anteriores
+6. **Follow-up**
+   - Use the reports for analysis
+   - Compare previous notices
 
 ---
 
-## Instalação
+## Installation
 
-O módulo é instalado automaticamente com o app `integracoes_customizadas`.
+The module is installed automatically with the `integracoes_customizadas` app.
 
-Para garantir que os Custom Fields existam:
+To make sure the Custom Fields exist:
 
 ```bash
 bench --site [site] migrate
 ```
 
-Ou manualmente via console:
+Or manually through the console:
 
 ```python
 bench --site [site] console
@@ -342,13 +342,13 @@ bench --site [site] console
 ## Changelog
 
 ### v0.1.0 (2026-01-23)
-- Implementação inicial completa do módulo
+- Complete initial implementation of the module
 - DocTypes: Disciplina, Questão, Prova, Edital
-- Gerador automático de provas
-- Gestão de etapas e candidatos
-- Importação local de candidatos (sem necessidade de salvar)
-- Ordem automática de etapas
+- Automatic exam generator
+- Stage and candidate management
+- Local candidate import (no need to save)
+- Automatic stage order
 - Print Formats: Prova, Gabarito, Minuta do Edital
-- Relatórios: Candidatos por Etapa/Status, Notas, Comparativo
-- Custom Fields bidirecionais com HRMS
-- Hook after_migrate para criação automática de campos
+- Reports: Candidatos por Etapa/Status, Notas, Comparativo
+- Bidirectional Custom Fields with HRMS
+- `after_migrate` hook for automatic field creation
