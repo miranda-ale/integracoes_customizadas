@@ -53,12 +53,7 @@ frappe.query_reports["Relação de Processos"] = {
 			fieldtype: "Select",
 			options: "\nTrabalhista\nCível\nTributário\nOutros",
 		},
-		{
-			fieldname: "responsavel_interno",
-			label: __("Responsável"),
-			fieldtype: "Link",
-			options: "User",
-		},
+		{ fieldname: "responsavel_interno", label: __("Responsável"), fieldtype: "Link", options: "User" },
 		{
 			fieldname: "assunto",
 			label: __("Assunto"),
