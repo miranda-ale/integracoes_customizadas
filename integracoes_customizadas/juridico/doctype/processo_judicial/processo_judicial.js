@@ -64,7 +64,9 @@ frappe.ui.form.on("Processo Judicial Parte", {
 	},
 	form_render(frm, cdt, cdn) {
 		if (window.busca_cnpj?.taxid) {
-			busca_cnpj.taxid.bind_input(frm.fields_dict.partes.grid.get_row(cdn).grid_form.fields_dict.documento);
+			busca_cnpj.taxid.bind_input(
+				frm.fields_dict.partes.grid.get_row(cdn).grid_form.fields_dict.documento
+			);
 		}
 	},
 });

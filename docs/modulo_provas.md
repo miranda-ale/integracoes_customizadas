@@ -213,6 +213,7 @@ Cria manualmente os Custom Fields necessários para o módulo.
 **Uso via console:**
 ```python
 from integracoes_customizadas.provas.setup import criar_custom_fields_edital
+
 criar_custom_fields_edital()
 ```
 

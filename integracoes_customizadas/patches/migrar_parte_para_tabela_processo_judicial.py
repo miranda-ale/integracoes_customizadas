@@ -10,10 +10,17 @@ def execute():
 	frappe.reload_doc("juridico", "doctype", "processo_judicial")
 	for processo in frappe.get_all(
 		"Processo Judicial",
-		or_filters={"tipo_parte": ["is", "set"], "parte": ["is", "set"], "nome_parte": ["is", "set"], "cpf_parte": ["is", "set"]},
+		or_filters={
+			"tipo_parte": ["is", "set"],
+			"parte": ["is", "set"],
+			"nome_parte": ["is", "set"],
+			"cpf_parte": ["is", "set"],
+		},
 		fields=["name", "tipo_parte", "doctype_parte", "parte", "nome_parte", "cpf_parte"],
 	):
-		if frappe.db.exists("Processo Judicial Parte", {"parent": processo.name, "parenttype": "Processo Judicial"}):
+		if frappe.db.exists(
+			"Processo Judicial Parte", {"parent": processo.name, "parenttype": "Processo Judicial"}
+		):
 			continue
 		frappe.get_doc(
 			{

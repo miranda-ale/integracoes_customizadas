@@ -3,7 +3,9 @@
 import frappe
 
 from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto
-from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import listar_processos
+from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import (
+	listar_processos,
+)
 
 CAMPOS = ["name", "parte", "nome_parte", "cargo_funcao", "valor_causa", "valor_provisionado", "moeda"]
 

@@ -1,9 +1,8 @@
 """Vínculo posterior de processos judiciais a colaboradores cadastrados."""
 
 import frappe
-from frappe import _
-
 from busca_cnpj.cnpj import validar_cpf
+from frappe import _
 
 
 def _campo_cpf_employee() -> str | None:

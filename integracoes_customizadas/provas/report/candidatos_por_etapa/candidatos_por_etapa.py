@@ -52,7 +52,7 @@ def get_data(filters):
 		values["status"] = filters.get("status")
 
 	data = frappe.db.sql(
-		"""
+		f"""
 		SELECT
 			e.name as edital,
 			e.titulo as titulo_edital,
@@ -66,7 +66,7 @@ def get_data(filters):
 		LEFT JOIN `tabEdital Etapa Item` ee ON ee.parent = e.name AND ee.interview_round = ec.etapa_atual
 		WHERE 1=1 {conditions}
 		ORDER BY e.name, ee.ordem, ec.applicant_name
-	""".format(conditions=conditions),
+	""",
 		values,
 		as_dict=True,
 	)

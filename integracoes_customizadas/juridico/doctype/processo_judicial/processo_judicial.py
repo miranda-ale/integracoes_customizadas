@@ -157,7 +157,9 @@ class ProcessoJudicial(Document):
 			"Processo Judicial",
 			{"pasta_interna": self.pasta_interna, "empresa": self.empresa or "", "name": ["!=", self.name]},
 		):
-			frappe.throw(_("A pasta {0} já está em uso por outro processo desta empresa.").format(self.pasta_interna))
+			frappe.throw(
+				_("A pasta {0} já está em uso por outro processo desta empresa.").format(self.pasta_interna)
+			)
 
 	def _validar_advogados(self):
 		vistas = set()
@@ -173,7 +175,9 @@ class ProcessoJudicial(Document):
 				frappe.throw(_("Linha {0}: os honorários não podem ser negativos.").format(linha.idx))
 			if linha.oab:
 				if linha.oab in vistas:
-					frappe.throw(_("Linha {0}: a OAB {1} já consta neste processo.").format(linha.idx, linha.oab))
+					frappe.throw(
+						_("Linha {0}: a OAB {1} já consta neste processo.").format(linha.idx, linha.oab)
+					)
 				vistas.add(linha.oab)
 
 	def _calcular_provisao(self):
@@ -183,7 +187,9 @@ class ProcessoJudicial(Document):
 			if flt(linha.valor_pedido) < 0 or flt(linha.valor_provavel) < 0:
 				frappe.throw(_("Linha {0}: os valores do pedido não podem ser negativos.").format(linha.idx))
 			if linha.probabilidade_perda == "Provável" and not flt(linha.valor_provavel):
-				frappe.throw(_("Linha {0}: informe o valor provável do pedido com perda provável.").format(linha.idx))
+				frappe.throw(
+					_("Linha {0}: informe o valor provável do pedido com perda provável.").format(linha.idx)
+				)
 		self.valor_provisionado_sugerido = sum(
 			flt(linha.valor_provavel) for linha in self.pedidos if linha.probabilidade_perda == "Provável"
 		)
@@ -208,7 +214,9 @@ class ProcessoJudicial(Document):
 		for tabela, rotulo in (("depositos", "depósito"), ("acordos", "acordo"), ("custas", "custa")):
 			for linha in self.get(tabela):
 				if flt(linha.valor) < 0:
-					frappe.throw(_("Linha {0}: o valor do {1} não pode ser negativo.").format(linha.idx, rotulo))
+					frappe.throw(
+						_("Linha {0}: o valor do {1} não pode ser negativo.").format(linha.idx, rotulo)
+					)
 		for linha in self.acordos:
 			if linha.situacao != "Pago":
 				linha.data_pagamento = None
@@ -239,7 +247,12 @@ class ProcessoJudicial(Document):
 		anterior_principal = (
 			next((linha for linha in anterior.partes if linha.principal), None) if anterior else None
 		)
-		campos = (("tipo_parte", "tipo_parte"), ("parte", "parte"), ("nome", "nome_parte"), ("documento", "cpf_parte"))
+		campos = (
+			("tipo_parte", "tipo_parte"),
+			("parte", "parte"),
+			("nome", "nome_parte"),
+			("documento", "cpf_parte"),
+		)
 		if (
 			principal
 			and anterior_principal
@@ -270,7 +283,9 @@ class ProcessoJudicial(Document):
 			linha.doctype_parte = _doctype_da_parte(linha.tipo_parte)
 			if linha.parte:
 				if not linha.doctype_parte or not frappe.db.exists(linha.doctype_parte, linha.parte):
-					frappe.throw(_("Linha {0}: selecione uma parte válida para o tipo informado.").format(linha.idx))
+					frappe.throw(
+						_("Linha {0}: selecione uma parte válida para o tipo informado.").format(linha.idx)
+					)
 				linha.nome = frappe.db.get_value(
 					linha.doctype_parte, linha.parte, CAMPOS_NOME_PARTE[linha.tipo_parte]
 				)
@@ -297,7 +312,9 @@ class ProcessoJudicial(Document):
 		"""Garante que o processo identifique a parte, com ou sem cadastro prévio."""
 		self.parte_vinculada = 1 if self.parte else 0
 		if self.parte:
-			self.nome_parte = frappe.db.get_value(self.doctype_parte, self.parte, CAMPOS_NOME_PARTE[self.tipo_parte])
+			self.nome_parte = frappe.db.get_value(
+				self.doctype_parte, self.parte, CAMPOS_NOME_PARTE[self.tipo_parte]
+			)
 		elif self.nome_parte:
 			self.nome_parte = self.nome_parte.strip()
 		self.cpf_parte = _normalizar_documento(self.cpf_parte)
@@ -309,9 +326,7 @@ class ProcessoJudicial(Document):
 		if not (self.tipo_parte and self.empresa and self.polo_empresa):
 			frappe.throw(_("Informe tipo da parte, empresa e polo da empresa para finalizar o cadastro."))
 		if not self.parte and not (self.nome_parte and self.cpf_parte):
-			frappe.throw(
-				_("Informe a parte cadastrada ou, na falta dela, o nome e o CPF/CNPJ da parte.")
-			)
+			frappe.throw(_("Informe a parte cadastrada ou, na falta dela, o nome e o CPF/CNPJ da parte."))
 
 	def _validar_dados_datajud_inalterados(self, anterior):
 		campos_datajud = (

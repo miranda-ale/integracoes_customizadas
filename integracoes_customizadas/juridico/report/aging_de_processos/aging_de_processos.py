@@ -3,7 +3,9 @@
 from frappe.utils import date_diff, getdate, today
 
 from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto
-from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import listar_processos
+from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import (
+	listar_processos,
+)
 
 FAIXAS = ((365, "Até 1 ano"), (730, "1 a 2 anos"), (1825, "2 a 5 anos"), (None, "Mais de 5 anos"))
 CAMPOS = ["name", "empresa", "data_ajuizamento", "valor_causa", "valor_provisionado", "moeda"]
@@ -20,7 +22,12 @@ def execute(filters=None):
 		linha["faixa"] = faixa_de(dias) if dias is not None else None
 	data = agrupar(linhas, ("empresa", "faixa"), ("valor_causa", "valor_provisionado"))
 	ordem = [rotulo for _limite, rotulo in FAIXAS]
-	data.sort(key=lambda linha: (linha["empresa"], ordem.index(linha["faixa"]) if linha["faixa"] in ordem else len(ordem)))
+	data.sort(
+		key=lambda linha: (
+			linha["empresa"],
+			ordem.index(linha["faixa"]) if linha["faixa"] in ordem else len(ordem),
+		)
+	)
 	return get_columns(), data
 
 
