@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Find tests
         run: |
@@ -46,18 +46,18 @@ jobs:
           grep -rn "def test" > /dev/null
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: '>=24'
           check-latest: true
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
@@ -69,7 +69,7 @@ jobs:
         id: yarn-cache-dir-path
         run: 'echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -114,10 +114,10 @@ jobs:
           bench --site test_site set-config allow_tests true
           # o before_tests do ERPNext (setup wizard de teste) não roda com --app de outro app
           bench --site test_site execute erpnext.setup.utils.before_tests
-          # os Custom Fields do fixture e o workspace Jurídico apontam para DocTypes que só existem em produção (issue #8)
-          bench --site test_site execute integracoes_customizadas.tests.site_setup.criar_doctypes_stub
           # o install-app não roda os hooks after_migrate (workspaces, cards, políticas); em produção eles rodam a cada migrate
           bench --site test_site migrate
+          # só no site de teste: os test records de Designation não preenchem os Custom Fields obrigatórios do fixture (issue #12)
+          bench --site test_site execute integracoes_customizadas.tests.site_setup.relaxar_obrigatoriedade_designation
           bench --site test_site run-tests --app integracoes_customizadas
         env:
           TYPE: server

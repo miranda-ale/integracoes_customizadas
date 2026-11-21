@@ -8,9 +8,14 @@ requires-python = ">=3.11"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
-    # "frappe~=15.0.0" # Installed and managed by bench.
+    # "frappe~=15.0.0" # Required app (see required_apps in hooks.py); installed and managed by bench.
     # "erpnext~=15.0.0" # Required app (see required_apps in hooks.py); installed and managed by bench.
     # "hrms~=15.0.0" # Required app (Provas module uses Job Applicant/Interview Round/Shift Type); installed and managed by bench.
+    # "rh_brasil" # Required in-house app (Juridico uses rh_brasil.documentos); installed from its own repo.
+    # "busca_cnpj" # Required in-house app (Juridico and Bionexo import); installed from its own repo.
+    # Weak dependencies, NOT in required_apps on purpose; always guarded, the app works without them:
+    # "clm" # email_layout (institutional e-mail), guarded by get_installed_apps() + ImportError (email_institucional.py)
+    # "assinatura_eletronica" # servicos.canais (WhatsApp formatting), guarded by ImportError (whatsapp/modelos.py)
 ]
 
 [build-system]

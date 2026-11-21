@@ -2,6 +2,8 @@
 name: Linters
 
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -19,10 +21,10 @@ jobs:
     if: github.event_name == 'pull_request'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 200
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
 
@@ -34,15 +36,26 @@ jobs:
   linter:
     name: 'Frappe Linter'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           cache: pip
-      - uses: pre-commit/action@v3.0.0
+      # Passos de pre-commit/action@v3.0.1 (composite que usa actions/cache@v4 em Node 20 deprecado),
+      # reescritos aqui para usar actions/cache@v6.
+      - name: Install pre-commit
+        run: python -m pip install pre-commit
+
+      - name: Cache pre-commit
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-files
 
       - name: Download Semgrep rules
         run: git clone --depth 1 https://github.com/frappe/semgrep-rules.git frappe-semgrep-rules
@@ -57,14 +70,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
@@ -77,3 +90,60 @@ jobs:
           pip install pip-audit
           cd ${GITHUB_WORKSPACE}
           pip-audit --desc on .
+
+  deps-vulnerable-check-environment:
+    name: 'Vulnerable Dependency Check (ambiente Frappe, informativo)'
+    runs-on: ubuntu-latest
+    # Informativo: audita o ambiente real (frappe, erpnext e hrms v15 + este app) e não bloqueia o gate.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install bench
+        run: |
+          pip install frappe-bench
+          bench init --skip-redis-config-generation --skip-assets --frappe-branch version-15 --python "$(which python)" ~/frappe-bench
+
+      - name: Install apps
+        working-directory: /home/runner/frappe-bench
+        run: |
+          bench get-app payments --branch version-15
+          bench get-app erpnext --branch version-15
+          bench get-app hrms --branch version-15
+          bench get-app pulse_finance "$GITHUB_WORKSPACE"
+
+      - name: Run pip-audit on the bench environment
+        working-directory: /home/runner/frappe-bench
+        run: |
+          ./env/bin/python -m pip install pip-audit
+          ./env/bin/pip-audit --desc on
+
+  # Informativo: audita as dependências Python do Frappe, ERPNext e HRMS (version-15) de que este app depende e que
+  # o `pip-audit .` acima não enxerga (no pyproject elas ficam a cargo do bench). Não bloqueia o PR.
+  pip-audit-frappe:
+    name: 'pip-audit (${{ matrix.app }}) - informativo'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [frappe, erpnext, hrms]
+
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Clone ${{ matrix.app }} (version-15)
+        run: git clone --depth 1 --branch version-15 "https://github.com/frappe/${{ matrix.app }}.git" "${{ matrix.app }}"
+
+      - name: Run pip-audit
+        run: |
+          pip install pip-audit
+          pip-audit --desc on "./${{ matrix.app }}"
