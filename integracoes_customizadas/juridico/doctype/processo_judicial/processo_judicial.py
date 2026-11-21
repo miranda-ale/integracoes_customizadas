@@ -38,15 +38,15 @@ def _data_hora_igual(atual, anterior):
 
 def _normalizar_documento(valor: str | None) -> str | None:
 	"""Valida e aplica a máscara de CPF ou CNPJ (reutiliza busca_cnpj e rh_brasil); vazio vira None."""
-	from busca_cnpj.cnpj import formatar_cnpj, normalizar_cnpj, validar_tax_id
+	from busca_cnpj.cnpj import format_cnpj, normalize_cnpj, validate_tax_id
 	from rh_brasil.documentos import format_cpf
 
-	base = normalizar_cnpj(valor)
+	base = normalize_cnpj(valor)
 	if not base:
 		return None
-	if len(base) not in (11, 14) or not validar_tax_id(base):
+	if len(base) not in (11, 14) or not validate_tax_id(base):
 		frappe.throw(_("CPF/CNPJ inválido: {0}").format(valor))
-	return format_cpf(base) if len(base) == 11 else formatar_cnpj(base)
+	return format_cpf(base) if len(base) == 11 else format_cnpj(base)
 
 
 def _normalizar_oab(valor: str | None) -> str | None:

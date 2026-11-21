@@ -1,7 +1,7 @@
 """Vínculo posterior de processos judiciais a colaboradores cadastrados."""
 
 import frappe
-from busca_cnpj.cnpj import validar_cpf
+from busca_cnpj.cnpj import validate_cpf
 from frappe import _
 
 
@@ -12,7 +12,7 @@ def _campo_cpf_employee() -> str | None:
 
 def _employee_por_cpf(cpf: str, campo: str) -> str | None:
 	digitos = "".join(c for c in cpf if c.isdigit())
-	if not validar_cpf(digitos):
+	if not validate_cpf(digitos):
 		return None
 	encontrados = frappe.db.sql(
 		f"""select name from `tabEmployee`
