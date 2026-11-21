@@ -124,11 +124,15 @@ def renderizar(modelo, doc, extra=None, destino=None) -> dict:
 
 
 def _para_html(texto) -> str:
-	try:
-		from assinatura_eletronica.servicos.canais import whatsapp_para_html
-	except ImportError:
-		return frappe.utils.escape_html(texto).replace("\n", "<br>")
-	return whatsapp_para_html(texto)
+	# Weak dependency: only use assinatura_eletronica when it is installed (see docs/dependencies.md).
+	if "assinatura_eletronica" in frappe.get_installed_apps():
+		try:
+			from assinatura_eletronica.servicos.canais import whatsapp_para_html
+		except ImportError:
+			pass
+		else:
+			return whatsapp_para_html(texto)
+	return frappe.utils.escape_html(texto).replace("\n", "<br>")
 
 
 def registrar_envio(

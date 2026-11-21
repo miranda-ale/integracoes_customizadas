@@ -18,6 +18,8 @@ def _render_email():
 
 
 def ja_institucional(html) -> bool:
+	if "clm" not in frappe.get_installed_apps():
+		return False
 	try:
 		from clm.clm.services.email_layout import is_branded
 	except ImportError:
