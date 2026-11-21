@@ -6,6 +6,7 @@ on:
       - develop
       - main
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-integracoes_customizadas-${{ github.event.number }}
