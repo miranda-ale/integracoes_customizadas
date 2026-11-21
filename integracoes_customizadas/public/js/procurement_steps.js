@@ -1,12 +1,12 @@
 // Etapas do processo de compras: barra recolhível no topo dos formulários da cadeia de materiais.
-// Mesmo visual da barra do CLM; os status vêm de integracoes_customizadas.compras.process_view.get_purchase_steps.
+// Mesmo visual da barra do CLM; os status vêm de integracoes_customizadas.procurement.process_view.get_purchase_steps.
 /* global compras */
-frappe.provide("compras.steps");
+frappe.provide("procurement.steps");
 
 // Espelho de process_view.STAGES; usado antes de o documento ser salvo.
 // [key, doctypes, label, group]: the quotation steps are optional and drawn inside one dashed group.
-compras.steps.GROUP_LABELS = { cotacao: __("Cotação · opcional") };
-compras.steps.STEPS = [
+procurement.steps.GROUP_LABELS = { cotacao: __("Cotação · opcional") };
+procurement.steps.STEPS = [
 	["request", ["Material Request"], __("Solicitação de Compras")],
 	["rfq", ["Request for Quotation"], __("Pedido de Cotação"), "cotacao"],
 	["quotation", ["Supplier Quotation"], __("Cotação do Fornecedor"), "cotacao"],
@@ -15,51 +15,51 @@ compras.steps.STEPS = [
 	["invoice", ["Purchase Invoice"], __("Nota Fiscal de Compra")],
 ];
 
-compras.steps.STATUS_TEXT = {
+procurement.steps.STATUS_TEXT = {
 	ok: __("Concluída"),
 	pending: __("Em andamento"),
 	warn: __("Atenção"),
 	none: __("Não iniciada"),
 };
 
-compras.steps.STATUS_HELP = {
+procurement.steps.STATUS_HELP = {
 	ok: __("Todos os documentos desta etapa foram concluídos."),
 	pending: __("Há documentos desta etapa ainda em andamento ou aguardando a etapa seguinte."),
 	warn: __("Esta etapa exige atenção; veja os pontos abaixo."),
 	none: __("Nenhum documento desta etapa foi criado ainda."),
 };
 
-compras.steps.STORAGE_KEY = "compras_steps_collapsed";
+procurement.steps.STORAGE_KEY = "procurement_steps_collapsed";
 
-compras.steps.is_collapsed = function () {
+procurement.steps.is_collapsed = function () {
 	try {
-		return window.localStorage.getItem(compras.steps.STORAGE_KEY) === "1";
+		return window.localStorage.getItem(procurement.steps.STORAGE_KEY) === "1";
 	} catch (e) {
 		return false;
 	}
 };
 
-compras.steps.set_collapsed = function (value) {
+procurement.steps.set_collapsed = function (value) {
 	try {
-		window.localStorage.setItem(compras.steps.STORAGE_KEY, value ? "1" : "0");
+		window.localStorage.setItem(procurement.steps.STORAGE_KEY, value ? "1" : "0");
 	} catch (e) {
 		// Storage blocked: the bar simply opens expanded next time.
 	}
 };
 
-compras.steps.stage_of = (doctype) =>
-	compras.steps.STEPS.find((step) => step[1].includes(doctype))?.[0];
+procurement.steps.stage_of = (doctype) =>
+	procurement.steps.STEPS.find((step) => step[1].includes(doctype))?.[0];
 
 // Placeholder of a document not saved yet: only the current step is known.
-compras.steps.local_model = function (frm) {
+procurement.steps.local_model = function (frm) {
 	return {
-		current: compras.steps.stage_of(frm.doctype),
-		stages: compras.steps.STEPS.map(([key, , label, group]) => ({
+		current: procurement.steps.stage_of(frm.doctype),
+		stages: procurement.steps.STEPS.map(([key, , label, group]) => ({
 			key,
 			label,
 			optional: group ? 1 : 0,
 			group: group || null,
-			group_label: group ? compras.steps.GROUP_LABELS[group] : null,
+			group_label: group ? procurement.steps.GROUP_LABELS[group] : null,
 			status: "none",
 			count: 0,
 			restricted: 0,
@@ -69,7 +69,7 @@ compras.steps.local_model = function (frm) {
 	};
 };
 
-compras.steps.render = function (frm, model) {
+procurement.steps.render = function (frm, model) {
 	const esc = (value) => frappe.utils.escape_html(value == null ? "" : String(value));
 	frm.$wrapper.find(".cmp-steps").remove();
 	const stages = model.stages || [];
@@ -77,12 +77,12 @@ compras.steps.render = function (frm, model) {
 	const counted = stages.filter((stage) => !(stage.optional && stage.status === "none"));
 	const done = counted.filter((stage) => stage.status === "ok").length;
 	const current = stages.find((stage) => stage.key === model.current);
-	const collapsed = compras.steps.is_collapsed();
+	const collapsed = procurement.steps.is_collapsed();
 
 	const items = stages
 		.map((stage, index) => {
 			const is_current = stage.key === model.current;
-			const status_text = compras.steps.STATUS_TEXT[stage.status] || "";
+			const status_text = procurement.steps.STATUS_TEXT[stage.status] || "";
 			const visible_docs = (stage.docs || []).filter((doc) => doc.name);
 			const clickable = !is_current && visible_docs.length > 0;
 			const alerts = (stage.alerts || []).map((alert) => `<li>${esc(alert)}</li>`).join("");
@@ -107,7 +107,7 @@ compras.steps.render = function (frm, model) {
 				stage.label
 			)}${optional}</div>
 				<div class="cmp-tip-status is-${esc(stage.status)}">${esc(status_text)}</div>
-				<p class="cmp-tip-help">${esc(compras.steps.STATUS_HELP[stage.status] || "")}</p>
+				<p class="cmp-tip-help">${esc(procurement.steps.STATUS_HELP[stage.status] || "")}</p>
 				${
 					alerts
 						? `<div class="cmp-tip-section">${__(
@@ -138,7 +138,7 @@ compras.steps.render = function (frm, model) {
 				: "";
 			const group_tag = group_start
 				? `<span class="cmp-group-tag">${esc(
-						stage.group_label || compras.steps.GROUP_LABELS[group] || ""
+						stage.group_label || procurement.steps.GROUP_LABELS[group] || ""
 				  )}</span>`
 				: "";
 			return `<li class="cmp-step is-${esc(stage.status)}${is_current ? " is-current" : ""}${
@@ -180,19 +180,19 @@ compras.steps.render = function (frm, model) {
 	`);
 
 	$bar.find(".cmp-steps-pill").on("click", () => {
-		compras.steps.set_collapsed(false);
+		procurement.steps.set_collapsed(false);
 		$bar.removeClass("is-collapsed");
 	});
 	$bar.find(".cmp-steps-close").on("click", () => {
-		compras.steps.set_collapsed(true);
+		procurement.steps.set_collapsed(true);
 		$bar.addClass("is-collapsed");
 	});
 	$bar.find(".cmp-step.is-link").on("click", function () {
 		const stage = stages.find((row) => row.key === $(this).data("key"));
-		compras.steps.open_stage(stage);
+		procurement.steps.open_stage(stage);
 	});
 
-	compras.steps.bind_tooltips($bar);
+	procurement.steps.bind_tooltips($bar);
 	frm.layout.wrapper.before($bar);
 	// Keep the current step in view on narrow screens.
 	const $current = $bar.find(".cmp-step.is-current");
@@ -203,14 +203,14 @@ compras.steps.render = function (frm, model) {
 };
 
 // One hover card for the whole page: a bar removed while its card is open never receives mouseleave.
-compras.steps.hide_tip = function () {
+procurement.steps.hide_tip = function () {
 	$(".cmp-tip-pop").remove();
 };
 
-compras.steps.bind_tooltips = function ($bar) {
-	compras.steps.hide_tip();
+procurement.steps.bind_tooltips = function ($bar) {
+	procurement.steps.hide_tip();
 	$bar.on("mouseenter focusin", ".cmp-step", function () {
-		compras.steps.hide_tip();
+		procurement.steps.hide_tip();
 		const $tip = $(
 			`<div class="cmp-tip-pop" role="tooltip">${$(this).attr("data-tip")}</div>`
 		).appendTo("body");
@@ -222,22 +222,22 @@ compras.steps.bind_tooltips = function ($bar) {
 		);
 		$tip.css({ left, top: rect.bottom + 8 });
 	});
-	$bar.on("mouseleave focusout", ".cmp-step", compras.steps.hide_tip);
-	$bar.find(".cmp-steps-track").on("scroll", compras.steps.hide_tip);
-	$bar.on("click", ".cmp-steps-close, .cmp-steps-pill", compras.steps.hide_tip);
+	$bar.on("mouseleave focusout", ".cmp-step", procurement.steps.hide_tip);
+	$bar.find(".cmp-steps-track").on("scroll", procurement.steps.hide_tip);
+	$bar.on("click", ".cmp-steps-close, .cmp-steps-pill", procurement.steps.hide_tip);
 };
 
-if (!compras.steps.__tip_guard) {
-	compras.steps.__tip_guard = true;
+if (!procurement.steps.__tip_guard) {
+	procurement.steps.__tip_guard = true;
 	$(document).on("mouseover", (e) => {
-		if (!$(e.target).closest(".cmp-step").length) compras.steps.hide_tip();
+		if (!$(e.target).closest(".cmp-step").length) procurement.steps.hide_tip();
 	});
-	$(document).on("page-change", compras.steps.hide_tip);
-	frappe.router.on("change", compras.steps.hide_tip);
-	window.addEventListener("scroll", compras.steps.hide_tip, true);
+	$(document).on("page-change", procurement.steps.hide_tip);
+	frappe.router.on("change", procurement.steps.hide_tip);
+	window.addEventListener("scroll", procurement.steps.hide_tip, true);
 }
 
-compras.steps.open_stage = function (stage) {
+procurement.steps.open_stage = function (stage) {
 	const docs = (stage.docs || []).filter((doc) => doc.name);
 	if (docs.length === 1) return frappe.set_route("Form", docs[0].doctype, docs[0].name);
 	const esc = frappe.utils.escape_html;
@@ -261,26 +261,26 @@ compras.steps.open_stage = function (stage) {
 	dialog.show();
 };
 
-compras.steps.refresh = function (frm) {
+procurement.steps.refresh = function (frm) {
 	// Service-procurement Material Requests are handled by the CLM; only purchase requests belong here.
 	if (frm.doctype === "Material Request" && frm.doc.material_request_type !== "Purchase") return;
-	if (frm.is_new()) return compras.steps.render(frm, compras.steps.local_model(frm));
+	if (frm.is_new()) return procurement.steps.render(frm, procurement.steps.local_model(frm));
 	const token = (frm.__cmp_steps_token = (frm.__cmp_steps_token || 0) + 1);
 	frappe
-		.xcall("integracoes_customizadas.compras.process_view.get_purchase_steps", {
+		.xcall("integracoes_customizadas.procurement.process_view.get_purchase_steps", {
 			doctype: frm.doctype,
 			name: frm.doc.name,
 		})
 		.then((model) => {
 			// A later refresh (or another document in the same form) superseded this call.
 			if (token !== frm.__cmp_steps_token || !model) return;
-			compras.steps.render(frm, model);
+			procurement.steps.render(frm, model);
 		});
 };
 
-compras.steps.STEPS.forEach(([, doctypes]) =>
+procurement.steps.STEPS.forEach(([, doctypes]) =>
 	doctypes.forEach((doctype) =>
-		frappe.ui.form.on(doctype, "refresh", (frm) => compras.steps.refresh(frm))
+		frappe.ui.form.on(doctype, "refresh", (frm) => procurement.steps.refresh(frm))
 	)
 );
 

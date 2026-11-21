@@ -3,14 +3,14 @@
 """Metadados do fluxo de recebimento de compras (idempotente, roda a cada migrate).
 
 Custom Fields da NF no Purchase Receipt, seções de impostos recolhidas por padrão (PR, PO e PI) e o layout enxuto dos
-Workspaces Buying e Stock (`compras/workspaces.py`). Nenhum papel novo: o Stock User já cria/submete Purchase
+Workspaces Buying e Stock (`procurement/workspaces.py`). Nenhum papel novo: o Stock User já cria/submete Purchase
 Receipt e lê Purchase Order, e criar Custom DocPerm substituiria todas as permissões padrão do DocType.
 """
 
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
-from integracoes_customizadas.compras.workspaces import aplicar_layouts
+from integracoes_customizadas.procurement.workspaces import aplicar_layouts
 
 NF_FIELDS = {
 	"Purchase Receipt": [

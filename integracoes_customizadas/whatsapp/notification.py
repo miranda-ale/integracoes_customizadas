@@ -8,7 +8,7 @@ from frappe.core.doctype.role.role import get_users
 from frappe.email.doctype.notification.notification import Notification, get_assignees
 from frappe.utils import cstr, get_url_to_form, md_to_html, strip_html
 
-from integracoes_customizadas import email_institucional
+from integracoes_customizadas import institutional_email
 from integracoes_customizadas.whatsapp.delivery import nome_anexo, normalize_phone
 
 CORPO_INSTITUCIONAL = "_corpo_institucional"
@@ -59,16 +59,16 @@ class WhatsAppNotification(Notification):
 
 def corpo_do_email(alert, doc, context):
 	"""HTML institucional do e-mail da regra, ou None quando não há layout (sem clm) ou a mensagem já o tem."""
-	if not alert.message or not email_institucional._render_email():
+	if not alert.message or not institutional_email._render_email():
 		return None
 	corpo = frappe.render_template(alert.message, context)
-	if email_institucional.ja_institucional(corpo):
+	if institutional_email.ja_institucional(corpo):
 		return None
 	if alert.get("message_type") == "Markdown":
 		corpo = md_to_html(corpo)
 	titulo = strip_html(frappe.render_template(alert.subject, context)) if alert.subject else alert.name
 	referencia = (doc.parenttype, doc.parent) if doc.meta.istable else (doc.doctype, doc.name)
-	return email_institucional.corpo(titulo, corpo, acao=(_("Abrir documento"), get_url_to_form(*referencia)))
+	return institutional_email.corpo(titulo, corpo, acao=(_("Abrir documento"), get_url_to_form(*referencia)))
 
 
 def _field_values(field_spec, doc):

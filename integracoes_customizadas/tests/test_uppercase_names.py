@@ -1,7 +1,7 @@
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
-from integracoes_customizadas.normalizacao.maiusculas import normalizar
+from integracoes_customizadas.normalization.uppercase import normalizar
 
 
 class TestMaiusculasNomes(FrappeTestCase):

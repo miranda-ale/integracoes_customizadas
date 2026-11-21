@@ -1,4 +1,4 @@
-// Feedback imediato da regra de caixa alta (a garantia real é o hook de servidor em normalizacao/maiusculas.py)
+// Feedback imediato da regra de caixa alta (a garantia real é o hook de servidor em normalization/uppercase.py)
 (() => {
 	const CAMPOS = {
 		Employee: ["first_name", "middle_name", "last_name"],

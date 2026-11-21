@@ -8,7 +8,7 @@ import pyqrcode
 import requests
 from frappe import _
 
-from integracoes_customizadas.whatsapp.distribuidor import nomes as nomes_instancias
+from integracoes_customizadas.whatsapp.dispatcher import nomes as nomes_instancias
 
 
 class EvolutionHTTPError(ValueError):

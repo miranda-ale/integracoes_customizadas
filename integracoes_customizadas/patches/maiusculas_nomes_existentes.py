@@ -1,6 +1,6 @@
 import frappe
 
-from integracoes_customizadas.normalizacao.maiusculas import CAMPOS, normalizar
+from integracoes_customizadas.normalization.uppercase import CAMPOS, normalizar
 
 
 def execute():

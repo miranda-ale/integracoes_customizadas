@@ -5,7 +5,7 @@ import json
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
-from integracoes_customizadas.compras import workspaces
+from integracoes_customizadas.procurement import workspaces
 
 
 class TestWorkspacesCompras(FrappeTestCase):

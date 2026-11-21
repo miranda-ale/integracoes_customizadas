@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import frappe
 
-from integracoes_customizadas.whatsapp import distribuidor
+from integracoes_customizadas.whatsapp import dispatcher
 
 if not getattr(frappe.local, "flags", None):
 	frappe.local.flags = frappe._dict(in_test=True)
@@ -38,23 +38,23 @@ class TestDistribuidor(unittest.TestCase):
 		self.conectadas = {"principal", "segunda"}
 		for alvo in (
 			patch("integracoes_customizadas.whatsapp.api.get_settings", side_effect=lambda: self.cfg),
-			patch.object(distribuidor.frappe, "cache", self.cache),
-			patch.object(distribuidor, "today", return_value="2026-10-20"),
+			patch.object(dispatcher.frappe, "cache", self.cache),
+			patch.object(dispatcher, "today", return_value="2026-10-20"),
 		):
 			alvo.start()
 			self.addCleanup(alvo.stop)
 
 	def escolher(self, numero="5511999991234", **kw):
-		return distribuidor.escolher_instancia(numero, estado=lambda nome: nome in self.conectadas, **kw)
+		return dispatcher.escolher_instancia(numero, estado=lambda nome: nome in self.conectadas, **kw)
 
 	def test_instancia_unica_nao_consulta_estado(self):
 		estado = MagicMock()
-		self.assertEqual(distribuidor.escolher_instancia("5511999991234", estado=estado), "principal")
+		self.assertEqual(dispatcher.escolher_instancia("5511999991234", estado=estado), "principal")
 		estado.assert_not_called()
 
 	def test_ignora_adicional_inativa_ou_duplicada(self):
 		self.cfg = config([("segunda", 0, 1, 0), ("principal", 1, 1, 0)])
-		self.assertEqual(distribuidor.nomes(self.cfg), ["principal"])
+		self.assertEqual(dispatcher.nomes(self.cfg), ["principal"])
 
 	def test_distribui_por_menor_carga(self):
 		self.cfg = config([("segunda", 1, 1, 0)])
@@ -86,7 +86,7 @@ class TestDistribuidor(unittest.TestCase):
 	def test_sem_instancia_conectada(self):
 		self.cfg = config([("segunda", 1, 1, 0)])
 		self.conectadas = set()
-		with self.assertRaises(distribuidor.SemInstanciaDisponivel):
+		with self.assertRaises(dispatcher.SemInstanciaDisponivel):
 			self.escolher()
 
 	def test_excluir_instancia(self):

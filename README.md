@@ -39,7 +39,7 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
   `sorteio("Oi","Olá")` varies snippets inside the message. The switch is **Vary messages** in WhatsApp Settings
   (Configuracoes WhatsApp).
 - **At least 10 active variants** for the template to be active. Templates created by code receive seed wordings
-  (`seed/variantes_modelos.py`) and the patches `semear_variantes_modelo_whatsapp` and
+  (`seed/template_variants.py`) and the patches `semear_variantes_modelo_whatsapp` and
   `completar_variantes_modelo_whatsapp` complete the existing ones (those without a seed go to the Error Log).
 - Extension hooks: `whatsapp_contexto_extra` (extra variables in the template context) and
   `evolution_webhook_handlers`.
@@ -50,7 +50,7 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
   prior number verification. Actions to **create the instance** (reports whether it was created or already existed),
   **generate a QR Code** and **refresh the state** of the connection.
 - **Routing between instances:** the *Additional instances* table (**Instancia WhatsApp**, with optional weight and
-  daily limit) adds to the main one; `whatsapp/distribuidor.py` uses the connected instance with the lowest load of
+  daily limit) adds to the main one; `whatsapp/dispatcher.py` uses the connected instance with the lowest load of
   the day, with affinity per recipient and failover. Without additional rows the behavior does not change.
 - **Stable connector** (`whatsapp/conector.py`): `estado_conexao`, `verificar_numero`, `enviar_texto`,
   `normalizar_numero_br`; no retry on send.
@@ -58,7 +58,7 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
   failures.
 - The Evolution webhook endpoint is **reserved and turned off** (answers HTTP 501).
 - E-mails of Notifications (E-mail channel), of the WhatsApp Template (E-mail channel or fallback) and of the Edital
-  stage advance use the institutional layout of `clm` (`email_institucional.py`, weak dependency).
+  stage advance use the institutional layout of `clm` (`institutional_email.py`, weak dependency).
 - Settings and send records are restricted to system administrators.
 
 ### Legal (`Juridico` module)
@@ -141,19 +141,19 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
 - Reports **Pedidos a Receber** (*Receive* button) and **Recebidos a Faturar** (*Create Invoice* button).
 - **Process stages** bar (Request → Quotation → Order → Receipt → Invoice) on the chain forms; documents without read
   permission are only counted.
-- **Lean Purchasing and Stock workspaces**, defined in `compras/workspaces.py` and reapplied on every migrate.
+- **Lean Purchasing and Stock workspaces**, defined in `procurement/workspaces.py` and reapplied on every migrate.
 - Tax sections collapsed by default and chain labels translated to pt-BR.
 - See [docs/purchasing-flow.md](docs/purchasing-flow.md).
 
 ### Record normalization
 
 Names of Employee, Company, Supplier, Customer, Item, Contact, Address, Lead, Department and Designation are kept in
-uppercase and without accents (`doc_events["*"]` hook in `normalizacao/maiusculas.py` and `maiusculas.js`). The patch
+uppercase and without accents (`doc_events["*"]` hook in `normalization/uppercase.py` and `uppercase.js`). The patch
 `maiusculas_nomes_existentes` applies the rule to old records.
 
 ### DocType access policy
 
-On every `migrate`, `politicas/acesso_doctypes.py` warns about orphan or unreachable DocTypes of the app (covered by
+On every `migrate`, `policies/doctype_access.py` warns about orphan or unreachable DocTypes of the app (covered by
 `test_politica_acesso`).
 
 ### Custom fields (fixtures)
@@ -219,11 +219,11 @@ integracoes_customizadas/
 ├── juridico/        # datajud, parte, agenda, indicadores, relatorios, dashboard, setup, DocTypes, reports, workspace
 ├── provas/          # DocTypes, reports, print formats
 ├── bionexo/         # export_xml · import_pdf (PDF reading) · importacao · setup
-├── compras/         # receipt (NF) · process_view (stages) · workspaces · setup
-├── normalizacao/    # maiusculas.py
-├── politicas/       # acesso_doctypes.py
-├── seed/            # variantes_modelos.py (seed wordings)
-├── email_institucional.py
+├── procurement/         # receipt (NF) · process_view (stages) · workspaces · setup
+├── normalization/   # uppercase.py
+├── policies/        # doctype_access.py
+├── seed/            # template_variants.py (seed wordings)
+├── institutional_email.py
 ├── integracoes_customizadas/   # WhatsApp and Importacao Bionexo DocTypes, reports Mapa de Precos RFQ, Pedidos a Receber, Recebidos a Faturar
 ├── patches/ · fixtures/ · public/ (css and js) · docs/
 └── tests/           # 14 files (WhatsApp, Bionexo, Purchasing, Legal, uppercase, access policy)

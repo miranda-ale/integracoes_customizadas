@@ -5,8 +5,8 @@ from unittest.mock import patch
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
-from integracoes_customizadas.compras import process_view as pv
-from integracoes_customizadas.compras import receipt
+from integracoes_customizadas.procurement import process_view as pv
+from integracoes_customizadas.procurement import receipt
 
 
 def doc(doctype, name, docstatus=1, **extra):

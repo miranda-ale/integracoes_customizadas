@@ -20,7 +20,7 @@ The English names of `busca_cnpj` are used here; the Portuguese aliases it keeps
 
 | App | Where | Behavior without it |
 | --- | --- | --- |
-| `clm` | `email_institucional.py` (`email_layout.render_email`, `is_branded`); Legal indicators (`Pareceres Juridicos` DocType, read only if the DocType exists and the user can read it). | Plain HTML e-mail; opinions card omitted. |
+| `clm` | `institutional_email.py` (`email_layout.render_email`, `is_branded`); Legal indicators (`Pareceres Juridicos` DocType, read only if the DocType exists and the user can read it). | Plain HTML e-mail; opinions card omitted. |
 | `assinatura_eletronica` | `whatsapp/modelos.py` (`servicos.canais.whatsapp_para_html`). | Simple HTML conversion of the WhatsApp text. |
 
 ## Consumers of this app (reverse dependencies)

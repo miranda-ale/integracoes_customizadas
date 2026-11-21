@@ -45,10 +45,10 @@ required_apps = [
 
 # include js, css files in header of desk.html
 # Etapas do processo de compras (barra nos formulários da cadeia Solicitação -> Fatura)
-app_include_css = "/assets/integracoes_customizadas/css/compras_steps.css?v=0.1.2"
+app_include_css = "/assets/integracoes_customizadas/css/procurement_steps.css?v=0.1.2"
 app_include_js = [
-	"/assets/integracoes_customizadas/js/compras_steps.js?v=0.1.2",
-	"/assets/integracoes_customizadas/js/maiusculas.js?v=0.1.0",
+	"/assets/integracoes_customizadas/js/procurement_steps.js?v=0.1.2",
+	"/assets/integracoes_customizadas/js/uppercase.js?v=0.1.0",
 ]
 # app_include_js = "/assets/integracoes_customizadas/js/desk_theme.js"  # desativado: so servia pro experimento de topbar teal, revertido
 
@@ -130,9 +130,9 @@ after_migrate = [
 	"integracoes_customizadas.juridico.setup.after_migrate",
 	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
 	"integracoes_customizadas.bionexo.setup.ensure_buying_card",
-	"integracoes_customizadas.compras.setup.after_migrate",
+	"integracoes_customizadas.procurement.setup.after_migrate",
 	# Política: todo DocType dos apps customizados tem atalho em Workspace e leitor (apenas avisa)
-	"integracoes_customizadas.politicas.acesso_doctypes.avisar_violacoes",
+	"integracoes_customizadas.policies.doctype_access.avisar_violacoes",
 ]
 
 override_doctype_class = {
@@ -179,18 +179,18 @@ override_doctype_class = {
 # 	}
 # }
 doc_events = {
-	# Nomes de cadastro em caixa alta (allowlist em normalizacao/maiusculas.py)
+	# Nomes de cadastro em caixa alta (allowlist em normalization/uppercase.py)
 	"*": {
-		"before_insert": "integracoes_customizadas.normalizacao.maiusculas.aplicar",
-		"before_validate": "integracoes_customizadas.normalizacao.maiusculas.aplicar",
+		"before_insert": "integracoes_customizadas.normalization.uppercase.aplicar",
+		"before_validate": "integracoes_customizadas.normalization.uppercase.aplicar",
 	},
 	# Nota Fiscal registrada pela unidade no recebimento; a fatura herda número e data
 	"Purchase Receipt": {
-		"validate": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
-		"before_update_after_submit": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
+		"validate": "integracoes_customizadas.procurement.receipt.validar_nota_fiscal",
+		"before_update_after_submit": "integracoes_customizadas.procurement.receipt.validar_nota_fiscal",
 	},
 	"Purchase Invoice": {
-		"before_validate": "integracoes_customizadas.compras.receipt.herdar_nota_fiscal",
+		"before_validate": "integracoes_customizadas.procurement.receipt.herdar_nota_fiscal",
 	},
 }
 
@@ -200,7 +200,7 @@ doc_events = {
 scheduler_events = {
 	"cron": {
 		"0 3 * * 1-5": ["integracoes_customizadas.juridico.datajud.agendar_sincronizacao"],
-		"0 7 * * *": ["integracoes_customizadas.juridico.agenda.alertar_prazos"],
+		"0 7 * * *": ["integracoes_customizadas.juridico.agenda_alerts.alertar_prazos"],
 	},
 }
 

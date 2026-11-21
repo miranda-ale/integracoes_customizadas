@@ -104,7 +104,7 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
 
 - **Record normalization:** names of Employee, Company, Supplier, Customer, Item, Contact, Address, Lead, Department
   and Designation are kept in uppercase and without accents (global `doc_events["*"]` hook in
-  `normalizacao/maiusculas.py`, `maiusculas.js` and patch `maiusculas_nomes_existentes` for old records).
+  `normalization/uppercase.py`, `maiusculas.js` and patch `maiusculas_nomes_existentes` for old records).
 
 ## v2.1.1 — Bionexo · 2026-10-26
 
@@ -114,13 +114,13 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
 
 - **Receipt with Nota Fiscal (tax invoice):** *Supplier Nota Fiscal* section on the Purchase Receipt (number, series,
   validated access key, date, amount, attachment; editable after submit) and inheritance of `bill_no`/`bill_date` by
-  the Purchase Invoice (`compras/receipt.py`).
+  the Purchase Invoice (`procurement/receipt.py`).
 - **Reports** *Pedidos a Receber* (*Receive* button) and *Recebidos a Faturar* (*Create Invoice* button) in the
   *Purchase Receipt* card of the Purchasing and Stock workspaces.
 - **Process stages bar** (Request → Quotation → Order → Receipt → Invoice) on the chain forms, in the clm pattern;
   documents without read permission are only counted. Request for Quotation and Supplier Quotation are separate nodes,
   inside the dashed group *Quotation · optional*. See `docs/purchasing-flow.md`.
-- **Lean Purchasing and Stock workspaces**, defined in code (`compras/workspaces.py`) and reapplied on every migrate:
+- **Lean Purchasing and Stock workspaces**, defined in code (`procurement/workspaces.py`) and reapplied on every migrate:
   shortcuts in flow order with per-user counters, few cards and only functions used on the site (from 141/144 to 19/18
   link rows); numbered flow card first in each; removed number cards, chart, Supplier Group, Item Price, Item Group,
   Brand, Warehouse, Unit of Measure, Learn/Dashboard shortcuts and the old English copy of the links.
@@ -152,7 +152,7 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
   WhatsApp" now requires the WhatsApp Template.
 - **E-mail in the institutional layout** (clm manifesto, section 6): e-mails of Notifications with the E-mail channel,
   of the WhatsApp Template (E-mail channel or fallback) and of the Edital stage advance go through clm's `render_email`
-  (`email_institucional.py`, weak dependency).
+  (`institutional_email.py`, weak dependency).
 
 ## v1.17.1 — WhatsApp: print format attachment · 2026-10-22
 

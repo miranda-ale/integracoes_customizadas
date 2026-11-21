@@ -2,7 +2,7 @@
 # For license information, please see license.txt
 from frappe.tests.utils import FrappeTestCase
 
-from integracoes_customizadas.politicas.acesso_doctypes import verificar
+from integracoes_customizadas.policies.doctype_access import verificar
 
 
 class TestPoliticaAcesso(FrappeTestCase):

@@ -11,7 +11,7 @@ from frappe.model.document import Document
 from frappe.utils import flt, getdate, today
 from frappe.utils.data import convert_utc_to_system_timezone, get_datetime
 
-from integracoes_customizadas.juridico import agenda
+from integracoes_customizadas.juridico import agenda_alerts as agenda
 
 
 def _datajud_datetime(value: str | None, label: str, *, ajuizamento: bool = False) -> datetime | None:

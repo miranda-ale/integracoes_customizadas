@@ -1,7 +1,7 @@
 # Legal dashboard
 
 Workspace `Juridico` (label "Jurídico"): `Juridico Indicadores` panel (Custom HTML Block, same pattern as
-HR/SESMT/CLM) fed by `integracoes_customizadas.juridico.indicadores.get_dashboard` (respects permissions and User
+HR/SESMT/CLM) fed by `integracoes_customizadas.juridico.indicators.get_dashboard` (respects permissions and User
 Permissions; filter by unit).
 
 - Indicators: lawsuits in progress/closed, new ones (30 days), high risk (alert), not updated for more than 90 days

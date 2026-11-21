@@ -53,7 +53,7 @@ This task is documentation only -- no permission was changed. Reviewing the curr
 - `Supplier`, filled by the Bionexo import through the CNPJ lookup of `busca_cnpj` (`bionexo/import_pdf.py`), is
   read/created by the standard Buying roles (`Purchase User`/`Manager`), which already have their own permission on
   `Supplier` in ERPNext -- there is no gap here, since this app does not introduce its own role for that flow.
-- `rh_brasil.documentos` (used in `juridico/doctype/processo_judicial/processo_judicial.py` and `juridico/parte.py`
+- `rh_brasil.documentos` (used in `juridico/doctype/processo_judicial/processo_judicial.py` and `juridico/party.py`
   through `format_cpf`) is a module of utility functions, not a DocType -- there is no Link field to an `rh_brasil`
   DocType in this app today, so it does not apply to this finding.
 

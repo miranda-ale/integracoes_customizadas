@@ -48,7 +48,7 @@ prettier/eslint). This ADR records the standardization applied to this repositor
 | Item | State |
 | --- | --- |
 | F401 (commit `fix: corrigir erros do ruff check`) | 2 dead names removed (`now_datetime`, `today`); 1 re-export kept with `# noqa: F401  # compat` (`bionexo_export.py`) |
-| RUF001 | 2 occurrences with `# noqa: RUF001` (`juridico/agenda.py`) |
+| RUF001 | 2 occurrences with `# noqa: RUF001` (`juridico/agenda_alerts.py`) |
 | Pre-commit excludes changed | None (prettier and eslint keep the original excludes) |
 | ESLint | `busca_cnpj` declared `readonly`; no real undefined-variable bug found |
 | prettier | 6 `.js` files reformatted; no non-JS file changed |

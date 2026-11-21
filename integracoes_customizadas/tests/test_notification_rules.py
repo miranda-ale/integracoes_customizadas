@@ -5,8 +5,8 @@ from unittest.mock import patch
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
-from integracoes_customizadas import email_institucional
-from integracoes_customizadas.seed.variantes_modelos import VARIANTES
+from integracoes_customizadas import institutional_email
+from integracoes_customizadas.seed.template_variants import VARIANTES
 from integracoes_customizadas.whatsapp import notification
 from integracoes_customizadas.whatsapp.modelos import completar_variantes, variantes_ativas
 from integracoes_customizadas.whatsapp.roteador import MIN_VARIANTES
@@ -65,8 +65,8 @@ class TestVariantesMinimas(FrappeTestCase):
 
 class TestEmailInstitucional(FrappeTestCase):
 	def test_corpo_sem_clm_mantem_fatos_botao_e_nota(self):
-		with patch.object(email_institucional, "_render_email", return_value=None):
-			html = email_institucional.corpo(
+		with patch.object(institutional_email, "_render_email", return_value=None):
+			html = institutional_email.corpo(
 				"T", "<p>x</p>", fatos=[("Edital", "<b>E1</b>")], acao=("Abrir", "https://x.test"), nota="n"
 			)
 		self.assertIn("&lt;b&gt;E1&lt;/b&gt;", html)
@@ -84,7 +84,7 @@ class TestEmailInstitucional(FrappeTestCase):
 		)
 		doc = frappe.get_doc({"doctype": "ToDo", "name": "TD-1", "description": "x"})
 		html = notification.corpo_do_email(alert, doc, {"doc": doc})
-		self.assertTrue(email_institucional.ja_institucional(html))
+		self.assertTrue(institutional_email.ja_institucional(html))
 		self.assertIn("Corpo TD-1", html)
 		self.assertIn("Abrir documento", html)
 		self.assertIsNone(notification.corpo_do_email(frappe._dict(alert, message=html), doc, {"doc": doc}))

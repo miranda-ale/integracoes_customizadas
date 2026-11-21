@@ -3,12 +3,12 @@ import json
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
-from integracoes_customizadas.juridico import indicadores, setup
+from integracoes_customizadas.juridico import indicators, setup
 
 
 class TestJuridicoIndicadores(FrappeTestCase):
 	def test_dashboard_retorna_estrutura(self):
-		dados = indicadores.get_dashboard()
+		dados = indicators.get_dashboard()
 		for chave in (
 			"andamento",
 			"encerrados",
@@ -25,7 +25,7 @@ class TestJuridicoIndicadores(FrappeTestCase):
 		frappe.set_user("Guest")
 		try:
 			with self.assertRaises(frappe.PermissionError):
-				indicadores.get_dashboard()
+				indicators.get_dashboard()
 		finally:
 			frappe.set_user("Administrator")
 

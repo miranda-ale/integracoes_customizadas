@@ -43,27 +43,27 @@ Receipt and Purchase Invoice, in the same pattern as `clm` (`clm_process_steps`)
 purchase can go straight from the Request to the Order), Purchase Order, Purchase Receipt and Purchase Invoice (same
 names used in the rest of the system).
 
-- `compras/process_view.py`: `get_purchase_steps(doctype, name)` discovers the chain through the item links (up to
+- `procurement/process_view.py`: `get_purchase_steps(doctype, name)` discovers the chain through the item links (up to
   150 documents), ignoring permissions, and marks as `restricted` what the user cannot read (it only enters the
   count). That is why the unit sees the invoice as an existing stage without having access to it.
 - Status: `ok`, `pending`, `warn`, `none`. Alerts: late delivery (`schedule_date`), partial receipt, received without
   NF, NF amount mismatch, receipt awaiting invoice. Cancelled documents are ignored.
-- The stage list exists in Python (`STAGES`) and in JS (`compras.steps.STEPS`): keep both equal.
-- Front end: `public/js/compras_steps.js` and `public/css/compras_steps.css` (loaded by `app_include_*`; bump the
+- The stage list exists in Python (`STAGES`) and in JS (`procurement.steps.STEPS`): keep both equal.
+- Front end: `public/js/procurement_steps.js` and `public/css/procurement_steps.css` (loaded by `app_include_*`; bump the
   `?v=` in `hooks.py` on every change).
 
 ## Purchase Receipt form
 
-`compras/setup.py` (`after_migrate`, idempotent) creates the `custom_compras_nf_*` Custom Fields and leaves the tax
+`procurement/setup.py` (`after_migrate`, idempotent) creates the `custom_compras_nf_*` Custom Fields and leaves the tax
 sections of the Receipt (*Taxes and Charges* and *Tax Breakup*), of the Order and of the Purchase Invoice (*Taxes and
 Charges*) collapsed by default, like *Additional Discount*. English labels of the whole chain (MR, RFQ, SQ, PO, PR,
 PI and items) were translated in `bhcl_theme/translations/pt*.csv`; the client looks up the exact key (including a
-trailing space, as in `"Accounting Dimensions "`), and `tests/test_traducoes_compras.py` warns when a new label
+trailing space, as in `"Accounting Dimensions "`), and `tests/test_procurement_translations.py` warns when a new label
 appears without translation.
 
 ## Purchasing and Stock workspaces
 
-The layout of both workspaces is defined in `compras/workspaces.py` (`LAYOUTS`) and reapplied on every `migrate`;
+The layout of both workspaces is defined in `procurement/workspaces.py` (`LAYOUTS`) and reapplied on every `migrate`;
 adjustments made through the UI in these two workspaces are overwritten. To change it, edit `LAYOUTS`. The function
 only saves when something changed, and nonexistent targets (e.g. a report removed from ERPNext) are ignored.
 
@@ -85,5 +85,5 @@ only saves when something changed, and nonexistent targets (e.g. a report remove
 
 ## Tests
 
-`bench --site dev run-tests --app integracoes_customizadas --module integracoes_customizadas.tests.test_compras_process`
-(and `test_workspaces_compras`, `test_traducoes_compras`)
+`bench --site dev run-tests --app integracoes_customizadas --module integracoes_customizadas.tests.test_procurement_process`
+(and `test_procurement_workspaces`, `test_procurement_translations`)

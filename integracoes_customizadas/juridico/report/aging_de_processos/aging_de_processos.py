@@ -2,10 +2,10 @@
 
 from frappe.utils import date_diff, getdate, today
 
-from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto
 from integracoes_customizadas.juridico.report.relacao_de_processos.relacao_de_processos import (
 	listar_processos,
 )
+from integracoes_customizadas.juridico.report_helpers import agrupar, coluna_moeda, coluna_texto
 
 FAIXAS = ((365, "Até 1 ano"), (730, "1 a 2 anos"), (1825, "2 a 5 anos"), (None, "Mais de 5 anos"))
 CAMPOS = ["name", "empresa", "data_ajuizamento", "valor_causa", "valor_provisionado", "moeda"]

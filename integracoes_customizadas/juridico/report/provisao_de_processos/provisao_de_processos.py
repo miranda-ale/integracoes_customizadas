@@ -1,8 +1,13 @@
 """Provisão dos processos por empresa, risco e probabilidade de perda."""
 
-from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto, passivo_liquido
 from integracoes_customizadas.juridico.report.relacao_de_processos.relacao_de_processos import (
 	listar_processos,
+)
+from integracoes_customizadas.juridico.report_helpers import (
+	agrupar,
+	coluna_moeda,
+	coluna_texto,
+	passivo_liquido,
 )
 
 CAMPOS = [

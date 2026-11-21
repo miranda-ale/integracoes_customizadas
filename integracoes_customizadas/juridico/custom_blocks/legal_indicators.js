@@ -94,7 +94,7 @@ function render(d) {
 function carregar() {
 	grade.innerHTML = '<div class="ind-vazio">Carregando…</div>';
 	frappe
-		.xcall("integracoes_customizadas.juridico.indicadores.get_dashboard", {
+		.xcall("integracoes_customizadas.juridico.indicators.get_dashboard", {
 			company: seletor.value || null,
 		})
 		.then(render)

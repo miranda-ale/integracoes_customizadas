@@ -87,7 +87,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		doc.parte = contato.name
 		doc.save()
 		self.assertEqual(doc.doctype_parte, "Contact")
-		# Nomes de cadastro são normalizados em caixa alta e sem acento (normalizacao/maiusculas.py).
+		# Nomes de cadastro são normalizados em caixa alta e sem acento (normalization/uppercase.py).
 		self.assertEqual(doc.nome_parte, "PACIENTE JURIDICO")
 		self.assertIn(
 			"Cadastre pacientes em Contatos",
@@ -744,7 +744,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			processo.save()
 
 	def test_vinculo_posterior_por_cpf(self):
-		from integracoes_customizadas.juridico.parte import vincular_colaborador
+		from integracoes_customizadas.juridico.party import vincular_colaborador
 
 		if not frappe.get_meta("Employee").has_field("custom_cpf"):
 			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
@@ -942,7 +942,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertIn({"doctype": "Processo Judicial", "count": 1, "open_count": 0}, externos)
 
 	def test_vincular_colaborador_atualiza_a_linha_principal(self):
-		from integracoes_customizadas.juridico.parte import vincular_colaborador
+		from integracoes_customizadas.juridico.party import vincular_colaborador
 
 		if not frappe.get_meta("Employee").has_field("custom_cpf"):
 			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
@@ -1155,7 +1155,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 	def test_audiencias_e_prazos_geram_agenda_sem_duplicar(self):
 		from frappe.utils import add_days, now_datetime
 
-		from integracoes_customizadas.juridico import agenda
+		from integracoes_customizadas.juridico import agenda_alerts as agenda
 
 		def contar(doctype, campo, nome):
 			return frappe.db.count(doctype, {campo: nome})

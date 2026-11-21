@@ -5,7 +5,7 @@ from frappe.utils import now_datetime
 
 from integracoes_customizadas.whatsapp.api import evolution_request, instance_path, message_path
 from integracoes_customizadas.whatsapp.conector import corpo_documento, normalizar_numero_br
-from integracoes_customizadas.whatsapp.distribuidor import SemInstanciaDisponivel, escolher_instancia
+from integracoes_customizadas.whatsapp.dispatcher import SemInstanciaDisponivel, escolher_instancia
 
 
 def normalize_phone(value):
