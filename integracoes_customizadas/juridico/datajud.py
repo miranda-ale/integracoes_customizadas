@@ -806,7 +806,7 @@ def sincronizar_processos_acompanhados():
 	"""Tarefa única por execução: health check, circuit breaker e sincronização em lote.
 
 	Roda na fila dedicada `datajud` (ver `agendar_sincronizacao`; um worker próprio precisa escutar
-	essa fila na bench — ver docs/datajud-qualidade-de-logs.md), nunca na fila "long" usada por
+	essa fila na bench — ver docs/datajud-log-quality.md), nunca na fila "long" usada por
 	tarefas interativas.
 	"""
 	config = frappe.get_single("DataJud Settings")
