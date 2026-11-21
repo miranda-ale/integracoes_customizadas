@@ -48,6 +48,8 @@ def get_data(filters):
 		conditions += " AND ec.status_candidato = %(status)s"
 		values["status"] = filters.get("status")
 
+	# {conditions} so recebe fragmentos constantes; os valores vao em parametros nomeados.
+	# nosemgrep: frappe-sql-format-injection
 	data = frappe.db.sql(
 		f"""
 		SELECT

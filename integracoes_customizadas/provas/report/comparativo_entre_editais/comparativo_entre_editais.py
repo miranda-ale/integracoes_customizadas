@@ -53,6 +53,8 @@ def get_data(filters):
 		values["vaga"] = filters.get("vaga")
 
 	# Busca editais
+	# {conditions} so recebe fragmentos constantes; os valores vao em parametros nomeados.
+	# nosemgrep: frappe-sql-format-injection
 	editais = frappe.db.sql(
 		f"""
 		SELECT

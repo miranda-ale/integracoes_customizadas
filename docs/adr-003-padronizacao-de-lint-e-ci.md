@@ -12,8 +12,13 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 
 ## Decisão
 
-1. **Python 3.11** em CI, `target-version = "py311"` e `requires-python = ">=3.11"` (alvo a revisar para o v16).
-2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` idêntica à do CLM.
+1. **Python: mínimo 3.11 mantido** (`target-version = "py311"`, `requires-python = ">=3.11"`, `linter.yml` em 3.11),
+   por restrição de produção: as imagens de produção/homologação estão confirmadas em Python 3.12. **Alvo de
+   migração ao Frappe v16: `>=3.13`** (`target-version = "py313"`, `requires-python = ">=3.13"`, `linter.yml` e
+   `ci.yml` coerentes), a executar na migração. O `ci.yml` passou a rodar Python 3.12 (antes 3.14), para refletir a
+   produção: o 3.14 é incompatível com o Frappe v15 (o freezegun quebra na coleta de testes com
+   `AttributeError: module 'uuid' has no attribute '_load_system_functions'`).
+2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` do CLM, sem ignores adicionais de `UP` (ver decisão 13).
 3. **pyupgrade coberto pela regra `UP` do ruff**, sem hook separado.
 4. **F401 NÃO é ignorado**: imports mortos foram removidos; reexportações/efeito colateral são mantidos com
    `# noqa: F401  # <motivo>`. Strings visíveis ao usuário com caractere unicode ambíguo (ex.: travessão) recebem
@@ -33,6 +38,29 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     então a cobertura é pequena (ver Pendências).
 11. **commitlint mantido** e `pre-commit install` documentado em `AGENTS.md`.
 12. **Sem tag e sem mudança de `__version__`** nesta padronização.
+13. **Consultas SQL de Provas: f-string da `main` mantida, com `# nosemgrep: frappe-sql-format-injection`.**
+    As três consultas (`candidatos_por_etapa`, `candidatos_por_status`, `comparativo_entre_editais`) seguem como na
+    `main` (f-string, que o `ruff --fix` do UP032 produziu). Verificado que `conditions` é montado só com fragmentos
+    constantes (`" AND e.name = %(edital)s"` etc.) e que todos os valores vão por parâmetros nomeados, sem
+    interpolar entrada do usuário; por isso o achado é falso positivo e é suprimido, com comentário de
+    justificativa, na linha imediatamente anterior à chamada. Alternativa descartada: voltar ao
+    `.format(conditions=...)` e restaurar os ignores `UP030/031/032/037/040`. A premissa de que o `.format` evitaria
+    o semgrep era falsa: a regra detecta `.format()` e f-string igualmente, e a reversão só aumentaria o diff contra
+    a `main` e enfraqueceria o ruff. Os ignores `UP` extras, portanto, **não** foram restaurados.
+14. **`get_open_count` (`juridico/dashboard.py`) com `items: str | list | None = None`**, exigido pela regra
+    `missing-argument-type-hint`. Validado contra `frappe.utils.typing_validations` (v15): `None`, string JSON e
+    lista passam; `dict` e `int` são rejeitados.
+
+15. **CI: stubs de DocTypes inexistentes no setup de teste.** Os Custom Fields de `Employee` e `Designation` em
+    `fixtures/custom_field.json` apontam para os DocTypes `Municipios` (`Employee-custom_naturalidade_cidade`), `CBO`
+    (`Designation-custom_cbo`) e `Dependentes` (`Employee-custom_dependentes`), que não existem em nenhum app do
+    grupo (provavelmente criados à mão em produção). Sem eles, a criação dos test records do hrms falha com
+    `WrongOptionsDoctypeLinkError`. O passo "Run Tests" do `ci.yml` chama
+    `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotente, sem hook, só em teste; stubs no
+    módulo `Custom`, que não é do app). O mesmo script cria o Custom Field `Item.custom_código_bionexo`, usado por
+    `importacao_bionexo.py` e também ausente de fixtures/patches. **A
+    instalação limpa do app depende desses DocTypes, que não estão no app**: tarefa de produto separada (criá-los
+    no app ou remover/condicionar os campos).
 
 ## Consequências
 
@@ -57,5 +85,5 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 ## Pendências
 
 - Atualizar prettier (2.7.1) e eslint (8.44.0) na preparação para v16/v17.
-- Revisar o alvo Python (3.11) para o v16.
+- Migrar o alvo Python para `>=3.13` na migração ao v16 (produção/homologação hoje em Python 3.12).
 - Ampliar o pip-audit para cobrir as dependências `erpnext`/`hrms` (hoje comentadas no `pyproject`).

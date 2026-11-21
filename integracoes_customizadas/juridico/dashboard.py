@@ -33,7 +33,7 @@ def contact_dashboard(data):
 
 @frappe.whitelist()
 @frappe.read_only()
-def get_open_count(doctype: str, name: str | int, items=None):
+def get_open_count(doctype: str, name: str | int, items: str | list | None = None):
 	"""Conexões padrão do Frappe, contando também processos em que a parte não é a principal.
 
 	O filtro do dashboard só alcança campos do próprio Processo Judicial (a principal espelhada);
