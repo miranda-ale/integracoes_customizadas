@@ -12,8 +12,12 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 
 ## Decisão
 
-1. **Python 3.11** em CI, `target-version = "py311"` e `requires-python = ">=3.11"` (alvo a revisar para o v16).
-2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` idêntica à do CLM.
+1. **Python: mínimo 3.11 mantido** (`target-version = "py311"`, `requires-python = ">=3.11"`, `linter.yml` em 3.11),
+   por restrição de produção: as imagens de produção/homologação rodam Python 3.11 ou 3.12 (versão exata a
+   confirmar). **Alvo de migração ao Frappe v16: `>=3.13`** (`target-version = "py313"`, `requires-python = ">=3.13"`,
+   `linter.yml` e `ci.yml` coerentes), a executar na migração. **Risco registrado:** o `ci.yml` roda Python 3.14,
+   que não reflete a produção (3.11/3.12); o CI pode aprovar código incompatível com as imagens atuais.
+2. **ruff fixado em v0.16.10** via `ruff-pre-commit`, regras `F,E,W,I,UP,B,RUF` e lista de `ignore` do CLM, **acrescida** de `UP030`, `UP031`, `UP032`, `UP037` e `UP040` (ver decisão 13).
 3. **pyupgrade coberto pela regra `UP` do ruff**, sem hook separado.
 4. **F401 NÃO é ignorado**: imports mortos foram removidos; reexportações/efeito colateral são mantidos com
    `# noqa: F401  # <motivo>`. Strings visíveis ao usuário com caractere unicode ambíguo (ex.: travessão) recebem
@@ -33,6 +37,15 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     então a cobertura é pequena (ver Pendências).
 11. **commitlint mantido** e `pre-commit install` documentado em `AGENTS.md`.
 12. **Sem tag e sem mudança de `__version__`** nesta padronização.
+13. **Ignores `UP030/031/032/037/040` restaurados** (existiam antes do alinhamento ao CLM). `UP032` convertia
+    `"...".format(conditions=...)` em f-string nas consultas SQL dos relatórios de Provas
+    (`candidatos_por_etapa`, `candidatos_por_status`, `comparativo_entre_editais`), o que o semgrep
+    (`frappe-sql-format-injection`, diff-aware) passou a tratar como código novo. As três consultas voltaram ao
+    `.format(conditions=...)` original; `conditions` é montado só com fragmentos fixos e os valores vão por
+    parâmetros nomeados. Sem `# nosemgrep`.
+14. **`get_open_count` (`juridico/dashboard.py`) com `items: str | list | None = None`**, exigido pela regra
+    `missing-argument-type-hint`. Validado contra `frappe.utils.typing_validations` (v15): `None`, string JSON e
+    lista passam; `dict` e `int` são rejeitados.
 
 ## Consequências
 
@@ -57,5 +70,6 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 ## Pendências
 
 - Atualizar prettier (2.7.1) e eslint (8.44.0) na preparação para v16/v17.
-- Revisar o alvo Python (3.11) para o v16.
+- Migrar o alvo Python para `>=3.13` na migração ao v16 e confirmar a versão exata das imagens de produção (3.11/3.12).
+- Alinhar o Python do `ci.yml` (3.14) à produção, ou registrar a divergência como aceita.
 - Ampliar o pip-audit para cobrir as dependências `erpnext`/`hrms` (hoje comentadas no `pyproject`).
