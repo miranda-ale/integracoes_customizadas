@@ -27,7 +27,7 @@ class Questao(Document):
 			preview_html_parts.append("<div class='questao-alternativas'>")
 			preview_html_parts.append("<ol class='questao-alternativas-list'>")
 
-			alternativas = sorted(self.alternativas or [], key=lambda alt: (alt.letra or ""))
+			alternativas = sorted(self.alternativas or [], key=lambda alt: alt.letra or "")
 			for alt in alternativas:
 				texto_html = sanitize_html(alt.texto or "", always_sanitize=True)
 				preview_html_parts.append(f"<li><strong>{alt.letra})</strong> {texto_html}</li>")

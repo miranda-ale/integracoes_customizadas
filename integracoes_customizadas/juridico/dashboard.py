@@ -45,7 +45,9 @@ def get_open_count(doctype: str, name: str | int, items=None):
 		return resultado
 	externos = resultado["count"].setdefault("external_links_found", [])
 	# Quando "items" restringe as transações, só soma se Processo Judicial foi pedido.
-	if items is not None and "Processo Judicial" not in (frappe.parse_json(items) if isinstance(items, str) else items):
+	if items is not None and "Processo Judicial" not in (
+		frappe.parse_json(items) if isinstance(items, str) else items
+	):
 		return resultado
 	processos = set(
 		frappe.get_all(
@@ -69,7 +71,10 @@ def get_open_count(doctype: str, name: str | int, items=None):
 	if processos and isinstance(atual["count"], int):
 		principais = set(
 			frappe.get_all(
-				"Processo Judicial", filters={"parte": name, "tipo_parte": tipo_parte}, pluck="name", limit=100
+				"Processo Judicial",
+				filters={"parte": name, "tipo_parte": tipo_parte},
+				pluck="name",
+				limit=100,
 			)
 		)
 		atual["count"] = len(principais | processos)

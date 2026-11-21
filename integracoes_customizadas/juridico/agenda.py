@@ -11,7 +11,7 @@ def sincronizar(processo):
 	"""Mantém um ToDo (e um Event, nas audiências) por linha, sem duplicar na reexecução."""
 	anterior = processo.get_doc_before_save()
 	atuais = {linha.name for linha in processo.audiencias}
-	for removida in (anterior.audiencias if anterior else []):
+	for removida in anterior.audiencias if anterior else []:
 		if removida.name not in atuais:
 			_encerrar(removida, "Cancelled")
 
@@ -78,7 +78,8 @@ def _gravar(doctype, linha, campo, valores, processo=None):
 	documento = frappe.get_doc({"doctype": doctype, **valores})
 	if processo:
 		documento.append(
-			"event_participants", {"reference_doctype": "Processo Judicial", "reference_docname": processo.name}
+			"event_participants",
+			{"reference_doctype": "Processo Judicial", "reference_docname": processo.name},
 		)
 	documento.flags.ignore_permissions = True
 	documento.insert()
@@ -102,7 +103,10 @@ def alertar_prazos():
 	)
 	for linha in linhas:
 		processo = frappe.db.get_value(
-			"Processo Judicial", linha.parent, ["numero_processo", "responsavel_interno", "owner"], as_dict=True
+			"Processo Judicial",
+			linha.parent,
+			["numero_processo", "responsavel_interno", "owner"],
+			as_dict=True,
 		)
 		destino = linha.responsavel or processo.responsavel_interno or processo.owner
 		frappe.get_doc(
@@ -113,8 +117,12 @@ def alertar_prazos():
 				"document_type": "Processo Judicial",
 				"document_name": linha.parent,
 				"subject": _("Prazo {0} vence em {1} – processo {2}").format(
-					linha.tipo or "", getdate(linha.data_hora).strftime("%d/%m/%Y"), processo.numero_processo or linha.parent
+					linha.tipo or "",
+					getdate(linha.data_hora).strftime("%d/%m/%Y"),
+					processo.numero_processo or linha.parent,
 				),
 			}
 		).insert(ignore_permissions=True)
-		frappe.db.set_value("Processo Judicial Audiencia", linha.name, "alerta_enviado_em", today(), update_modified=False)
+		frappe.db.set_value(
+			"Processo Judicial Audiencia", linha.name, "alerta_enviado_em", today(), update_modified=False
+		)

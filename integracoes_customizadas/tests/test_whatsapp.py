@@ -105,9 +105,9 @@ class TestRuleRecipients(unittest.TestCase):
 		)
 		values = {"celular": " 11 99999-1234 ", "contato": "user@example.com", "ignorado": "11 90000-0000"}
 		doc = SimpleNamespace(
-			get=lambda key: [SimpleNamespace(get=lambda f: "11 95555-4444")]
-			if key == "familiares"
-			else values.get(key)
+			get=lambda key: (
+				[SimpleNamespace(get=lambda f: "11 95555-4444")] if key == "familiares" else values.get(key)
+			)
 		)
 		with (
 			patch.object(notification.frappe, "safe_eval", side_effect=lambda expr, *a: expr != "False"),
