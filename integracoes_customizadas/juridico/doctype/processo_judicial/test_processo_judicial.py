@@ -391,7 +391,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			blocos = frappe.parse_json(workspace.doc.content)
 			self.assertEqual(
 				[block["type"] for block in blocos],
-				["custom_block"] + ["shortcut"] * 5 + ["card"] * 4,
+				["custom_block"] + ["shortcut"] * 5 + ["card"] * 5,
 			)
 			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
 			self.assertEqual(len(workspace.get_number_cards()), 0)
@@ -406,6 +406,8 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertEqual(caixas["Judicial"][0]["link_to"], "Processo Judicial")
 			self.assertEqual(caixas["Configurações"][0]["label"], "Configurações de Processos Judiciais")
 			self.assertEqual(caixas["Configurações"][0]["link_to"], "Configurações DataJud")
+			# Atalho do log de sincronização (politicas/atalhos.py), em card próprio, fora de "Configurações".
+			self.assertEqual(caixas["Integrações"][0]["link_to"], "DataJud Sync Log")
 			self.assertIn(
 				"Juridico Indicadores", [block.custom_block_name for block in workspace.get_custom_blocks()]
 			)

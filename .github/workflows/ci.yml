@@ -112,6 +112,8 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site test_site set-config allow_tests true
+          # antes do before_tests do ERPNext, que cria Designations de teste (mesma razão do passo após o migrate)
+          bench --site test_site execute integracoes_customizadas.tests.site_setup.relaxar_obrigatoriedade_designation
           # o before_tests do ERPNext (setup wizard de teste) não roda com --app de outro app
           bench --site test_site execute erpnext.setup.utils.before_tests
           # o install-app não roda os hooks after_migrate (workspaces, cards, políticas); em produção eles rodam a cada migrate
