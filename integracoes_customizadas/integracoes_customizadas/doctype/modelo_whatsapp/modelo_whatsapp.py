@@ -21,12 +21,12 @@ class ModeloWhatsApp(Document):
 			try:
 				_ENV.from_string(texto)
 			except TemplateSyntaxError as exc:
-				frappe.throw(_("Erro de sintaxe em {0}: {1}").format(self.meta.get_label(campo), exc))
+				frappe.throw(_("Erro de sintaxe em {0}: {1}").format(_(self.meta.get_label(campo)), str(exc)))
 		for variante in self.variantes or []:
 			try:
 				_ENV.from_string(variante.mensagem or "")
 			except TemplateSyntaxError as exc:
-				frappe.throw(_("Erro de sintaxe na variante {0}: {1}").format(variante.idx, exc))
+				frappe.throw(_("Erro de sintaxe na variante {0}: {1}").format(variante.idx, str(exc)))
 		self.validar_minimo_de_variantes()
 
 	def validar_minimo_de_variantes(self):

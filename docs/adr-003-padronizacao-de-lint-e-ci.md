@@ -86,6 +86,19 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
     obrigatórios em produção; os test records do hrms não os preenchem. O passo "Run Tests" chama
     `tests.site_setup.relaxar_obrigatoriedade_designation` depois do `migrate` (que reaplica `reqd=1`). O fixture
     `custom_field.json` não muda.
+20. **Semgrep: varredura completa e achados antigos corrigidos (sem novo `nosemgrep`).** O `linter.yml` roda
+    `semgrep scan --error --config ./frappe-semgrep-rules/rules --config r/python.lang.correctness .` (varredura
+    completa em PR, push na main e disparo manual; o `semgrep ci` só olharia o diff do PR). Dos 66 achados antigos,
+    64 foram corrigidos: type hints amplos nos métodos whitelisted (uniões que aceitam o que o cliente já envia),
+    `_()` nas mensagens e rótulos de relatório, `str(exc)` nos `.format`, remoção de `frappe.db.commit()` manuais
+    (a tarefa em lote do DataJud e o `on_update` do Edital são confirmados pelo Frappe), `self.set(...)` nos
+    auxiliares do validate de Importacao Bionexo e um único ponto de renderização Jinja das notificações
+    (`whatsapp/notification.py: renderizar_modelo`, mesma engine e recusa de `.__` do `frappe.render_template`,
+    sem tratar o texto como caminho de arquivo). Os 3 `nosemgrep` de Provas permanecem. **Em aberto, aguardando
+    decisão:** `guest-whitelisted-method` em `whatsapp/webhook.py` (endpoint desligado, responde 501 sem processar;
+    sem risco real hoje) e `override-doctype-class` em `hooks.py` (a subclasse `WhatsAppNotification` sobrescreve
+    `validate`, `send_an_email` e `send_notification_by_channel`, o que `doc_events` do v15 não cobre; a alternativa
+    `extend_doctype_class` só existe no v16).
 
 ## Consequências
 
@@ -111,5 +124,5 @@ prettier/eslint). Esta ADR registra a padronização aplicada a este repositóri
 
 - Atualizar prettier (2.7.1) e eslint (8.44.0) na preparação para v16/v17.
 - Migrar o alvo Python para `>=3.13` na migração ao v16 (produção/homologação hoje em Python 3.12).
-- Achados antigos do semgrep (66 na varredura completa) seguem sem correção nem supressão; tratar em rodada própria.
+- Dois achados do semgrep em aberto (decisão 20): webhook guest e `override_doctype_class`.
 - Atalhos/leitores dos DocTypes de CLM, SST e Ponto: nos repositórios donos.

@@ -1,6 +1,7 @@
 """Processos por unidade e cargo: dados do Employee quando há vínculo, do processo quando não há."""
 
 import frappe
+from frappe import _
 
 from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto
 from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import (
@@ -32,7 +33,7 @@ def get_columns():
 	return [
 		coluna_texto("unidade", "Unidade", 200),
 		coluna_texto("cargo", "Cargo/Função", 200),
-		{"fieldname": "quantidade", "label": "Processos", "fieldtype": "Int", "width": 90},
+		{"fieldname": "quantidade", "label": _("Processos"), "fieldtype": "Int", "width": 90},
 		coluna_moeda("valor_causa", "Valor da Causa"),
 		coluna_moeda("valor_provisionado", "Valor Provisionado"),
 	]

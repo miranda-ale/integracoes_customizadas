@@ -78,7 +78,7 @@ def message_path(endpoint, instancia=None):
 
 
 @frappe.whitelist(methods=["POST"])
-def create_instance(instancia=None):
+def create_instance(instancia: str | None = None):
 	require_manager()
 	nome = resolve_instance(instancia)
 	try:
@@ -124,7 +124,7 @@ def get_connection_state():
 
 
 @frappe.whitelist(methods=["POST"])
-def get_qr_code(instancia=None):
+def get_qr_code(instancia: str | None = None):
 	require_manager()
 	try:
 		data = evolution_request("GET", instance_path("connect", instancia))
@@ -156,7 +156,7 @@ def get_qr_code(instancia=None):
 
 
 @frappe.whitelist(methods=["POST"])
-def retry_delivery(delivery_name):
+def retry_delivery(delivery_name: str):
 	require_manager()
 	delivery = frappe.get_doc("Envio WhatsApp", delivery_name, for_update=True)
 	if delivery.status != "Falhou":

@@ -126,7 +126,12 @@ class Prova(Document):
 
 
 @frappe.whitelist()
-def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None, tipo=None):
+def get_questoes_disponiveis(
+	prova_name: str | None = None,
+	designation: str | None = None,
+	disciplina: str | None = None,
+	tipo: str | None = None,
+):
 	"""Retorna lista de questões disponíveis para seleção na prova.
 
 	Args:
@@ -203,7 +208,12 @@ def get_questoes_disponiveis(prova_name=None, designation=None, disciplina=None,
 
 
 @frappe.whitelist()
-def gerar_questoes_automaticas(prova_name=None, designation=None, configuracoes=None, questoes_excluir=None):
+def gerar_questoes_automaticas(
+	prova_name: str | None = None,
+	designation: str | None = None,
+	configuracoes: str | list | None = None,
+	questoes_excluir: str | list | None = None,
+):
 	"""Gera questões automaticamente baseado em configurações de disciplinas e quantidades.
 
 	Args:

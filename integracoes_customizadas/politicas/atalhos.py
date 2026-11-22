@@ -37,7 +37,7 @@ ATALHOS = (
 		],
 		("Recruitment", "HR"),
 	),
-	("Integrações", [("Log de Sincronização DataJud", "DataJud Sync Log")], ("Jurídico",)),
+	("Configurações", [("Log de Sincronização DataJud", "DataJud Sync Log")], ("Jurídico",)),
 )
 
 

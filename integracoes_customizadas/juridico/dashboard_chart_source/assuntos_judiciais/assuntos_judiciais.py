@@ -5,7 +5,7 @@ from frappe import _
 
 
 @frappe.whitelist()
-def get_data(chart_name=None, **kwargs):
+def get_data(chart_name: str | None = None, **kwargs):
 	frappe.has_permission("Processo Judicial", "read", throw=True)
 
 	# O Table MultiSelect armazena um vínculo por assunto e processo.

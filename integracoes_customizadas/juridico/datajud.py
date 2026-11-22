@@ -597,7 +597,7 @@ def _espelhar_ocorrencia(identificador, fonte):
 
 
 @frappe.whitelist(methods=["POST"])
-def acompanhar_processo(numero_processo, tribunal_alias):
+def acompanhar_processo(numero_processo: str, tribunal_alias: str):
 	_check_user()
 	numero = _numero_cnj(numero_processo)
 	ocorrencias = consultar_numero(numero, tribunal_alias)
@@ -636,7 +636,7 @@ def _assinaturas_movimentos(doc):
 
 
 @frappe.whitelist(methods=["POST"])
-def buscar_andamentos(processo):
+def buscar_andamentos(processo: str):
 	"""Consulta e atualiza somente a ocorrência aberta, mesmo se estiver encerrada."""
 	_check_user()
 	doc = frappe.get_doc("Processo Judicial", processo)
@@ -828,7 +828,6 @@ def sincronizar_processos_acompanhados():
 		_abrir_ou_manter_circuito(config, tipo_falha_saude)
 		coletor.persistir()
 		config.save(ignore_permissions=True)
-		frappe.db.commit()
 		return
 
 	processos = frappe.get_all(
@@ -861,4 +860,3 @@ def sincronizar_processos_acompanhados():
 	if houve_sucesso:
 		config.ultima_sincronizacao_sucesso = now_datetime()
 	config.save(ignore_permissions=True)
-	frappe.db.commit()

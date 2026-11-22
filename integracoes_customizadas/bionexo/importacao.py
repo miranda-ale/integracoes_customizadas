@@ -88,7 +88,14 @@ def vinculos_da_rfq(request_for_quotation: str) -> dict:
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
-def rfq_por_material_request(doctype, txt, searchfield, start, page_len, filters):
+def rfq_por_material_request(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int | str,
+	page_len: int | str,
+	filters: dict | list | str | None,
+):
 	"""Link query: RFQs submetidas, só as que referenciam a Solicitação de Compras escolhida (se houver)."""
 	condicoes = [["docstatus", "=", 1]]
 	if filters and filters.get("material_request"):
@@ -178,7 +185,14 @@ def _criar_fornecedor(linha) -> str:
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
-def itens_da_importacao(doctype, txt, searchfield, start, page_len, filters):
+def itens_da_importacao(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int | str,
+	page_len: int | str,
+	filters: dict | list | str | None,
+):
 	"""Link query dos itens do relatório: itens do Pedido de Cotação (ou, sem ele, da Solicitação de Compras),
 	com nome e quantidade solicitada."""
 	filters = filters or {}

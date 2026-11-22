@@ -52,13 +52,13 @@ class ImportacaoBionexo(Document):
 		try:
 			dados = parse_relatorio(self.conteudo_pdf())
 		except Exception as erro:
-			frappe.throw(_("Não foi possível ler o relatório do Bionexo: {0}").format(erro))
+			frappe.throw(_("Não foi possível ler o relatório do Bionexo: {0}").format(str(erro)))
 
-		self.id_cotacao_bionexo = dados["id_cotacao"]
-		self.titulo_bionexo = (dados["titulo"] or "")[:140]
-		self.data_cotacao = dados["data_criacao"]
-		self.forma_pagamento = dados["forma_pagamento"]
-		self.observacoes_bionexo = dados["observacoes"]
+		self.set("id_cotacao_bionexo", dados["id_cotacao"])
+		self.set("titulo_bionexo", (dados["titulo"] or "")[:140])
+		self.set("data_cotacao", dados["data_criacao"])
+		self.set("forma_pagamento", dados["forma_pagamento"])
+		self.set("observacoes_bionexo", dados["observacoes"])
 
 		self.set("itens", [])
 		self.set("cotacoes", [])
@@ -131,15 +131,18 @@ class ImportacaoBionexo(Document):
 		texto = "\n".join([dados["observacoes"] or "", dados["titulo"] or ""])
 		for nome in re.findall(r"[A-Z0-9]+(?:-[A-Z0-9]+){2,}", texto):
 			if frappe.db.get_value("Request for Quotation", nome, "docstatus") == 1:
-				self.request_for_quotation = nome
+				self.set("request_for_quotation", nome)
 				return
 			if not self.material_request and frappe.db.get_value("Material Request", nome, "docstatus") == 1:
-				self.material_request = nome
+				self.set("material_request", nome)
 		if self.id_cotacao_bionexo:
-			self.request_for_quotation = frappe.db.get_value(
-				"Request for Quotation",
-				{"custom_id_bionexo": self.id_cotacao_bionexo, "docstatus": 1},
-				"name",
+			self.set(
+				"request_for_quotation",
+				frappe.db.get_value(
+					"Request for Quotation",
+					{"custom_id_bionexo": self.id_cotacao_bionexo, "docstatus": 1},
+					"name",
+				),
 			)
 
 	def validar_vinculos(self):
@@ -147,7 +150,7 @@ class ImportacaoBionexo(Document):
 			self.validar_solicitacao()
 			existentes = rfqs_da_material_request(self.material_request)
 			if len(existentes) == 1:
-				self.request_for_quotation = existentes[0]
+				self.set("request_for_quotation", existentes[0])
 		if not self.request_for_quotation:
 			return
 		rfq = frappe.db.get_value(
@@ -161,7 +164,7 @@ class ImportacaoBionexo(Document):
 
 		solicitacoes = material_requests_da_rfq(self.request_for_quotation)
 		if not self.material_request and len(solicitacoes) == 1:
-			self.material_request = solicitacoes[0]
+			self.set("material_request", solicitacoes[0])
 		elif self.material_request and self.material_request not in solicitacoes:
 			frappe.throw(
 				_("O Pedido de Cotação {0} não pertence à Solicitação de Compras {1}.").format(
@@ -187,7 +190,7 @@ class ImportacaoBionexo(Document):
 			or self.has_value_changed("material_request")
 		)
 		if not self.company or mudou:
-			self.company = empresa
+			self.set("company", empresa)
 		elif self.company != empresa:
 			frappe.throw(
 				_("A empresa {0} difere da empresa do {1} {2} ({3}).").format(
@@ -420,7 +423,7 @@ class ImportacaoBionexo(Document):
 		for cotacao in self.cotacoes:
 			cotacao.rfq_item = por_item_rfq.get(cotacao.item_code)
 			cotacao.db_set("rfq_item", cotacao.rfq_item)
-		self.request_for_quotation = rfq.name
+		self.set("request_for_quotation", rfq.name)
 		self.db_set({"request_for_quotation": rfq.name, "rfq_gerada": 1})
 
 	def _completar_rfq(self, rfq, por_fornecedor):

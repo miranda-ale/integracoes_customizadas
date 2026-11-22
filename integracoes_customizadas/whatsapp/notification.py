@@ -7,11 +7,28 @@ from frappe import _
 from frappe.core.doctype.role.role import get_users
 from frappe.email.doctype.notification.notification import Notification, get_assignees
 from frappe.utils import cstr, get_url_to_form, md_to_html, strip_html
+from frappe.utils.jinja import get_jenv
 
 from integracoes_customizadas import email_institucional
 from integracoes_customizadas.whatsapp.delivery import nome_anexo, normalize_phone
 
 CORPO_INSTITUCIONAL = "_corpo_institucional"
+
+
+def renderizar_modelo(template, context):
+	"""Único ponto de renderização Jinja das notificações deste app (auditado pela segurança).
+
+	Mesmo mecanismo do `frappe.render_template` (ambiente Jinja com sandbox do Frappe, com os mesmos métodos
+	`frappe.*` das regras de Notificação) e a mesma recusa de acesso a atributos privados (`.__`). Diferenças
+	deliberadas: o texto NUNCA é tratado como caminho de arquivo de template, e o modelo vem só de campos da
+	própria Notificação (assunto, mensagem, números extras), editáveis apenas por quem administra Notificações;
+	o conteúdo dos documentos entra apenas como contexto, nunca como modelo.
+	"""
+	if not template:
+		return ""
+	if ".__" in template:
+		frappe.throw(_("Modelo de notificação inválido."))
+	return get_jenv().from_string(template).render(context)
 
 
 class WhatsAppNotification(Notification):
@@ -61,12 +78,12 @@ def corpo_do_email(alert, doc, context):
 	"""HTML institucional do e-mail da regra, ou None quando não há layout (sem clm) ou a mensagem já o tem."""
 	if not alert.message or not email_institucional._render_email():
 		return None
-	corpo = frappe.render_template(alert.message, context)
+	corpo = renderizar_modelo(alert.message, context)
 	if email_institucional.ja_institucional(corpo):
 		return None
 	if alert.get("message_type") == "Markdown":
 		corpo = md_to_html(corpo)
-	titulo = strip_html(frappe.render_template(alert.subject, context)) if alert.subject else alert.name
+	titulo = strip_html(renderizar_modelo(alert.subject, context)) if alert.subject else alert.name
 	referencia = (doc.parenttype, doc.parent) if doc.meta.istable else (doc.doctype, doc.name)
 	return email_institucional.corpo(titulo, corpo, acao=(_("Abrir documento"), get_url_to_form(*referencia)))
 
@@ -119,7 +136,7 @@ def recipient_phones(alert, doc, context):
 	extras = alert.get("whatsapp_numeros_extras")
 	if extras:
 		try:
-			rendered = frappe.render_template(extras, context)
+			rendered = renderizar_modelo(extras, context)
 		except Exception:
 			frappe.log_error(frappe.get_traceback(), "Falha nos números extras da notificação WhatsApp")
 		else:
@@ -140,8 +157,8 @@ def render_message(alert, context, destino=None, info=None):
 	body_template = alert.message or ""
 	if body_template.strip() == "Add your message here":
 		body_template = alert.notification_message or ""
-	subject = frappe.render_template(subject_template, context) if subject_template else ""
-	body = frappe.render_template(body_template, context) if body_template else ""
+	subject = renderizar_modelo(subject_template, context) if subject_template else ""
+	body = renderizar_modelo(body_template, context) if body_template else ""
 	subject = BeautifulSoup(subject, "html.parser").get_text(" ", strip=True)
 	body = BeautifulSoup(body, "html.parser").get_text("\n", strip=True)
 	text = "\n\n".join(part for part in [subject, body] if part)

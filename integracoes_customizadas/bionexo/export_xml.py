@@ -2,6 +2,7 @@ import re
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 import frappe
+from frappe import _
 from frappe.utils import getdate, strip_html
 
 # Regras fixas do layout WA
@@ -87,10 +88,10 @@ def export_request_for_quotation_bionexo_xml(request_for_quotation: str):
 	doc = frappe.get_doc("Request for Quotation", request_for_quotation)
 
 	if doc.docstatus == 2:
-		frappe.throw("Não é permitido exportar Solicitação de Orçamento cancelada.")
+		frappe.throw(_("Não é permitido exportar Solicitação de Orçamento cancelada."))
 
 	if not doc.items:
-		frappe.throw("Solicitação de Orçamento sem itens. Nada a exportar.")
+		frappe.throw(_("Solicitação de Orçamento sem itens. Nada a exportar."))
 
 	# O layout Bionexo possui apenas uma Requisição no cabeçalho. Uma RFQ
 	# agrupadora não pode ser exportada sem ambiguidade quando referenciar mais
@@ -98,14 +99,16 @@ def export_request_for_quotation_bionexo_xml(request_for_quotation: str):
 	material_requests = sorted({item.material_request for item in doc.items if item.material_request})
 	if not material_requests:
 		frappe.throw(
-			"A Solicitação de Orçamento deve possuir uma Solicitação de Compras vinculada em seus itens."
+			_("A Solicitação de Orçamento deve possuir uma Solicitação de Compras vinculada em seus itens.")
 		)
 	if len(material_requests) > 1:
 		frappe.throw(
-			"A Solicitação de Orçamento deve referenciar uma única Solicitação de Compras para exportação Bionexo."
+			_(
+				"A Solicitação de Orçamento deve referenciar uma única Solicitação de Compras para exportação Bionexo."
+			)
 		)
 	if not doc.schedule_date:
-		frappe.throw("Preencha a Data Necessária (schedule_date) antes de exportar ao Bionexo.")
+		frappe.throw(_("Preencha a Data Necessária (schedule_date) antes de exportar ao Bionexo."))
 
 	requisicao = material_requests[0]
 	titulo_pdc = doc.name

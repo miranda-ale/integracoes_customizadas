@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 
@@ -89,7 +90,7 @@ def criar_custom_fields_edital():
 	try:
 		create_edital_custom_fields()
 		remover_link_prova_edital_invalido()
-		frappe.msgprint("Custom Fields criados com sucesso!", indicator="green", title="Sucesso")
+		frappe.msgprint(_("Custom Fields criados com sucesso!"), indicator="green", title=_("Sucesso"))
 		return {"success": True, "message": "Custom Fields criados com sucesso"}
 	except Exception as e:
 		frappe.log_error(f"Erro ao criar Custom Fields: {e!s}")

@@ -63,7 +63,8 @@ jobs:
       - name: Run Semgrep rules
         run: |
           pip install semgrep
-          semgrep ci --config ./frappe-semgrep-rules/rules --config r/python.lang.correctness
+          # varredura completa do repositório em PR, push na main e disparo manual (semgrep ci só olharia o diff do PR)
+          semgrep scan --error --metrics=off --config ./frappe-semgrep-rules/rules --config r/python.lang.correctness .
 
   deps-vulnerable-check:
     name: 'Vulnerable Dependency Check'

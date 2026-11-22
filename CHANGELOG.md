@@ -4,6 +4,8 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 
 ## Não lançado
 
+- Semgrep: 64 dos 66 achados antigos corrigidos (type hints nos métodos whitelisted, `_()` em mensagens, `str(exc)`
+  nos `.format`, commits manuais removidos, renderização Jinja das notificações centralizada em `renderizar_modelo`).
 - Corrige o circuit breaker do DataJud: a contagem de falhas seguidas recomeçava em 1 a cada execução (o tipo da
   falha só era gravado ao abrir), então o circuito nunca abria. Agora o tipo da sequência em andamento fica em
   `circuito_tipo_falha` enquanto o circuito está fechado.

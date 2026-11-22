@@ -1,5 +1,6 @@
 """Aging: idade dos processos em andamento desde o ajuizamento, em faixas."""
 
+from frappe import _
 from frappe.utils import date_diff, getdate, today
 
 from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto
@@ -35,7 +36,7 @@ def get_columns():
 	return [
 		coluna_texto("empresa", "Empresa", 200),
 		coluna_texto("faixa", "Idade do Processo", 150),
-		{"fieldname": "quantidade", "label": "Processos", "fieldtype": "Int", "width": 90},
+		{"fieldname": "quantidade", "label": _("Processos"), "fieldtype": "Int", "width": 90},
 		coluna_moeda("valor_causa", "Valor da Causa"),
 		coluna_moeda("valor_provisionado", "Valor Provisionado"),
 	]

@@ -34,8 +34,6 @@ class Edital(Document):
 				except Exception:
 					pass  # Campo pode não existir se Custom Field não foi criado
 
-		frappe.db.commit()
-
 	def validar_etapas(self):
 		"""Valida que há pelo menos uma etapa definida."""
 		if not self.etapas or len(self.etapas) == 0:
@@ -349,14 +347,20 @@ class Edital(Document):
 
 
 @frappe.whitelist()
-def importar_candidatos(edital_name):
+def importar_candidatos(edital_name: str):
 	"""Método whitelisted para importar candidatos da vaga."""
 	doc = frappe.get_doc("Edital", edital_name)
 	return doc.importar_candidatos_da_vaga()
 
 
 @frappe.whitelist()
-def avancar_candidatos(edital_name, candidatos, proxima_etapa, criar_interview=1, enviar_email=1):
+def avancar_candidatos(
+	edital_name: str,
+	candidatos: str | list,
+	proxima_etapa: str,
+	criar_interview: int | str | bool = 1,
+	enviar_email: int | str | bool = 1,
+):
 	"""Método whitelisted para avançar candidatos de etapa."""
 	import json
 
@@ -371,14 +375,14 @@ def avancar_candidatos(edital_name, candidatos, proxima_etapa, criar_interview=1
 
 
 @frappe.whitelist()
-def gerar_blog(edital_name):
+def gerar_blog(edital_name: str):
 	"""Método whitelisted para gerar publicação no blog."""
 	doc = frappe.get_doc("Edital", edital_name)
 	return doc.gerar_publicacao_blog()
 
 
 @frappe.whitelist()
-def get_candidatos_por_etapa(edital_name, etapa=None):
+def get_candidatos_por_etapa(edital_name: str, etapa: str | None = None):
 	"""Retorna candidatos agrupados por etapa."""
 	doc = frappe.get_doc("Edital", edital_name)
 

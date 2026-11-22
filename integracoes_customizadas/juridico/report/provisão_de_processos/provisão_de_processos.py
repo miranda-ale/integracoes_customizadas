@@ -1,5 +1,7 @@
 """Provisão dos processos por empresa, risco e probabilidade de perda."""
 
+from frappe import _
+
 from integracoes_customizadas.juridico.relatorios import agrupar, coluna_moeda, coluna_texto, passivo_liquido
 from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import (
 	listar_processos,
@@ -33,7 +35,7 @@ def get_columns():
 		coluna_texto("empresa", "Empresa", 200),
 		coluna_texto("risco", "Risco", 90),
 		coluna_texto("probabilidade_perda", "Probabilidade de Perda", 150),
-		{"fieldname": "quantidade", "label": "Processos", "fieldtype": "Int", "width": 90},
+		{"fieldname": "quantidade", "label": _("Processos"), "fieldtype": "Int", "width": 90},
 		coluna_moeda("valor_causa", "Valor da Causa"),
 		coluna_moeda("valor_provisionado", "Valor Provisionado"),
 		coluna_moeda("saldo_depositado", "Saldo Depositado"),

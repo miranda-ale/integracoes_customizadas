@@ -44,7 +44,7 @@ class TestRuleRecipients(unittest.TestCase):
 			["assignee@example.com", "linked@example.com", "owner@example.com", "role@example.com"],
 		)
 
-	@patch.object(notification.frappe, "render_template", side_effect=lambda text, context: text)
+	@patch.object(notification, "renderizar_modelo", side_effect=lambda text, context: text)
 	def test_message_uses_subject_and_readable_body(self, _render):
 		alert = SimpleNamespace(
 			subject="Aviso", notification_title=None, message="<p>Prazo <b>hoje</b></p>", get=lambda key: None
@@ -112,8 +112,8 @@ class TestRuleRecipients(unittest.TestCase):
 		with (
 			patch.object(notification.frappe, "safe_eval", side_effect=lambda expr, *a: expr != "False"),
 			patch.object(
-				notification.frappe,
-				"render_template",
+				notification,
+				"renderizar_modelo",
 				side_effect=lambda text, ctx: text.replace("{{ doc.extra }}", "11 96666-5555"),
 			),
 		):
@@ -123,7 +123,7 @@ class TestRuleRecipients(unittest.TestCase):
 			)
 
 	@patch.object(notification.frappe, "log_error")
-	@patch.object(notification.frappe, "render_template", side_effect=ValueError("jinja"))
+	@patch.object(notification, "renderizar_modelo", side_effect=ValueError("jinja"))
 	def test_invalid_extras_template_does_not_break_other_phones(self, _render, log_error):
 		alert = SimpleNamespace(recipients=[], get=lambda key: "{{ x")
 		self.assertEqual(notification.recipient_phones(alert, SimpleNamespace(), {}), [])
@@ -297,6 +297,14 @@ class TestDelivery(unittest.TestCase):
 		self.assertEqual(item.status, "Falhou")
 		self.assertIn("503", item.error)
 		request.assert_called_once()
+
+
+class TestRenderizacao(unittest.TestCase):
+	def test_renderizar_modelo_usa_contexto_e_recusa_acesso_privado(self):
+		self.assertEqual(notification.renderizar_modelo("", {}), "")
+		self.assertEqual(notification.renderizar_modelo("Olá {{ nome }}", {"nome": "Ana"}), "Olá Ana")
+		with self.assertRaises(frappe.ValidationError):
+			notification.renderizar_modelo("{{ ''.__class__ }}", {})
 
 
 if __name__ == "__main__":

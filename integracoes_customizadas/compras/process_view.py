@@ -73,7 +73,7 @@ MAX_DOCS = 150
 
 
 @frappe.whitelist()
-def get_purchase_steps(doctype, name):
+def get_purchase_steps(doctype: str, name: str):
 	"""Stage bar of a document of the purchasing chain: {current, stages: [...]} (see `build_stages`)."""
 	if doctype not in STEP_DOCTYPES:
 		frappe.throw(f"DocType fora do ciclo de compras: {doctype}", frappe.ValidationError)

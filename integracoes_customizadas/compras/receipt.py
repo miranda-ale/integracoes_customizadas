@@ -10,6 +10,7 @@ número e data da NF do recebimento de origem.
 import re
 
 import frappe
+from frappe import _
 from frappe.utils import flt
 
 CHAVE_RE = re.compile(r"^[0-9A-Z]{44}$")
@@ -59,8 +60,10 @@ def validar_nota_fiscal(doc, method=None):
 	if chave:
 		if not chave_valida(chave):
 			frappe.throw(
-				"A Chave de Acesso da NF é inválida: informe as 44 posições (o dígito verificador não confere).",
-				title="Nota Fiscal",
+				_(
+					"A Chave de Acesso da NF é inválida: informe as 44 posições (o dígito verificador não confere)."
+				),
+				title=_("Nota Fiscal"),
 			)
 		doc.custom_compras_nf_chave = chave
 		partes = decompor_chave(chave)
@@ -70,10 +73,11 @@ def validar_nota_fiscal(doc, method=None):
 			int(partes["numero"])
 		):
 			frappe.msgprint(
-				f"O número da NF ({doc.custom_compras_nf_numero}) difere do número contido na chave "
-				f"({int(partes['numero'])}).",
+				_("O número da NF ({0}) difere do número contido na chave ({1}).").format(
+					doc.custom_compras_nf_numero, int(partes["numero"])
+				),
 				indicator="orange",
-				title="Nota Fiscal",
+				title=_("Nota Fiscal"),
 			)
 		if not doc.get("custom_compras_nf_serie") and partes["serie"].isdigit():
 			doc.custom_compras_nf_serie = str(int(partes["serie"]))
@@ -86,9 +90,11 @@ def _avisar_fornecedor(doc, cnpj_chave):
 	# Supplier.tax_id is not always clean: only compare when it looks like a CNPJ.
 	if len(tax_id) == 14 and tax_id != cnpj_chave:
 		frappe.msgprint(
-			"O CNPJ do emitente da NF (chave de acesso) não corresponde ao CNPJ do fornecedor do recebimento.",
+			_(
+				"O CNPJ do emitente da NF (chave de acesso) não corresponde ao CNPJ do fornecedor do recebimento."
+			),
 			indicator="orange",
-			title="Nota Fiscal",
+			title=_("Nota Fiscal"),
 		)
 
 
@@ -97,10 +103,12 @@ def _avisar_valor(doc):
 	total = flt(doc.get("grand_total"))
 	if nf_valor and abs(nf_valor - total) > max(1.0, total * 0.005):
 		frappe.msgprint(
-			f"O valor da NF ({frappe.format_value(nf_valor, {'fieldtype': 'Currency'})}) difere do total "
-			f"recebido ({frappe.format_value(total, {'fieldtype': 'Currency'})}). Confira antes de faturar.",
+			_("O valor da NF ({0}) difere do total recebido ({1}). Confira antes de faturar.").format(
+				frappe.format_value(nf_valor, {"fieldtype": "Currency"}),
+				frappe.format_value(total, {"fieldtype": "Currency"}),
+			),
 			indicator="orange",
-			title="Nota Fiscal",
+			title=_("Nota Fiscal"),
 		)
 
 
