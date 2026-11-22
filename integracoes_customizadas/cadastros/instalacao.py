@@ -21,6 +21,7 @@ from pathlib import Path
 
 import frappe
 
+APP = "integracoes_customizadas"
 DEFINICOES_DIR = Path(__file__).resolve().parent / "definicoes"
 # Ordem de criação: `Colaboradores Link` é a tabela usada por `Canal de Denuncias`.
 ARQUIVOS = ("cbo", "municipios", "dependentes", "colaboradores_link", "canal_de_denuncias")
@@ -32,7 +33,9 @@ def carregar_definicao(arquivo: str) -> dict:
 
 def _garantir_modulo(modulo: str):
 	if not frappe.db.exists("Module Def", modulo):
-		frappe.get_doc({"doctype": "Module Def", "module_name": modulo, "custom": 1}).insert(
+		# `app_name` é obrigatório no Module Def; o módulo não entra no modules.txt, então a política de acesso
+		# (que lê o modules.txt) continua varrendo só Integracoes Customizadas, Provas e Juridico.
+		frappe.get_doc({"doctype": "Module Def", "module_name": modulo, "custom": 1, "app_name": APP}).insert(
 			ignore_permissions=True
 		)
 
