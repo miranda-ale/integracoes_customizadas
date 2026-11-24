@@ -57,3 +57,14 @@ jspm_packages/
 
 # wheels baixados localmente
 *.whl
+
+# Database dumps and backups: never commit (personal data, LGPD)
+*.sql
+*.sql.gz
+*-database.sql.gz
+*-files.tar
+*-private-files.tar
+*-site_config_backup.json
+dev-data/raw/
+dev-data/masked/
+.dev-data/
