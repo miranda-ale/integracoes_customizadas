@@ -54,3 +54,6 @@ jspm_packages/
 # Aider AI Chat
 .aider*
 .SKILL.md
+
+# wheels baixados localmente
+*.whl

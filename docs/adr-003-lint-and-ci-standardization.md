@@ -12,8 +12,14 @@ prettier/eslint). This ADR records the standardization applied to this repositor
 
 ## Decision
 
-1. **Python 3.11** in CI, `target-version = "py311"` and `requires-python = ">=3.11"` (target to be reviewed for v16).
-2. **ruff pinned to v0.16.10** via `ruff-pre-commit`, rules `F,E,W,I,UP,B,RUF` and an `ignore` list identical to CLM's.
+1. **Python: minimum 3.11 kept** (`target-version = "py311"`, `requires-python = ">=3.11"`, `linter.yml` on 3.11),
+   due to a production constraint: the production/staging images are confirmed on Python 3.12. **Migration target for
+   Frappe v16: `>=3.13`** (`target-version = "py313"`, `requires-python = ">=3.13"`, consistent `linter.yml` and
+   `ci.yml`), to be done at migration time. `ci.yml` now runs Python 3.12 (previously 3.14) to reflect production:
+   3.14 is incompatible with Frappe v15 (freezegun breaks at test collection with
+   `AttributeError: module 'uuid' has no attribute '_load_system_functions'`).
+2. **ruff pinned to v0.16.10** via `ruff-pre-commit`, rules `F,E,W,I,UP,B,RUF` and CLM's `ignore` list, with no
+   additional `UP` ignores (see decision 13).
 3. **pyupgrade covered by ruff's `UP` rule**, with no separate hook.
 4. **F401 is NOT ignored**: dead imports were removed; re-exports/side-effect imports are kept with
    `# noqa: F401  # <reason>`. User-visible strings with an ambiguous unicode character (e.g. an en dash) get
@@ -33,6 +39,28 @@ prettier/eslint). This ADR records the standardization applied to this repositor
     coverage is small (see Open items).
 11. **commitlint kept** and `pre-commit install` documented in `AGENTS.md`.
 12. **No tag and no `__version__` change** in this standardization.
+13. **Exams SQL queries: the `main` f-string is kept, with `# nosemgrep: frappe-sql-format-injection`.** The three
+    queries (`candidatos_por_etapa`, `candidatos_por_status`, `comparativo_entre_editais`) stay as in `main` (f-string,
+    which `ruff --fix` UP032 produced). It was verified that `conditions` is built only from constant fragments
+    (`" AND e.name = %(edital)s"` etc.) and that all values go through named parameters, without interpolating user
+    input; the finding is therefore a false positive and is suppressed, with a justification comment, on the line
+    immediately before the call. Discarded alternative: going back to `.format(conditions=...)` and restoring the
+    `UP030/031/032/037/040` ignores. The premise that `.format` would avoid semgrep was false: the rule detects
+    `.format()` and f-strings alike, and the reversion would only increase the diff against `main` and weaken ruff.
+    The extra `UP` ignores were therefore **not** restored.
+14. **`get_open_count` (`juridico/dashboard.py`) with `items: str | list | None = None`**, required by the
+    `missing-argument-type-hint` rule. Validated against `frappe.utils.typing_validations` (v15): `None`, JSON string
+    and list pass; `dict` and `int` are rejected.
+15. **CI: stubs of nonexistent DocTypes in the test setup.** The `Employee` and `Designation` Custom Fields in
+    `fixtures/custom_field.json` point to the DocTypes `Municipios` (`Employee-custom_naturalidade_cidade`), `CBO`
+    (`Designation-custom_cbo`) and `Dependentes` (`Employee-custom_dependentes`), which do not exist in any app of the
+    group (probably created by hand in production). Without them, creating the hrms test records fails with
+    `WrongOptionsDoctypeLinkError`. The "Run Tests" step of `ci.yml` calls
+    `integracoes_customizadas.tests.site_setup.criar_doctypes_stub` (idempotent, no hook, test only; stubs in the
+    `Custom` module, which does not belong to the app). The same script creates the Custom Field
+    `Item.custom_código_bionexo`, used by `importacao_bionexo.py` and also absent from fixtures/patches. **A clean
+    install of the app depends on those DocTypes, which are not in the app**: separate product task (create them in
+    the app or remove/condition the fields).
 
 ## Consequences
 
@@ -57,5 +85,5 @@ prettier/eslint). This ADR records the standardization applied to this repositor
 ## Open items
 
 - Upgrade prettier (2.7.1) and eslint (8.44.0) when preparing for v16/v17.
-- Review the Python target (3.11) for v16.
+- Migrate the Python target to `>=3.13` at the v16 migration (production/staging currently on Python 3.12).
 - Extend pip-audit to cover the `erpnext`/`hrms` dependencies (currently commented out in `pyproject`).

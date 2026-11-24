@@ -254,6 +254,7 @@ pre-commit install
 - [docs/adr-001-minimal-read-on-linked-doctypes.md](docs/adr-001-minimal-read-on-linked-doctypes.md)
 - [docs/adr-002-log-quality-and-readability.md](docs/adr-002-log-quality-and-readability.md)
 - [docs/adr-003-lint-and-ci-standardization.md](docs/adr-003-lint-and-ci-standardization.md)
+- [docs/adr-004-language-and-naming-standardization.md](docs/adr-004-language-and-naming-standardization.md)
 - [docs/datajud-log-quality.md](docs/datajud-log-quality.md)
 
 ## License

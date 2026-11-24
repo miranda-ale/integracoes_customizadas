@@ -3,6 +3,15 @@
 Versions and dates follow the repository tags (`vMAJOR.MINOR.PATCH`). The attribution of the WhatsApp items to
 versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 (untagged) have no breakdown.
 
+## Unreleased — Language and naming standardization (phase 1)
+
+- Metadata: publisher StillPulse Tecnologia LTDA, proprietary license, uniform `required_apps`.
+- Patches `s01_rename_datajud_settings` (Single DocType `Configurações DataJud` -> `DataJud Settings`, including
+  `tabSingles`/`__Auth`) and `s02_rename_juridico_reports_and_workspace` (Reports and Workspace to ASCII names).
+- Internal modules, assets and tests renamed to English (see [ADR-004](docs/adr-004-language-and-naming-standardization.md)).
+- Weak imports of `clm` and `assinatura_eletronica` guarded; `busca_cnpj` English API names adopted.
+- All Markdown translated to English; new `docs/dependencies.md` and ADR-004.
+
 ## v4.1.0 — DataJud structured logs and circuit breaker · 2026-11-17
 
 - New `DataJud Sync Log` DocType: records endpoint, method, HTTP status, response time, body (1,000 characters),
