@@ -93,7 +93,7 @@ ORCAMENTO_LOTE_SEGUNDOS = 20 * 60
 FILA_LOTE = "datajud"
 JOB_ID_LOTE = "datajud-sincronizacao-lote"
 
-# Tipos de erro reconhecidos (mesmas opções do Select em Configurações DataJud e DataJud Sync Log).
+# Tipos de erro reconhecidos (mesmas opções do Select em DataJud Settings e DataJud Sync Log).
 ERRO_AUTENTICACAO = "Autenticação"
 ERRO_LIMITE = "Limite de Requisições"
 ERRO_NAO_ENCONTRADO = "Não Encontrado"
@@ -166,7 +166,7 @@ def _registrar_assunto(codigo, nome):
 
 
 def _chave_publica():
-	chave = frappe.get_single("Configurações DataJud").get_password("api_key", raise_exception=False)
+	chave = frappe.get_single("DataJud Settings").get_password("api_key", raise_exception=False)
 	if not chave:
 		raise DataJudError(_("A chave pública do DataJud ainda não foi configurada."))
 	return chave
@@ -716,7 +716,7 @@ def _circuito_permite_execucao(config):
 	if not config.circuito_aberto:
 		return True
 	if config.circuito_tipo_falha == ERRO_AUTENTICACAO:
-		# Só a troca da chave reabre (ver ConfiguraçõesDataJud.validate); não insiste sozinho.
+		# Só a troca da chave reabre (ver DataJudSettings.validate); não insiste sozinho.
 		return False
 	proxima = config.circuito_proxima_tentativa
 	return bool(proxima) and now_datetime() >= get_datetime(proxima)
@@ -806,10 +806,10 @@ def sincronizar_processos_acompanhados():
 	"""Tarefa única por execução: health check, circuit breaker e sincronização em lote.
 
 	Roda na fila dedicada `datajud` (ver `agendar_sincronizacao`; um worker próprio precisa escutar
-	essa fila na bench — ver docs/datajud-qualidade-de-logs.md), nunca na fila "long" usada por
+	essa fila na bench — ver docs/datajud-log-quality.md), nunca na fila "long" usada por
 	tarefas interativas.
 	"""
-	config = frappe.get_single("Configurações DataJud")
+	config = frappe.get_single("DataJud Settings")
 	try:
 		chave = _chave_publica()
 	except DataJudError:

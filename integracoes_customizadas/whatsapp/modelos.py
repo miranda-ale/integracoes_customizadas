@@ -11,7 +11,7 @@ from frappe import _
 from frappe.utils import cstr, format_datetime, formatdate, get_datetime
 from jinja2.sandbox import SandboxedEnvironment
 
-from integracoes_customizadas import email_institucional
+from integracoes_customizadas import institutional_email
 from integracoes_customizadas.whatsapp import conector, roteador
 
 MODELO = "Modelo WhatsApp"
@@ -81,7 +81,7 @@ def completar_variantes(modelo) -> int:
 
 	Nunca altera nem remove uma variante existente. → quantas variantes entraram.
 	"""
-	from integracoes_customizadas.seed.variantes_modelos import VARIANTES
+	from integracoes_customizadas.seed.template_variants import VARIANTES
 
 	if len(variantes_ativas(modelo)) >= roteador.MIN_VARIANTES:
 		return 0
@@ -119,16 +119,20 @@ def renderizar(modelo, doc, extra=None, destino=None) -> dict:
 		html = _ENV.from_string(modelo.mensagem_email).render(**ctx)
 	else:
 		html = _para_html(texto)
-	html = email_institucional.corpo(assunto, html)
+	html = institutional_email.corpo(assunto, html)
 	return {"texto": texto, "assunto": assunto, "html": html, "variante": variante}
 
 
 def _para_html(texto) -> str:
-	try:
-		from assinatura_eletronica.servicos.canais import whatsapp_para_html
-	except ImportError:
-		return frappe.utils.escape_html(texto).replace("\n", "<br>")
-	return whatsapp_para_html(texto)
+	# Weak dependency: only use assinatura_eletronica when it is installed (see docs/dependencies.md).
+	if "assinatura_eletronica" in frappe.get_installed_apps():
+		try:
+			from assinatura_eletronica.servicos.canais import whatsapp_para_html
+		except ImportError:
+			pass
+		else:
+			return whatsapp_para_html(texto)
+	return frappe.utils.escape_html(texto).replace("\n", "<br>")
 
 
 def registrar_envio(

@@ -1,4 +1,4 @@
-# Copyright (c) 2026, BHCL and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 #
 # Purchase Orders still waiting for goods, for the unit that receives them. Uses get_list, so User Permissions

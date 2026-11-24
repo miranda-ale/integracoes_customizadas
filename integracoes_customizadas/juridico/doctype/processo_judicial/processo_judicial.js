@@ -1,6 +1,6 @@
 frappe.ui.form.on("Processo Judicial", {
 	refresh(frm) {
-		// Máscara de CPF/CNPJ ao digitar (helper do app busca_cnpj).
+		// CPF/CNPJ input mask (helper from the busca_cnpj app, a declared required app; guarded in case its assets are missing).
 		if (window.busca_cnpj?.taxid) busca_cnpj.taxid.bind_input(frm.fields_dict.cpf_parte);
 		if (frm.is_new() || !frm.perm[0]?.write) return;
 		frm.add_custom_button(__("Buscar andamentos"), () => {

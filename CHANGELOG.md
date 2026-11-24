@@ -1,152 +1,234 @@
-# Histórico de alterações
+# Changelog
 
-Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
+Versions and dates follow the repository tags (`vMAJOR.MINOR.PATCH`). The attribution of the WhatsApp items to
+versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 (untagged) have no breakdown.
 
-## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17
+## Unreleased — Language and naming standardization (phase 1)
 
-- Novo DocType `DataJud Sync Log`: grava endpoint, método, status HTTP, tempo de resposta, corpo (1.000
-  caracteres), tipo de exceção e traceback, agrupando falhas por execução e tipo de erro em vez de um
-  registro por processo. A chave da API nunca é gravada em claro (só os 4 primeiros caracteres).
-- `Configurações DataJud` ganha circuit breaker: abre após falhas seguidas (3 de autenticação, 5 de limite de
-  requisições/indisponibilidade), pausando a sincronização automática; erro de autenticação só reabre quando a
-  chave é trocada, os demais reabrem sozinhos com backoff exponencial (15, 30, 60... min). Resume o estado
-  (última sincronização, último erro, falhas consecutivas) direto no cadastro.
-- A sincronização agendada vira uma única tarefa em lote por execução (antes, uma por processo), com health
-  check prévio, timeout curto por requisição e orçamento de tempo total, numa fila dedicada (`datajud`) —
-  deixa de competir com tarefas interativas (como o dossiê do colaborador) na fila `long`.
-- Administradores são notificados por e-mail quando o circuito abre e quando volta ao normal.
-- Ver [docs/datajud-qualidade-de-logs.md](docs/datajud-qualidade-de-logs.md) e
-  [ADR-002](docs/adr-002-qualidade-e-legibilidade-de-logs.md).
+- Metadata: publisher StillPulse Tecnologia LTDA, proprietary license, uniform `required_apps`.
+- Patches `s01_rename_datajud_settings` (Single DocType `Configurações DataJud` -> `DataJud Settings`, including
+  `tabSingles`/`__Auth`) and `s02_rename_juridico_reports_and_workspace` (Reports and Workspace to ASCII names).
+- Internal modules, assets and tests renamed to English (see [ADR-004](docs/adr-004-language-and-naming-standardization.md)).
+- Weak imports of `clm` and `assinatura_eletronica` guarded; `busca_cnpj` English API names adopted.
+- All Markdown translated to English; new `docs/dependencies.md` and ADR-004.
 
-## v4.0.3 — Mapa de Preços RFQ filtrado na primeira visita · 2026-11-09
+## v4.1.0 — DataJud structured logs and circuit breaker · 2026-11-17
 
-- O botão "Mapa de Preços" abre o relatório já filtrado pela origem na primeira visita: usa `route_options` em vez de `set_filter_value` após `set_route`, que corria contra o carregamento do relatório.
+- New `DataJud Sync Log` DocType: records endpoint, method, HTTP status, response time, body (1,000 characters),
+  exception type and traceback, grouping failures by run and error type instead of one record per lawsuit. The API
+  key is never written in clear text (only the first 4 characters).
+- `DataJud Settings` gets a circuit breaker: it opens after consecutive failures (3 authentication, 5 rate
+  limit/unavailability), pausing the automatic synchronization; an authentication error only reopens when the key is
+  changed, the others reopen by themselves with exponential backoff (15, 30, 60... min). It summarizes the state (last
+  synchronization, last error, consecutive failures) directly in the record.
+- The scheduled synchronization becomes a single batch task per run (previously one per lawsuit), with a prior health
+  check, short per-request timeout and total time budget, on a dedicated queue (`datajud`) -- it no longer competes
+  with interactive tasks (such as the employee dossier) on the `long` queue.
+- Administrators are notified by e-mail when the circuit opens and when it returns to normal.
+- See [docs/datajud-log-quality.md](docs/datajud-log-quality.md) and
+  [ADR-002](docs/adr-002-log-quality-and-readability.md).
 
-## v4.0.2 — Estilos dos indicadores jurídicos · 2026-11-08
+## v4.0.3 — Price Map RFQ filtered on first visit · 2026-11-09
 
-- O bloco de indicadores combina o layout local com o CSS de contraste do `bhcl_theme`, com fallback para `ind_alerta.css` quando o tema não está instalado. Os estilos permanecem disponíveis dentro do Shadow DOM do bloco.
-- Remove regras de alerta duplicadas do CSS local do Jurídico.
+- The "Mapa de Preços" (Price Map) button opens the report already filtered by the source on the first visit: it uses
+  `route_options` instead of `set_filter_value` after `set_route`, which raced against the report loading.
 
-## v4.0.1 — Declarações de dependências · 2026-11-02
+## v4.0.2 — Legal indicator styles · 2026-11-08
 
-- `scripts/install_system_deps.sh` usa o Python do bench e cai para `tomli` no Python 3.10 (`tomllib` só existe a partir do 3.11).
+- The indicators block combines the local layout with the contrast CSS of `bhcl_theme`, falling back to
+  `ind_alerta.css` when the theme is not installed. The styles stay available inside the block's Shadow DOM.
+- Removes duplicated alert rules from the local Legal CSS.
 
-## v4.0.0 — DocTypes de Tipo de Deficiência · 2026-11-02
+## v4.0.1 — Dependency declarations · 2026-11-02
 
-- **Tipo de Deficiencia** e **Tipo de Deficiencia Item** passam a ser entregues pelo app. O Custom Field `Employee.custom_tipo_de_deficiencia` (Table MultiSelect) apontava para um DocType que só existia no banco de produção, e em site novo o fixture `custom_field.json` era ignorado ("DocType Tipo de Deficiencia Item not found").
-- `required_apps` fixa `frappe/erpnext@version-15`, `frappe/hrms@version-15`, `still-pulse/rh_brasil@main` e `miranda-ale/busca_cnpj@main` (uma linha só: o bench lê com regex). O README usava `--branch develop` (inexistente).
-- `scripts/install_system_deps.sh` instala os pacotes apt declarados em `[deploy.dependencies.apt]` pelos apps do bench (`--dry-run` só lista).
+- `scripts/install_system_deps.sh` uses the bench Python and falls back to `tomli` on Python 3.10 (`tomllib` only
+  exists from 3.11).
 
-## v3.0.0 — Gestão jurídica do Processo Judicial (Fase 3) · 2026-10-30
+## v4.0.0 — Disability type DocTypes · 2026-11-02
 
-- **Classificação interna:** natureza (Trabalhista, Cível, Tributário, Outros), tipo de ação, objeto, pasta/código interno (único por empresa) e responsável interno; `track_changes` ligado; patch marca os processos existentes como Trabalhista.
-- **Advogados:** tabela com nome, OAB validada (`123456/SP`), escritório, tipo interno/externo e honorários.
-- **Pedidos e provisão:** tabela de pedidos com probabilidade de perda (Provável/Possível/Remota) e valor provável; provisão sugerida pela soma dos pedidos prováveis, sobrescrevível (`provisao_manual`); probabilidade do processo = a do pior pedido; `risco` segue manual.
-- **Audiências e prazos:** tabela que mantém um ToDo (e um Event nas audiências) por linha sem duplicar, encerra ao informar o resultado e cancela ao remover; job diário às 07:00 alerta prazos vencidos ou a até 3 dias (`juridico/agenda.py`).
-- **Financeiro:** depósitos judiciais/recursais, acordos e custas com totais calculados; resultado (procedente/improcedente/acordo) e data de encerramento. Campos do DataJud seguem imutáveis.
-- **Relatórios:** Provisão de Processos, Passivo de Processos, Processos por Colaborador e Aging de Processos, reutilizando os filtros da Relação de Processos (`montar_filtros`/`listar_processos`), que ganhou filtros por natureza e responsável.
-- **Lista:** Nome da Parte volta a aparecer na lista do Processo Judicial (Natureza e Grau saem da lista e seguem como filtros).
-- Inclui as Fases 1 e 2 (v2.4.0): partes sem cadastro e tabela de partes com parte principal.
+- **Tipo de Deficiencia** and **Tipo de Deficiencia Item** (disability type) are now shipped by the app. The Custom
+  Field `Employee.custom_tipo_de_deficiencia` (Table MultiSelect) pointed to a DocType that only existed in the
+  production database, and on a new site the `custom_field.json` fixture was ignored ("DocType Tipo de Deficiencia
+  Item not found").
+- `required_apps` pins `frappe/erpnext@version-15`, `frappe/hrms@version-15`, `still-pulse/rh_brasil@main` and
+  `miranda-ale/busca_cnpj@main` (single line: bench reads it with a regex). The README used `--branch develop`
+  (nonexistent).
+- `scripts/install_system_deps.sh` installs the apt packages declared in `[deploy.dependencies.apt]` by the bench apps
+  (`--dry-run` only lists).
 
-## v2.4.0 — Partes do Processo Judicial · 2026-10-30
+## v3.0.0 — Legal management of the Processo Judicial (Phase 3) · 2026-10-30
 
-- **Partes:** tabela de partes com parte principal e partes sem cadastro; identificação de ex-colaboradores.
+- **Internal classification:** nature (Labor, Civil, Tax, Other), action type, subject matter, internal folder/code
+  (unique per company) and internal responsible person; `track_changes` on; a patch marks existing lawsuits as Labor.
+- **Lawyers:** table with name, validated OAB (`123456/SP`), law firm, internal/external type and fees.
+- **Claims and provisioning:** claims table with loss probability (Probable/Possible/Remote) and probable amount;
+  provision suggested by the sum of probable claims, overridable (`provisao_manual`); lawsuit probability = that of the
+  worst claim; `risco` stays manual.
+- **Hearings and deadlines:** table that keeps one ToDo (and an Event for hearings) per row without duplicating,
+  closes when the result is entered and cancels when removed; a daily job at 07:00 alerts about deadlines overdue or
+  due within 3 days (`juridico/agenda.py`).
+- **Financial:** judicial/appeal deposits, settlements and costs with computed totals; result
+  (upheld/dismissed/settlement) and closing date. DataJud fields remain immutable.
+- **Reports:** Provisao de Processos, Passivo de Processos, Processos por Colaborador and Aging de Processos, reusing
+  the filters of Relacao de Processos (`montar_filtros`/`listar_processos`), which gained filters by nature and
+  responsible person.
+- **List:** Party Name appears again in the Processo Judicial list (Nature and Instance leave the list and remain as
+  filters).
+- Includes Phases 1 and 2 (v2.4.0): parties without a registration and parties table with a main party.
 
-## v2.3.1 — Fechamento do ciclo da v2.3.0 · 2026-10-29
+## v2.4.0 — Parties of the Processo Judicial · 2026-10-30
 
-- Tag no commit de merge; sem mudança funcional.
+- **Parties:** table of parties with a main party and parties without a registration; identification of former
+  employees.
 
-## v2.3.0 — Painel de indicadores do Jurídico · 2026-10-29
+## v2.3.1 — Closing the v2.3.0 cycle · 2026-10-29
 
-- **Painel "Juridico Indicadores"** (Custom HTML Block aplicado por `juridico.setup`, ver `docs/juridico-dashboard.md`).
-- Atalho de **Pareceres Jurídicos** (clm) no workspace Jurídico.
-- Saneamento de permissões do Processo Judicial e remoção do legado **Contencioso** (patches `remover_contencioso_orfaos`, `remover_contencioso_residuos`, `remover_papeis_contencioso`).
+- Tag on the merge commit; no functional change.
 
-## v2.2.4 — Timeout do DataJud · 2026-10-29
+## v2.3.0 — Legal indicators panel · 2026-10-29
 
-- Timeout ampliado para 100 s; a consulta que estoura a leitura não é repetida.
+- **"Juridico Indicadores" panel** (Custom HTML Block applied by `juridico.setup`, see `docs/legal-dashboard.md`).
+- **Legal Opinions** ("Pareceres Jurídicos", clm) shortcut in the Juridico workspace.
+- Cleanup of Processo Judicial permissions and removal of the legacy **Contencioso** (litigation) (patches
+  `remover_contencioso_orfaos`, `remover_contencioso_residuos`, `remover_papeis_contencioso`).
+
+## v2.2.4 — DataJud timeout · 2026-10-29
+
+- Timeout increased to 100 s; a query that exceeds the read timeout is not retried.
 
 ## v2.2.3 — Lint · 2026-10-29
 
-- ruff, prettier e eslint em todo o app; corrigido filtro duplicado em Prova e `msgprint` com globais implícitas.
+- ruff, prettier and eslint across the whole app; fixed a duplicated filter in Prova and `msgprint` with implicit
+  globals.
 
-## v2.2.2 — Atalhos de Documentos do Fornecedor · 2026-10-29
+## v2.2.2 — Supplier Documents shortcuts · 2026-10-29
 
-- Atalhos de Documentos do Fornecedor (clm) no workspace Compras.
+- Supplier Documents (clm) shortcuts in the Purchasing workspace.
 
 ## v2.2.1 — CI · 2026-10-28
 
-- commitlint, linter e CI do Frappe.
+- commitlint, linter and Frappe CI.
 
-## v2.2.0 — Nomes em caixa alta · 2026-10-28
+## v2.2.0 — Uppercase names · 2026-10-28
 
-- **Normalização de cadastro:** nomes de Employee, Company, Supplier, Customer, Item, Contact, Address, Lead, Department e Designation ficam em caixa alta e sem acento (hook global `doc_events["*"]` em `normalizacao/maiusculas.py`, `maiusculas.js` e patch `maiusculas_nomes_existentes` para os registros antigos).
+- **Record normalization:** names of Employee, Company, Supplier, Customer, Item, Contact, Address, Lead, Department
+  and Designation are kept in uppercase and without accents (global `doc_events["*"]` hook in
+  `normalization/uppercase.py`, `maiusculas.js` and patch `maiusculas_nomes_existentes` for old records).
 
 ## v2.1.1 — Bionexo · 2026-10-26
 
-- A importação do PDF aceita item sem cotação de fornecedor.
+- The PDF import accepts an item without a supplier quotation.
 
-## v2.1.0 — Compras: Nota Fiscal, etapas e workspaces enxutos · 2026-10-26
+## v2.1.0 — Purchasing: Nota Fiscal, stages and lean workspaces · 2026-10-26
 
-- **Recebimento com Nota Fiscal:** seção *Nota Fiscal do Fornecedor* no Recebimento de Compra (número, série, chave de acesso validada, data, valor, anexo; editável após submeter) e herança de `bill_no`/`bill_date` pela Fatura de Compra (`compras/receipt.py`).
-- **Relatórios** *Pedidos a Receber* (botão *Receber*) e *Recebidos a Faturar* (botão *Criar Fatura*) no card *Recebimento de Compras* dos workspaces Compras e Estoque.
-- **Barra *Etapas do processo*** (Solicitação → Cotação → Pedido → Recebimento → Fatura) nos formulários da cadeia, no padrão do clm; documentos sem permissão de leitura são só contados. Pedido de Cotação e Cotação de Fornecedor são nós separados, dentro do grupo tracejado *Cotação · opcional*. Ver `docs/fluxo-compras.md`.
-- **Workspaces Compras e Estoque enxutos**, definidos em código (`compras/workspaces.py`) e reaplicados a cada migrate: atalhos na ordem do fluxo com contadores por usuário, poucos cards e só funções usadas no site (de 141/144 para 19/18 linhas de link); card numerado do fluxo em primeiro em cada um; saíram cartões numéricos, gráfico, Grupo de Fornecedores, Preço do Item, Grupo de Itens, Marca, Armazém, Unidade de Medida, atalhos Learn/Dashboard e a cópia antiga em inglês dos links.
-- Seções de impostos do Recebimento, do Pedido e da Fatura de Compra recolhidas por padrão; rótulos de toda a cadeia (Solicitação a Fatura) traduzidos para pt-BR.
+- **Receipt with Nota Fiscal (tax invoice):** *Supplier Nota Fiscal* section on the Purchase Receipt (number, series,
+  validated access key, date, amount, attachment; editable after submit) and inheritance of `bill_no`/`bill_date` by
+  the Purchase Invoice (`procurement/receipt.py`).
+- **Reports** *Pedidos a Receber* (*Receive* button) and *Recebidos a Faturar* (*Create Invoice* button) in the
+  *Purchase Receipt* card of the Purchasing and Stock workspaces.
+- **Process stages bar** (Request → Quotation → Order → Receipt → Invoice) on the chain forms, in the clm pattern;
+  documents without read permission are only counted. Request for Quotation and Supplier Quotation are separate nodes,
+  inside the dashed group *Quotation · optional*. See `docs/purchasing-flow.md`.
+- **Lean Purchasing and Stock workspaces**, defined in code (`procurement/workspaces.py`) and reapplied on every migrate:
+  shortcuts in flow order with per-user counters, few cards and only functions used on the site (from 141/144 to 19/18
+  link rows); numbered flow card first in each; removed number cards, chart, Supplier Group, Item Price, Item Group,
+  Brand, Warehouse, Unit of Measure, Learn/Dashboard shortcuts and the old English copy of the links.
+- Tax sections of the Receipt, Order and Purchase Invoice collapsed by default; labels of the whole chain (Request to
+  Invoice) translated to pt-BR.
 
-## v2.0.0 — Importação do PDF Bionexo · 2026-10-26
+## v2.0.0 — Bionexo PDF import · 2026-10-26
 
-- Novo DocType `Importacao Bionexo` (e filhos Cotação, Fornecedor e Item) lê o "Relatório geral de PDC" (pypdf), relaciona Pedido de Cotação/Solicitação de Compras, itens e fornecedores (cadastro rápido via `busca_cnpj`) e, ao submeter, gera os Orçamentos de Fornecedor submetidos e as Ordens de Compra em rascunho dos itens confirmados, datadas pela confirmação no Bionexo. Botão *Importar PDF Bionexo* na Request for Quotation e card *Bionexo* no workspace Compras.
-- **Vencedores:** janela de confirmação ao concluir (padrão: orçamentos só dos itens confirmados e dos fornecedores vencedores; caixa *Gerar também orçamentos dos demais fornecedores*, marcada, inclui os demais com todos os itens cotados).
-- **RFQ gerada:** Solicitação de Compras sem Pedido de Cotação gera o Pedido de Cotação a partir do relatório (cancelado junto com a importação).
-- Seção *Vínculo* renomeada para *Referências*; Empresa editável e preenchida pela referência; filtro de itens do formulário é consulta no servidor (nome e quantidade) e a pendência indica itens que existem no ERP mas não na Solicitação/Pedido.
+- New `Importacao Bionexo` DocType (and children Quotation, Supplier and Item) reads the "general PDC report" (pypdf),
+  matches Request for Quotation/Purchase Request, items and suppliers (quick registration through `busca_cnpj`) and,
+  on submit, generates the submitted Supplier Quotations and the draft Purchase Orders of the confirmed items, dated
+  by the Bionexo confirmation. *Import Bionexo PDF* button on the Request for Quotation and *Bionexo* card in the
+  Purchasing workspace.
+- **Winners:** confirmation window on completion (default: quotations only for the confirmed items and the winning
+  suppliers; the *Also generate quotations for the other suppliers* box, checked, includes the others with all quoted
+  items).
+- **Generated RFQ:** a Purchase Request without a Request for Quotation generates the Request for Quotation from the
+  report (cancelled together with the import).
+- *Vínculo* section renamed to *Referências* (References); Company editable and filled from the reference; the form's
+  item filter is a server-side query (name and quantity) and the pending list indicates items that exist in the ERP but
+  not in the Request/Order.
 
-## v1.17.2 — Mínimo de 10 variantes e e-mail institucional · 2026-10-25
+## v1.17.2 — Minimum of 10 variants and institutional e-mail · 2026-10-25
 
-- Modelo WhatsApp ativo só salva com ao menos 10 variantes ativas (`roteador.MIN_VARIANTES`); modelo criado por código recebe as redações-semente do título (`seed/variantes_modelos.py`) e o patch `completar_variantes_modelo_whatsapp` completa os existentes (os sem semente ficam no Error Log). Boas-vindas e Tarefa ganham 10 variantes (patch `completar_variantes_boas_vindas_tarefa`). Notification com "Enviar também por WhatsApp" passa a exigir o Modelo WhatsApp.
-- **E-mail no layout institucional** (manifesto do clm, seção 6): e-mails das Notifications com canal E-mail, do Modelo WhatsApp (canal E-mail ou fallback) e do avanço de etapa do Edital saem pelo `render_email` do clm (`email_institucional.py`, dependência fraca).
+- An active WhatsApp Template only saves with at least 10 active variants (`roteador.MIN_VARIANTES`); a template
+  created by code receives the title's seed wordings (`seed/variantes_modelos.py`) and the patch
+  `completar_variantes_modelo_whatsapp` completes the existing ones (those without a seed go to the Error Log).
+  Welcome and Task get 10 variants (patch `completar_variantes_boas_vindas_tarefa`). A Notification with "Also send by
+  WhatsApp" now requires the WhatsApp Template.
+- **E-mail in the institutional layout** (clm manifesto, section 6): e-mails of Notifications with the E-mail channel,
+  of the WhatsApp Template (E-mail channel or fallback) and of the Edital stage advance go through clm's `render_email`
+  (`institutional_email.py`, weak dependency).
 
-## v1.17.1 — WhatsApp: anexo do formato de impressão · 2026-10-22
+## v1.17.1 — WhatsApp: print format attachment · 2026-10-22
 
-- Na Notification, "Attach Print" + "Print Format" também valem para o WhatsApp: o PDF é gerado no envio (`frappe.attach_print`, mesmas travas de rascunho/cancelado do e-mail) e enviado como documento por `sendMedia`, com o texto como legenda. Limite de 15 MB; `Envio WhatsApp` registra formato e nome do arquivo.
-- Hook `whatsapp_contexto_extra` e ajuda de helpers no Modelo WhatsApp.
+- On the Notification, "Attach Print" + "Print Format" also apply to WhatsApp: the PDF is generated at send time
+  (`frappe.attach_print`, same draft/cancelled guards as e-mail) and sent as a document through `sendMedia`, with the
+  text as the caption. 15 MB limit; `Envio WhatsApp` records the format and file name.
+- `whatsapp_contexto_extra` hook and helper hints on the WhatsApp Template.
 
-## v1.17.0 — WhatsApp: roteamento entre instâncias · 2026-10-20
+## v1.17.0 — WhatsApp: routing between instances · 2026-10-20
 
-- A tabela "Instâncias adicionais" em Configuracoes WhatsApp (peso e limite diário opcionais) soma-se à instância principal; `whatsapp/distribuidor.py` envia cada mensagem pela conectada de menor carga do dia, com afinidade por destinatário e failover. Sem linhas adicionais o comportamento não muda. A instância usada fica em `Envio WhatsApp`; criar instância e gerar QR Code escolhem a instância.
-- "Criar instância" informa se a instância foi criada ou já existia, trata 404 na consulta e mostra o corpo do erro HTTP da Evolution (também no Error Log).
+- The "Additional instances" table in Configuracoes WhatsApp (optional weight and daily limit) adds to the main
+  instance; `whatsapp/distribuidor.py` sends each message through the connected instance with the lowest load of the
+  day, with affinity per recipient and failover. Without additional rows the behavior does not change. The instance
+  used is stored in `Envio WhatsApp`; create instance and generate QR Code choose the instance.
+- "Create instance" reports whether the instance was created or already existed, handles 404 on the query and shows
+  the Evolution HTTP error body (also in the Error Log).
 
-## v1.16.2 — WhatsApp: variantes-semente · 2026-10-20
+## v1.16.2 — WhatsApp: seed variants · 2026-10-20
 
-- Modelos WhatsApp sem variantes recebem as redações-semente (patch `semear_variantes_modelo_whatsapp`).
+- WhatsApp Templates without variants receive the seed wordings (patch `semear_variantes_modelo_whatsapp`).
 
-## v1.16.1 — Políticas de acesso · 2026-10-20
+## v1.16.1 — Access policies · 2026-10-20
 
-- `politicas/acesso_doctypes.py`: a cada migrate, avisa sobre DocTypes órfãos ou inalcançáveis (teste `test_politica_acesso`). Atalho de Assunto Judicial.
+- `politicas/acesso_doctypes.py`: on every migrate, warns about orphan or unreachable DocTypes (test
+  `test_politica_acesso`). Shortcut to Assunto Judicial (legal subject).
 
-## v1.16.0 — WhatsApp: variantes de mensagem · 2026-10-20
+## v1.16.0 — WhatsApp: message variants · 2026-10-20
 
-- `Modelo WhatsApp` aceita redações alternativas (tabela `variantes`) e o roteador (`whatsapp/roteador.py`) sorteia uma por destinatário, sem repetir a anterior nem a última recebida pelo mesmo número; função Jinja `sorteio("Oi","Olá")`. A variante usada fica em `Envio WhatsApp`; interruptor "Variar mensagens" em Configuracoes WhatsApp.
+- `Modelo WhatsApp` accepts alternative wordings (`variantes` table) and the router (`whatsapp/roteador.py`) draws one
+  per recipient, without repeating the previous one or the last one received by the same number; Jinja function
+  `sorteio("Oi","Olá")`. The variant used is stored in `Envio WhatsApp`; "Vary messages" switch in Configuracoes
+  WhatsApp.
 
-## v1.15.0 — WhatsApp: Modelo dedicado e destinatários sem User · 2026-10-17
+## v1.15.0 — WhatsApp: dedicated Template and recipients without a User · 2026-10-17
 
-- Modelo WhatsApp dedicado por notificação e normalização de número pelo conector.
-- Destinatários sem User: campos Phone do documento (inclusive de tabelas filhas) escolhidos na tabela Recipients e o campo "Números WhatsApp adicionais" (um por linha, aceita Jinja) geram Envio WhatsApp sem usuário; números repetidos recebem uma só mensagem.
+- Dedicated WhatsApp Template per notification and number normalization by the connector.
+- Recipients without a User: Phone fields of the document (including child tables) chosen in the Recipients table and
+  the "Additional WhatsApp numbers" field (one per line, accepts Jinja) generate an Envio WhatsApp without a user;
+  repeated numbers receive a single message.
 
-## v1.14.0 — WhatsApp: conector da Evolution API v2 · 2026-10-14
+## v1.14.0 — WhatsApp: Evolution API v2 connector · 2026-10-14
 
-- Conector estável (`whatsapp/conector.py`: `estado_conexao`, `verificar_numero`, `enviar_texto`, `normalizar_numero_br`) com espaçamento entre envios, timeouts configuráveis e sem retry em envio; novos campos em Configuracoes WhatsApp (ativo, timeouts, intervalo, verificação prévia, webhook reservado).
-- Envio de documento (PDF) pelo conector. Preparados o hook `evolution_webhook_handlers` e o endpoint de webhook, ainda desligado (HTTP 501).
+- Stable connector (`whatsapp/conector.py`: `estado_conexao`, `verificar_numero`, `enviar_texto`,
+  `normalizar_numero_br`) with spacing between sends, configurable timeouts and no retry on send; new fields in
+  Configuracoes WhatsApp (active, timeouts, interval, prior verification, reserved webhook).
+- Document (PDF) sending through the connector. The `evolution_webhook_handlers` hook and the webhook endpoint are
+  prepared, still off (HTTP 501).
 
-## v1.11.0 — mudanças desde v1.10.0
+## v1.11.0 — changes since v1.10.0
 
-- **Jurídico:** anexo por movimentação com coluna visível na tabela do processo, descrição composta a partir dos complementos tabelados e leitura de submovimentos; anexos existentes são preservados nas atualizações do DataJud.
-- **Partes:** opção Terceiros vinculada a Contatos para cadastro de pacientes, também disponível no filtro da Relação de Processos.
+- **Legal:** attachment per movement with a visible column in the lawsuit table, description composed from the
+  tabulated complements and reading of sub-movements; existing attachments are preserved in DataJud updates.
+- **Parties:** *Terceiros* (third parties) option linked to Contacts for patient registration, also available in the
+  Relacao de Processos filter.
 
-## v1.10.0 — mudanças desde v1.5.4
+## v1.10.0 — changes since v1.5.4
 
-- **v1.6.0 — Integração judicial:** criação do módulo Jurídico, do Workspace, dos DocTypes Processo Judicial, Assunto Judicial, Configurações DataJud, assuntos e movimentos; consulta ao DataJud por número CNJ e tribunal, registro dos dados e migrações de cadastro e permissões.
-- **v1.7.0 — Cadastro e acompanhamento:** cadastro em rascunho ou concluído, vinculação de empresa e parte, classificação de fase, risco e situação, proteção dos dados recebidos do DataJud, atualização periódica de processos em andamento e testes do fluxo judicial.
-- **v1.8.0 — Consulta manual e conexões:** busca manual de andamentos, vínculos de processos com colaboradores, clientes, fornecedores e processos relacionados, com acesso pelas respectivas telas.
-- **v1.9.0 — Indicadores:** Dashboard View “Processos Judiciais” com três cartões numéricos e seis gráficos de situação, risco, fase, tribunal, localidade IBGE e assuntos frequentes; reorganização do Workspace Jurídico.
-- **v1.10.0 — Relatório:** “Relação de Processos” com filtros por empresa, tipo e nome da parte, fase, situação, situação cadastral, assunto, tribunal, grau, risco, número e período de ajuizamento. Inclui os principais dados cadastrados, impressão e PDF em formato próprio com o letter-head padrão do Frappe e link na caixa Relatórios do Workspace.
+- **v1.6.0 — Judicial integration:** creation of the Juridico module, the Workspace, the DocTypes Processo Judicial,
+  Assunto Judicial, DataJud Settings, subjects and movements; DataJud lookup by CNJ number and court, data recording
+  and registration and permission migrations.
+- **v1.7.0 — Registration and follow-up:** draft or completed registration, company and party linking, phase, risk and
+  status classification, protection of data received from DataJud, periodic update of lawsuits in progress and tests of
+  the judicial flow.
+- **v1.8.0 — Manual lookup and connections:** manual fetching of case updates, links of lawsuits with employees,
+  customers, suppliers and related lawsuits, accessible from the respective screens.
+- **v1.9.0 — Indicators:** "Processos Judiciais" Dashboard View with three number cards and six charts by status, risk,
+  phase, court, IBGE locality and frequent subjects; reorganization of the Juridico Workspace.
+- **v1.10.0 — Report:** "Relacao de Processos" with filters by company, party type and name, phase, status,
+  registration status, subject, court, instance, risk, number and filing period. Includes the main registered data,
+  own-format print and PDF with the standard Frappe letter head and a link in the Workspace's Reports box.

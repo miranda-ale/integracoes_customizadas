@@ -1,256 +1,262 @@
-# Integrações Customizadas (`integracoes_customizadas`)
+# Custom Integrations (`integracoes_customizadas`)
 
-Conjunto de integrações e customizações do ERPNext/HRMS para a BHCL. Versão atual: **4.0.2** (ver
-[CHANGELOG.md](CHANGELOG.md)). O app reúne quatro frentes, que compartilham alguns serviços (por exemplo, o
-`busca_cnpj` na importação Bionexo e o layout de e-mail do `clm`):
+A set of ERPNext/HRMS integrations and customizations. Current version: **4.1.0** (see
+[CHANGELOG.md](CHANGELOG.md)). The app bundles four areas that share some services (for example `busca_cnpj` in the
+Bionexo import and the `clm` e-mail layout):
 
-| Frente | Módulo | O que entrega |
+| Area | Module | What it delivers |
 | --- | --- | --- |
-| Notificações por **WhatsApp** | Integracoes Customizadas | Evolution API v2, modelos com variantes, várias instâncias |
-| **Jurídico** | Juridico | Processo Judicial com DataJud, gestão jurídica, provisão, agenda e relatórios |
-| **Provas** | Provas | Banco de questões, provas e editais de processos seletivos |
-| **Compras** | Integracoes Customizadas | Bionexo, Mapa de Preços, Nota Fiscal no recebimento, etapas do processo e workspaces enxutos |
+| **WhatsApp** notifications | Integracoes Customizadas | Evolution API v2, templates with variants, multiple instances |
+| **Legal** ("Jurídico") | Juridico | Lawsuit (Processo Judicial) with DataJud, legal management, provisioning, agenda and reports |
+| **Exams** ("Provas") | Provas | Question bank, exams and recruitment notices (editais) |
+| **Purchasing** ("Compras") | Integracoes Customizadas | Bionexo, Price Map, Nota Fiscal (tax invoice) on receipt, process stages and lean workspaces |
 
-Há ainda recursos transversais: [normalização de cadastros em caixa alta](#normalização-de-cadastros),
-[verificação de acesso a DocTypes](#política-de-acesso-a-doctypes) e campos personalizados via fixtures.
+There are also cross-cutting features: [uppercase normalization of records](#record-normalization),
+[DocType access check](#doctype-access-policy) and custom fields through fixtures.
 
-## Funcionalidades
+## Features
 
-### Notificações por WhatsApp (Evolution API v2)
+### WhatsApp notifications (Evolution API v2)
 
-**Envio**
+**Sending**
 
-- Opção **Enviar também por WhatsApp** nas regras `Notification`. A regra exige um **Modelo WhatsApp** e envia o
-  assunto e a mensagem aos usuários selecionados, no número do campo *Celular* (`mobile_no`) do cadastro de usuário.
-- **Destinatários sem usuário:** campos *Phone* do documento (inclusive de tabelas filhas), escolhidos na tabela
-  *Recipients*, e o campo **Números WhatsApp adicionais** (um por linha, aceita Jinja). Números repetidos recebem
-  uma só mensagem.
-- **Anexo do formato de impressão:** com "Attach Print" e um "Print Format" na regra, o PDF é gerado no envio
-  (com as mesmas travas de rascunho e cancelado do e-mail) e enviado como documento; o texto vira a legenda.
-  Limite de 15 MB.
-- Números brasileiros com DDD recebem o prefixo 55 automaticamente; números internacionais devem ser informados
-  completos, com `+` e código do país.
+- **Also send by WhatsApp** option on `Notification` rules. The rule requires a **WhatsApp Template** ("Modelo
+  WhatsApp") and sends the subject and message to the selected users, at the number in the *Mobile* field
+  (`mobile_no`) of the user record.
+- **Recipients without a user:** *Phone* fields of the document (including child tables), chosen in the *Recipients*
+  table, and the **Additional WhatsApp numbers** field (one per line, accepts Jinja). Repeated numbers receive a
+  single message.
+- **Print format attachment:** with "Attach Print" and a "Print Format" on the rule, the PDF is generated at send time
+  (with the same draft and cancelled guards as e-mail) and sent as a document; the text becomes the caption.
+  15 MB limit.
+- Brazilian numbers with an area code (DDD) automatically get the 55 prefix; international numbers must be informed in
+  full, with `+` and the country code.
 
-**Modelos e variantes**
+**Templates and variants**
 
-- DocType **Modelo WhatsApp** com redações alternativas (**Variante Modelo WhatsApp**). O roteador sorteia uma
-  variante por destinatário, sem repetir a anterior nem a última recebida pelo mesmo número; a função Jinja
-  `sorteio("Oi","Olá")` varia trechos dentro da mensagem. O interruptor é **Variar mensagens** em Configurações
-  WhatsApp.
-- **Mínimo de 10 variantes ativas** para o modelo ficar ativo. Modelos criados por código recebem redações-semente
-  (`seed/variantes_modelos.py`) e os patches `semear_variantes_modelo_whatsapp` e
-  `completar_variantes_modelo_whatsapp` completam os existentes (os sem semente ficam no Error Log).
-- Hooks de extensão: `whatsapp_contexto_extra` (variáveis extras no contexto do modelo) e
+- **Modelo WhatsApp** DocType with alternative wordings (**Variante Modelo WhatsApp**). The router draws one variant per
+  recipient, without repeating the previous one or the last one received by the same number; the Jinja function
+  `sorteio("Oi","Olá")` varies snippets inside the message. The switch is **Vary messages** in WhatsApp Settings
+  (Configuracoes WhatsApp).
+- **At least 10 active variants** for the template to be active. Templates created by code receive seed wordings
+  (`seed/template_variants.py`) and the patches `semear_variantes_modelo_whatsapp` and
+  `completar_variantes_modelo_whatsapp` complete the existing ones (those without a seed go to the Error Log).
+- Extension hooks: `whatsapp_contexto_extra` (extra variables in the template context) and
   `evolution_webhook_handlers`.
 
-**Conexão e instâncias**
+**Connection and instances**
 
-- **Configurações WhatsApp** (Single): URL base, chave global, instância principal, ativo, timeouts, intervalo entre
-  envios e verificação prévia do número. Ações para **criar a instância** (informa se foi criada ou já existia),
-  **gerar QR Code** e **atualizar o estado** da conexão.
-- **Roteamento entre instâncias:** a tabela *Instâncias adicionais* (**Instancia WhatsApp**, com peso e limite diário
-  opcionais) soma-se à principal; `whatsapp/distribuidor.py` usa a instância conectada de menor carga do dia, com
-  afinidade por destinatário e failover. Sem linhas adicionais o comportamento não muda.
-- **Conector estável** (`whatsapp/conector.py`): `estado_conexao`, `verificar_numero`, `enviar_texto`,
-  `normalizar_numero_br`; sem retry em envio.
-- **Envio WhatsApp:** registro por destinatário com estado, instância, variante, formato e arquivo, e botão
-  **Reenviar** para falhas.
-- O endpoint de webhook da Evolution está **reservado e desligado** (responde HTTP 501).
-- E-mails das Notifications (canal E-mail), do Modelo WhatsApp (canal E-mail ou fallback) e do avanço de etapa do
-  Edital usam o layout institucional do `clm` (`email_institucional.py`, dependência fraca).
-- Configuração e registros de envio são restritos a administradores do sistema.
+- **Configuracoes WhatsApp** (Single): base URL, global key, main instance, active, timeouts, interval between sends and
+  prior number verification. Actions to **create the instance** (reports whether it was created or already existed),
+  **generate a QR Code** and **refresh the state** of the connection.
+- **Routing between instances:** the *Additional instances* table (**Instancia WhatsApp**, with optional weight and
+  daily limit) adds to the main one; `whatsapp/dispatcher.py` uses the connected instance with the lowest load of
+  the day, with affinity per recipient and failover. Without additional rows the behavior does not change.
+- **Stable connector** (`whatsapp/conector.py`): `estado_conexao`, `verificar_numero`, `enviar_texto`,
+  `normalizar_numero_br`; no retry on send.
+- **Envio WhatsApp:** record per recipient with state, instance, variant, format and file, and a **Resend** button for
+  failures.
+- The Evolution webhook endpoint is **reserved and turned off** (answers HTTP 501).
+- E-mails of Notifications (E-mail channel), of the WhatsApp Template (E-mail channel or fallback) and of the Edital
+  stage advance use the institutional layout of `clm` (`institutional_email.py`, weak dependency).
+- Settings and send records are restricted to system administrators.
 
-### Jurídico (módulo `Juridico`)
+### Legal (`Juridico` module)
 
-**Cadastro e DataJud**
+**Registration and DataJud**
 
-- **Processo Judicial** em rascunho ou concluído, com número CNJ, tribunal, empresa, fase, risco, situação,
-  assuntos e movimentações. Dados vindos do DataJud ficam protegidos contra edição manual.
-- **Partes:** tabela de partes com parte principal, inclusive partes sem cadastro e identificação de
-  ex-colaboradores; a opção *Terceiros* (pacientes) liga a Contatos.
-- **Configurações DataJud:** consulta por número CNJ e tribunal, busca manual de andamentos e acompanhamento
-  automático dos processos em andamento (dias úteis às 03:00, em lote único numa fila dedicada `datajud`, nunca
-  mais um processo por tarefa). Timeout de 100 s nas consultas interativas (12 s em lote); em falha, os dados
-  anteriores são preservados, o erro é classificado e agrupado em **DataJud Sync Log**, e um circuit breaker
-  pausa a sincronização automática após falhas seguidas (ver
-  [docs/datajud-qualidade-de-logs.md](docs/datajud-qualidade-de-logs.md)). Anexo por movimentação, com leitura
-  de submovimentos.
-- **Vínculos** com Colaborador, Cliente, Fornecedor, Contato e processos relacionados, nos painéis de conexões.
+- **Processo Judicial** in draft or completed, with CNJ number, court, company, phase, risk, status, subjects and
+  movements. Data coming from DataJud is protected against manual editing.
+- **Parties:** table of parties with a main party, including parties without a registration and identification of
+  former employees; the *Terceiros* (third parties, i.e. patients) option links to Contacts.
+- **DataJud Settings:** lookup by CNJ number and court, manual fetching of case updates and automatic follow-up of
+  lawsuits in progress (business days at 03:00, in a single batch on a dedicated `datajud` queue, never one lawsuit
+  per task again). 100 s timeout on interactive queries (12 s in batch); on failure, the previous data is preserved,
+  the error is classified and grouped in **DataJud Sync Log**, and a circuit breaker pauses the automatic
+  synchronization after consecutive failures (see [docs/datajud-log-quality.md](docs/datajud-log-quality.md)).
+  Attachment per movement, with reading of sub-movements.
+- **Links** with Employee, Customer, Supplier, Contact and related lawsuits, in the connection panels.
 
-**Gestão jurídica (v3.0.0)**
+**Legal management (v3.0.0)**
 
-- **Classificação interna:** natureza (Trabalhista, Cível, Tributário, Outros), tipo de ação, objeto, pasta/código
-  interno (único por empresa) e responsável interno.
-- **Advogados:** nome, OAB validada (`123456/SP`), escritório, tipo interno/externo e honorários.
-- **Pedidos e provisão:** probabilidade de perda (Provável/Possível/Remota) e valor provável por pedido; a
-  provisão sugerida soma os pedidos prováveis e pode ser sobrescrita (`provisao_manual`). A probabilidade do
-  processo é a do pior pedido; o `risco` segue manual.
-- **Audiências e prazos:** cada linha mantém um ToDo (e um Event, nas audiências) sem duplicar; encerra ao
-  informar o resultado e cancela ao remover. Job diário às 07:00 alerta prazos vencidos ou a até 3 dias.
-- **Financeiro:** depósitos judiciais/recursais, acordos e custas com totais calculados; resultado (procedente,
-  improcedente, acordo) e data de encerramento.
+- **Internal classification:** nature (Labor, Civil, Tax, Other), action type, subject matter, internal folder/code
+  (unique per company) and internal responsible person.
+- **Lawyers:** name, validated OAB (`123456/SP`), law firm, internal/external type and fees.
+- **Claims and provisioning:** loss probability (Probable/Possible/Remote) and probable amount per claim; the
+  suggested provision adds up the probable claims and can be overridden (`provisao_manual`). The lawsuit probability is
+  that of the worst claim; `risco` stays manual.
+- **Hearings and deadlines:** each row keeps a ToDo (and an Event, for hearings) without duplicating; it closes when
+  the result is entered and cancels when removed. A daily job at 07:00 alerts about deadlines overdue or due within
+  3 days.
+- **Financial:** judicial/appeal deposits, settlements and costs with computed totals; result (upheld, dismissed,
+  settlement) and closing date.
 
-**Indicadores e relatórios**
+**Indicators and reports**
 
-- **Dashboard View** *Processos Judiciais*: cartões (total, em andamento, encerrados) e gráficos por situação,
-  risco, fase, tribunal, localidade IBGE e assuntos mais frequentes; painel **Juridico Indicadores** no workspace
-  (ver [docs/juridico-dashboard.md](docs/juridico-dashboard.md)).
-- Relatórios: **Relação de Processos** (filtros por empresa, parte, fase, situação, assunto, tribunal, grau, risco,
-  natureza, responsável, número e período; impressão/PDF próprios), **Provisão de Processos**, **Passivo de
-  Processos**, **Processos por Colaborador** e **Aging de Processos**.
-- Workspace **Jurídico** (com atalho para Pareceres Jurídicos do `clm`) e papel **Usuário Jurídico**. O legado
-  *Contencioso* foi removido por patches.
+- **Dashboard View** *Processos Judiciais*: cards (total, in progress, closed) and charts by status, risk, phase, court,
+  IBGE locality and most frequent subjects; **Juridico Indicadores** panel in the workspace (see
+  [docs/legal-dashboard.md](docs/legal-dashboard.md)).
+- Reports: **Relacao de Processos** (filters by company, party, phase, status, subject, court, instance, risk, nature,
+  responsible person, number and period; own print/PDF), **Provisao de Processos**, **Passivo de Processos**,
+  **Processos por Colaborador** and **Aging de Processos**.
+- **Juridico** workspace (label "Jurídico", with a shortcut to the `clm` Legal Opinions) and **Usuário Jurídico**
+  role. The legacy *Contencioso* (litigation) was removed by patches.
 
-### Provas (módulo `Provas`)
+### Exams (`Provas` module)
 
-- **Disciplina** e **Questão**: banco de questões por área de conhecimento, dificuldade e cargo (`Designation`),
-  com alternativas e indicação da correta.
-- **Prova** (submetível): composição a partir do banco de questões, vinculada a um Edital.
-- **Edital**: processos seletivos com etapas e candidatos, integrado a *Job Applicant*, *Job Opening* e
-  *Interview* do HRMS.
-- **Relatórios:** Candidatos por Etapa, Candidatos por Status e Comparativo entre Editais.
-- **Formatos de impressão:** Minuta de Edital, Prova Completa e Gabarito.
-- Detalhes em [docs/modulo_provas.md](docs/modulo_provas.md) (o cabeçalho do documento ainda indica "Versão 0.1.0").
+- **Disciplina** and **Questão**: question bank by knowledge area, difficulty and position (`Designation`), with
+  alternatives and the correct one marked.
+- **Prova** (submittable): composition from the question bank, linked to an Edital.
+- **Edital**: recruitment processes with stages and candidates, integrated with HRMS *Job Applicant*, *Job Opening*
+  and *Interview*.
+- **Reports:** Candidatos por Etapa, Candidatos por Status and Comparativo entre Editais.
+- **Print formats:** Minuta Edital, Prova Completa and Gabarito.
+- Details in [docs/exams-module.md](docs/exams-module.md) (the document header still says "Version 0.1.0").
 
-### Compras
+### Purchasing (Compras)
 
 **Bionexo**
 
-- **Exportação:** botão *Exportar XML Bionexo* na `Request for Quotation` submetida, no layout XML da Bionexo.
-- **Importação do PDF** (`Importacao Bionexo`, card *Bionexo* no workspace Compras ou botão *Importar PDF Bionexo*
-  na cotação submetida): lê o "Relatório geral de PDC" e identifica o Pedido de Cotação (pelo nome gravado em
-  Observações pelo XML exportado ou pelo ID Bionexo), os itens (`item_code` ou `custom_código_bionexo`) e os
-  fornecedores (CNPJ completo; sem CNPJ válido no cadastro, pelo nome).
-  - Fornecedores não cadastrados são criados com a consulta de CNPJ do `busca_cnpj` (sem ela, com nome e CNPJ do
-    relatório); itens não identificados são relacionados à mão ou ignorados.
-  - Ao submeter, gera um `Supplier Quotation` submetido por fornecedor e uma `Purchase Order` em rascunho por
-    fornecedor com os itens "Confirmado" (quantidade e preço do Bionexo; data da OC = confirmação no Bionexo).
-  - Janela de conclusão: orçamentos só dos itens confirmados e dos vencedores; a caixa *Gerar também orçamentos
-    dos demais fornecedores* (marcada) inclui os demais com todos os itens cotados.
-  - Solicitação de Compras sem Pedido de Cotação gera o Pedido de Cotação a partir do relatório. A empresa
-    acompanha a Solicitação/Pedido escolhido (seção *Referências*).
-  - O cancelamento exclui as OCs em rascunho, cancela os orçamentos e o Pedido de Cotação gerado.
-- **Mapa de Preços RFQ:** relatório comparativo da `Request for Quotation` (item por linha, fornecedor por coluna),
-  pelo botão *Mapa de Preços* da cotação.
+- **Export:** *Export Bionexo XML* button on the submitted `Request for Quotation`, in the Bionexo XML layout.
+- **PDF import** (`Importacao Bionexo`, *Bionexo* card in the Purchasing workspace or *Import Bionexo PDF* button on the
+  submitted quotation): reads the "general PDC report" and identifies the Request for Quotation (by the name stored in
+  Remarks by the exported XML or by the Bionexo ID), the items (`item_code` or `custom_código_bionexo`) and the suppliers
+  (full CNPJ; without a valid CNPJ in the record, by name).
+  - Unregistered suppliers are created with the CNPJ lookup of `busca_cnpj` (without it, with the name and CNPJ from the
+    report); unidentified items are matched by hand or ignored.
+  - On submit, generates one submitted `Supplier Quotation` per supplier and one draft `Purchase Order` per supplier with
+    the "Confirmed" items (Bionexo quantity and price; PO date = Bionexo confirmation).
+  - Completion window: quotations only for the confirmed items and the winners; the *Also generate quotations for the
+    other suppliers* box (checked) includes the others with all quoted items.
+  - A Purchase Request without a Request for Quotation generates the Request for Quotation from the report. The company
+    follows the chosen Request (*References* section).
+  - Cancelling deletes the draft POs, cancels the quotations and the generated Request for Quotation.
+- **Price Map RFQ** ("Mapa de Precos RFQ"): comparative report of the `Request for Quotation` (item per row, supplier per
+  column), through the *Price Map* button of the quotation.
 
-**Recebimento e fluxo**
+**Receipt and flow**
 
-- **Nota Fiscal do Fornecedor** no Recebimento de Compra (número, série, chave de acesso validada, data, valor,
-  anexo; editável após submeter); a Fatura de Compra herda `bill_no` e `bill_date`.
-- Relatórios **Pedidos a Receber** (botão *Receber*) e **Recebidos a Faturar** (botão *Criar Fatura*).
-- Barra **Etapas do processo** (Solicitação → Cotação → Pedido → Recebimento → Fatura) nos formulários da
-  cadeia; documentos sem permissão de leitura são só contados.
-- **Workspaces Compras e Estoque enxutos**, definidos em `compras/workspaces.py` e reaplicados a cada migrate.
-- Seções de impostos recolhidas por padrão e rótulos da cadeia traduzidos para pt-BR.
-- Ver [docs/fluxo-compras.md](docs/fluxo-compras.md).
+- **Supplier Nota Fiscal** on the Purchase Receipt (number, series, validated access key, date, amount, attachment;
+  editable after submit); the Purchase Invoice inherits `bill_no` and `bill_date`.
+- Reports **Pedidos a Receber** (*Receive* button) and **Recebidos a Faturar** (*Create Invoice* button).
+- **Process stages** bar (Request → Quotation → Order → Receipt → Invoice) on the chain forms; documents without read
+  permission are only counted.
+- **Lean Purchasing and Stock workspaces**, defined in `procurement/workspaces.py` and reapplied on every migrate.
+- Tax sections collapsed by default and chain labels translated to pt-BR.
+- See [docs/purchasing-flow.md](docs/purchasing-flow.md).
 
-### Normalização de cadastros
+### Record normalization
 
-Nomes de Employee, Company, Supplier, Customer, Item, Contact, Address, Lead, Department e Designation ficam em
-caixa alta e sem acento (hook `doc_events["*"]` em `normalizacao/maiusculas.py` e `maiusculas.js`). O patch
-`maiusculas_nomes_existentes` aplica a regra aos registros antigos.
+Names of Employee, Company, Supplier, Customer, Item, Contact, Address, Lead, Department and Designation are kept in
+uppercase and without accents (`doc_events["*"]` hook in `normalization/uppercase.py` and `uppercase.js`). The patch
+`maiusculas_nomes_existentes` applies the rule to old records.
 
-### Política de acesso a DocTypes
+### DocType access policy
 
-A cada `migrate`, `politicas/acesso_doctypes.py` avisa sobre DocTypes órfãos ou inalcançáveis do app (coberto por
+On every `migrate`, `policies/doctype_access.py` warns about orphan or unreachable DocTypes of the app (covered by
 `test_politica_acesso`).
 
-### Campos personalizados (fixtures)
+### Custom fields (fixtures)
 
-- Campos de `Employee` (documentos pessoais, dados trabalhistas, dependentes, PCD, etnia) e de `Designation` (CBO,
-  escolaridade, conselho profissional, descrição de atividades).
-- Papel `Usuário Jurídico` e Custom HTML Block `Relatórios`. O painel *Juridico Indicadores* é aplicado por código
-  (`juridico.setup`), não por fixture.
+- `Employee` fields (personal documents, labor data, dependents, PCD (persons with disabilities), ethnicity) and
+  `Designation` fields (CBO occupation code, education, professional council, activity description).
+- `Usuário Jurídico` role and the `Relatórios` Custom HTML Block. The *Juridico Indicadores* panel is applied by code
+  (`juridico.setup`), not by fixture.
 
-## Requisitos
+## Requirements
 
-- Frappe v15 e os apps `erpnext`, `hrms`, `rh_brasil` e `busca_cnpj` (`required_apps`)
-- `clm` (opcional): layout institucional de e-mail e atalhos de Pareceres/Documentos do Fornecedor
-- Para WhatsApp: instância da [Evolution API](https://doc.evolution-api.com) v2
-- Para o Jurídico: acesso à API pública do DataJud (CNJ)
-- Para a importação Bionexo: `pypdf` (já presente no ambiente do Frappe; não declarado no `pyproject.toml`)
+- Frappe v15 and the apps `erpnext`, `hrms`, `rh_brasil` and `busca_cnpj` (`required_apps`); see
+  [docs/dependencies.md](docs/dependencies.md)
+- `clm` (optional): institutional e-mail layout and Opinions/Supplier Documents shortcuts
+- For WhatsApp: an [Evolution API](https://doc.evolution-api.com) v2 instance
+- For Legal: access to the public DataJud API (CNJ)
+- For the Bionexo import: `pypdf` (already present in the Frappe environment; not declared in `pyproject.toml`)
 
-## Instalação
+## Installation
 
 ```bash
 cd $PATH_TO_YOUR_BENCH
-# 1. pacotes de sistema declarados pelos apps (OCR, Pango do WeasyPrint); precisa de sudo
-bash apps/integracoes_customizadas/scripts/install_system_deps.sh   # --dry-run só lista (sem o app ainda: sudo apt install ocrmypdf tesseract-ocr-por ghostscript qpdf pngquant libpango-1.0-0 libpangoft2-1.0-0)
+# 1. system packages declared by the apps (OCR, WeasyPrint Pango); needs sudo
+bash apps/integracoes_customizadas/scripts/install_system_deps.sh   # --dry-run only lists (without the app yet: sudo apt install ocrmypdf tesseract-ocr-por ghostscript qpdf pngquant libpango-1.0-0 libpangoft2-1.0-0)
 
-# 2. apps, na ordem das dependências (ERPNext e HRMS sempre no version-15)
+# 2. apps, in dependency order (ERPNext and HRMS always on version-15)
 bench get-app erpnext --branch version-15
 bench get-app hrms --branch version-15
 bench get-app still-pulse/clm --branch main
 bench get-app still-pulse/rh_brasil --branch main
-bench get-app miranda-ale/busca_cnpj --branch main
+bench get-app still-pulse/busca_cnpj --branch main
 bench get-app miranda-ale/integracoes_customizadas --branch main
-# opcionais da suíte: still-pulse/assinatura_eletronica, still-pulse/pulse_gestor, still-pulse/pdf_ocr,
-# still-pulse/theme_bhcl_erp_next (bhcl_theme), still-pulse/bhcl_site (todos --branch main)
+# optional apps of the suite: still-pulse/assinatura_eletronica, still-pulse/pulse_gestor, still-pulse/pdf_ocr,
+# still-pulse/theme_bhcl_erp_next (bhcl_theme), still-pulse/bhcl_site (all --branch main)
 
-# 3. instalação no site, nesta ordem
+# 3. install on the site, in this order
 bench --site <site> install-app erpnext hrms busca_cnpj clm rh_brasil integracoes_customizadas
 bench --site <site> migrate
 ```
 
-O `required_apps` fixa `frappe/hrms@version-15` e `frappe/erpnext@version-15`; sem o `@branch` o bench usaria o branch padrão (`develop`, v17). O `--resolve-deps` só lê o `hooks.py` de repositórios acessíveis sem autenticação; para os privados, clone na ordem abaixo.
+`required_apps` pins `frappe/hrms@version-15` and `frappe/erpnext@version-15`; without `@branch` bench would use the
+default branch (`develop`, v17). `--resolve-deps` only reads the `hooks.py` of repositories reachable without
+authentication; for private ones, clone in the order above.
 
+`migrate` runs the `after_migrate` hooks (Exams, Legal, Notification field, Bionexo card, Purchasing and access
+check) and the pending patches.
 
-O `migrate` executa os `after_migrate` (Provas, Jurídico, campo da Notification, card Bionexo, Compras e
-verificação de acesso) e os patches pendentes.
+## WhatsApp configuration and usage
 
-## Configuração e uso do WhatsApp
+1. Open **Configuracoes WhatsApp** in the Desk, enter base URL, global key and instance name, and save.
+2. Click **Create instance**, then **Generate new QR Code**; scan it in WhatsApp's *Linked devices* and use **Refresh
+   state** to confirm the connection. The same button renews the session. For more than one number, fill in
+   *Additional instances* and repeat the process per instance.
+3. Create or review the **Modelo WhatsApp** (at least 10 active variants).
+4. On the desired **Notification** rules, check **Also send by WhatsApp** and choose the Template.
+5. Check **Envio WhatsApp** to see the result per recipient and resend the records with state **Failed**.
 
-1. Abra **Configurações WhatsApp** no Desk, informe URL base, chave global e nome da instância, e salve.
-2. Clique em **Criar instância**, depois em **Gerar novo QR Code**; escaneie-o em *Aparelhos conectados* do
-   WhatsApp e use **Atualizar estado** para confirmar a conexão. O mesmo botão renova a sessão. Para mais de um
-   número, preencha *Instâncias adicionais* e repita o processo por instância.
-3. Crie ou revise o **Modelo WhatsApp** (mínimo de 10 variantes ativas).
-4. Nas regras **Notification** desejadas, marque **Enviar também por WhatsApp** e escolha o Modelo.
-5. Consulte **Envio WhatsApp** para ver o resultado por destinatário e reenviar os registros com estado **Falhou**.
-
-## Desenvolvimento
+## Development
 
 ```text
 integracoes_customizadas/
 ├── whatsapp/        # api, conector, distribuidor, roteador, modelos, delivery, notification, setup, webhook
-├── juridico/        # datajud, parte, agenda, indicadores, relatorios, dashboard, setup, DocTypes, relatórios, workspace
-├── provas/          # DocTypes, relatórios, formatos de impressão
-├── bionexo/         # export_xml · import_pdf (leitura do PDF) · importacao · setup
-├── compras/         # receipt (NF) · process_view (etapas) · workspaces · setup
-├── normalizacao/    # maiusculas.py
-├── politicas/       # acesso_doctypes.py
-├── seed/            # variantes_modelos.py (redações-semente)
-├── email_institucional.py
-├── integracoes_customizadas/   # DocTypes de WhatsApp e Importacao Bionexo, relatórios Mapa de Preços RFQ, Pedidos a Receber, Recebidos a Faturar
-├── patches/ · fixtures/ · public/ (css e js) · docs/
-└── tests/           # 14 arquivos (WhatsApp, Bionexo, Compras, Jurídico, maiúsculas, política de acesso)
+├── juridico/        # datajud, party, agenda_alerts, indicators, report_helpers, dashboard, setup, DocTypes, reports, workspace
+├── provas/          # DocTypes, reports, print formats
+├── bionexo/         # export_xml · import_pdf (PDF reading) · importacao · setup
+├── procurement/         # receipt (NF) · process_view (stages) · workspaces · setup
+├── normalization/   # uppercase.py
+├── policies/        # doctype_access.py
+├── seed/            # template_variants.py (seed wordings)
+├── institutional_email.py
+├── integracoes_customizadas/   # WhatsApp and Importacao Bionexo DocTypes, reports Mapa de Precos RFQ, Pedidos a Receber, Recebidos a Faturar
+├── patches/ · fixtures/ · public/ (css and js) · docs/
+└── tests/           # 14 files (WhatsApp, Bionexo, Purchasing, Legal, uppercase, access policy)
 ```
 
-Há ainda `juridico/doctype/processo_judicial/test_processo_judicial.py`.
+There is also `juridico/doctype/processo_judicial/test_processo_judicial.py`.
 
-Testes (a partir da raiz do bench):
+Tests (from the bench root):
 
 ```bash
 bench --site <site> run-tests --app integracoes_customizadas
 ```
 
-O app usa `pre-commit` (ruff, eslint, prettier, pyupgrade):
+The app uses `pre-commit` (ruff, eslint, prettier, pyupgrade):
 
 ```bash
 cd apps/integracoes_customizadas
 pre-commit install
 ```
 
-## Documentação
+## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md): histórico por versão
-- [docs/fluxo-compras.md](docs/fluxo-compras.md)
-- [docs/juridico-dashboard.md](docs/juridico-dashboard.md)
-- [docs/modulo_provas.md](docs/modulo_provas.md)
-- [docs/adr-001-leitura-minima-em-doctypes-vinculados.md](docs/adr-001-leitura-minima-em-doctypes-vinculados.md)
-- [docs/adr-002-qualidade-e-legibilidade-de-logs.md](docs/adr-002-qualidade-e-legibilidade-de-logs.md)
-- [docs/datajud-qualidade-de-logs.md](docs/datajud-qualidade-de-logs.md)
+- [CHANGELOG.md](CHANGELOG.md): history by version
+- [docs/dependencies.md](docs/dependencies.md)
+- [docs/purchasing-flow.md](docs/purchasing-flow.md)
+- [docs/legal-dashboard.md](docs/legal-dashboard.md)
+- [docs/exams-module.md](docs/exams-module.md)
+- [docs/adr-001-minimal-read-on-linked-doctypes.md](docs/adr-001-minimal-read-on-linked-doctypes.md)
+- [docs/adr-002-log-quality-and-readability.md](docs/adr-002-log-quality-and-readability.md)
+- [docs/adr-003-lint-and-ci-standardization.md](docs/adr-003-lint-and-ci-standardization.md)
+- [docs/adr-004-language-and-naming-standardization.md](docs/adr-004-language-and-naming-standardization.md)
+- [docs/datajud-log-quality.md](docs/datajud-log-quality.md)
 
-## Licença
+## License
 
-MIT
+Proprietary (StillPulse Tecnologia LTDA). See `license.txt`.

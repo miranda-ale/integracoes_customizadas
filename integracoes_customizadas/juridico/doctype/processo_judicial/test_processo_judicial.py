@@ -87,7 +87,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		doc.parte = contato.name
 		doc.save()
 		self.assertEqual(doc.doctype_parte, "Contact")
-		# Nomes de cadastro são normalizados em caixa alta e sem acento (normalizacao/maiusculas.py).
+		# Nomes de cadastro são normalizados em caixa alta e sem acento (normalization/uppercase.py).
 		self.assertEqual(doc.nome_parte, "PACIENTE JURIDICO")
 		self.assertIn(
 			"Cadastre pacientes em Contatos",
@@ -266,21 +266,21 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			},
 		)
 		self.assertEqual(
-			[(p.role, p.read, p.write) for p in frappe.get_meta("Configurações DataJud").permissions],
+			[(p.role, p.read, p.write) for p in frappe.get_meta("DataJud Settings").permissions],
 			[("System Manager", 1, 1)],
 		)
 		self.assertTrue(frappe.db.exists("Role", "Usuário Jurídico"))
-		self.assertTrue(frappe.has_permission("Configurações DataJud", "read", user="Administrator"))
+		self.assertTrue(frappe.has_permission("DataJud Settings", "read", user="Administrator"))
 		with patch("frappe.get_roles", return_value=["System Manager"]):
 			self.assertTrue(
-				frappe.has_permission("Configurações DataJud", "read", user="gestor-datajud@example.com")
+				frappe.has_permission("DataJud Settings", "read", user="gestor-datajud@example.com")
 			)
 			self.assertTrue(
-				frappe.has_permission("Configurações DataJud", "write", user="gestor-datajud@example.com")
+				frappe.has_permission("DataJud Settings", "write", user="gestor-datajud@example.com")
 			)
 		with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
 			self.assertFalse(
-				frappe.has_permission("Configurações DataJud", "read", user="juridico-datajud@example.com")
+				frappe.has_permission("DataJud Settings", "read", user="juridico-datajud@example.com")
 			)
 		with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
 			self.assertTrue(
@@ -387,7 +387,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user(usuario)
-			workspace = Workspace({"name": "Jurídico"})
+			workspace = Workspace({"name": "Juridico"})
 			blocos = frappe.parse_json(workspace.doc.content)
 			self.assertEqual(
 				[block["type"] for block in blocos],
@@ -396,7 +396,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
 			self.assertEqual(len(workspace.get_number_cards()), 0)
 			self.assertTrue(
-				{"Processo Judicial", "Configurações DataJud", "Processos Judiciais"}.issubset(
+				{"Processo Judicial", "DataJud Settings", "Processos Judiciais"}.issubset(
 					{item["link_to"] for item in workspace.get_shortcuts()}
 				)
 			)
@@ -405,14 +405,14 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertEqual(caixas["Ética"][0]["link_to"], "Canal de Denuncias")
 			self.assertEqual(caixas["Judicial"][0]["link_to"], "Processo Judicial")
 			self.assertEqual(caixas["Configurações"][0]["label"], "Configurações de Processos Judiciais")
-			self.assertEqual(caixas["Configurações"][0]["link_to"], "Configurações DataJud")
+			self.assertEqual(caixas["Configurações"][0]["link_to"], "DataJud Settings")
 			self.assertIn(
 				"Juridico Indicadores", [block.custom_block_name for block in workspace.get_custom_blocks()]
 			)
 			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
 			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
 			self.assertTrue(frappe.has_permission("Processo Judicial", "read"))
-			frappe.get_single("Configurações DataJud").validate()
+			frappe.get_single("DataJud Settings").validate()
 		finally:
 			frappe.set_user(usuario_original)
 
@@ -434,13 +434,13 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user(usuario)
-			workspace = Workspace({"name": "Jurídico"})
+			workspace = Workspace({"name": "Juridico"})
 			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
 			self.assertEqual(len(workspace.get_number_cards()), 0)
 			atalhos = {item["link_to"] for item in workspace.get_shortcuts()}
 			self.assertIn("Processo Judicial", atalhos)
 			self.assertIn("Processos Judiciais", atalhos)
-			self.assertNotIn("Configurações DataJud", atalhos)
+			self.assertNotIn("DataJud Settings", atalhos)
 			caixas = {card["label"] for card in workspace.get_links()}
 			self.assertIn("Judicial", caixas)
 			self.assertNotIn("Configurações", caixas)
@@ -449,7 +449,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			)
 			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
 			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
-			self.assertFalse(frappe.has_permission("Configurações DataJud", "read"))
+			self.assertFalse(frappe.has_permission("DataJud Settings", "read"))
 		finally:
 			frappe.set_user(usuario_original)
 
@@ -744,7 +744,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			processo.save()
 
 	def test_vinculo_posterior_por_cpf(self):
-		from integracoes_customizadas.juridico.parte import vincular_colaborador
+		from integracoes_customizadas.juridico.party import vincular_colaborador
 
 		if not frappe.get_meta("Employee").has_field("custom_cpf"):
 			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
@@ -942,7 +942,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertIn({"doctype": "Processo Judicial", "count": 1, "open_count": 0}, externos)
 
 	def test_vincular_colaborador_atualiza_a_linha_principal(self):
-		from integracoes_customizadas.juridico.parte import vincular_colaborador
+		from integracoes_customizadas.juridico.party import vincular_colaborador
 
 		if not frappe.get_meta("Employee").has_field("custom_cpf"):
 			self.skipTest("Campo custom_cpf do rh_brasil ausente.")
@@ -958,7 +958,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertTrue(processo.parte_vinculada)
 
 	def test_relatorio_filtra_por_qualquer_parte_e_lista_outras(self):
-		from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import execute
+		from integracoes_customizadas.juridico.report.relacao_de_processos.relacao_de_processos import execute
 
 		colaborador = self._employee("Relatório Parte")
 		processo = self._processo_sem_cadastro("processo-partes-10")
@@ -992,7 +992,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(processo.nome_parte, "Novo Nome")
 
 	def test_classificacao_interna_e_pasta_unica_por_empresa(self):
-		from integracoes_customizadas.juridico.report.relação_de_processos.relação_de_processos import execute
+		from integracoes_customizadas.juridico.report.relacao_de_processos.relacao_de_processos import execute
 
 		primeiro = self._processo_sem_cadastro(
 			"processo-class-1",
@@ -1155,7 +1155,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 	def test_audiencias_e_prazos_geram_agenda_sem_duplicar(self):
 		from frappe.utils import add_days, now_datetime
 
-		from integracoes_customizadas.juridico import agenda
+		from integracoes_customizadas.juridico import agenda_alerts as agenda
 
 		def contar(doctype, campo, nome):
 			return frappe.db.count(doctype, {campo: nome})
@@ -1343,7 +1343,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(linhas[0].passivo_liquido, 350)
 
 		grupos = executar(
-			"provisão_de_processos", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"}
+			"provisao_de_processos", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"}
 		)
 		provavel = next(g for g in grupos if g["probabilidade_perda"] == "Provável")
 		self.assertEqual(provavel["quantidade"], 1)

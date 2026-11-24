@@ -1,4 +1,4 @@
-# Copyright (c) 2026, Frappe and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 
 import frappe
@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import escape_html, getdate
 
-from integracoes_customizadas import email_institucional
+from integracoes_customizadas import institutional_email
 
 
 class Edital(Document):
@@ -260,7 +260,7 @@ class Edital(Document):
 			# Prepara conteúdo do email (layout institucional, manifesto do clm, seção 6)
 			subject = _("[Processo seletivo] Avanço de etapa {0}").format(self.titulo)
 
-			message = email_institucional.corpo(
+			message = institutional_email.corpo(
 				_("Avanço de etapa no processo seletivo"),
 				_(
 					"<p>Prezado(a) {0},</p>"
