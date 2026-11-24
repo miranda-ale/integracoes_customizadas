@@ -1,6 +1,6 @@
 // Etapas do processo de compras: barra recolhível no topo dos formulários da cadeia de materiais.
 // Mesmo visual da barra do CLM; os status vêm de integracoes_customizadas.procurement.process_view.get_purchase_steps.
-/* global compras */
+/* global procurement */
 frappe.provide("procurement.steps");
 
 // Espelho de process_view.STAGES; usado antes de o documento ser salvo.
