@@ -10,7 +10,7 @@ o texto abaixo é um retrato da sessão anterior e pode estar desatualizado.
 
 Dez apps Frappe v15: still-pulse (clm, rh_brasil, pulse_gestor, assinatura_eletronica, pdf_ocr, pulse_finance,
 pulse_process, bhcl_site) e miranda-ale (busca_cnpj, integracoes_customizadas). A padronização de lint e CI está na
-main de 9 repositórios; o rh_brasil tem o PR #6 aberto, sem merge. Esta frente trata de **correções de produto que o
+main de 9 repositórios; o rh_brasil teve o PR #6 mesclado e hoje tem o PR #15 aberto (CI verde, aguardando revisão humana e merge). Esta frente trata de **correções de produto que o
 CI revelou**. Nomenclatura, idioma de identificadores e renomeação de DocTypes e campos são de **outra sessão**: não
 alterar.
 
@@ -83,7 +83,7 @@ Branch de trabalho em todos os repos: `claude/frappe-ci-product-fixes-ag289b`. R
 ## 5. Forma de trabalho nova (obrigatória)
 
 A sessão anterior disparou muitos agentes em paralelo e o consumo de tokens ficou excessivo. **Nesta sessão: um repositório
-por vez, sequencial, um agente por vez.** Ordem: **rh_brasil primeiro, depois clm**, e então os demais na ordem da
+por vez, sequencial, um agente por vez.** Ordem: **rh_brasil (PR #15 aguardando merge; ver 7.1), depois clm**, e então os demais na ordem da
 seção 7. Para cada repositório:
 
 1. Reverificar o estado (git status/log, PR, checks reais).
@@ -116,36 +116,31 @@ seção 7. Para cada repositório:
   produção. Verificação por site, somente leitura:
   `SELECT name, parent_item_group, lft FROM \`tabItem Group\` WHERE IFNULL(parent_item_group,'')='';` (esperado: só "All Item Groups").
 
+- 2026-11-24 (rh_brasil): os campos `rh_*` da Timeline (DEC-17) **não existem em produção**; a DEC-16 (arredondamento) foi **cancelada para o
+  rh_brasil**, sem alteração de cálculo; a DEC-09 (remoção de `Ferias` e `Medidas Disciplinares`) só será discutida depois de finalizar o CI;
+  o `PERSONAL_REPO_TOKEN` **já foi revogado**; o dono dos cinco cadastros (CBO, Municípios, Dependentes, Colaboradores Link e Canal de
+  Denúncias) é o `rh_brasil`; os 5 testes da Assinatura RH **não serão semeados** (saem com os DocTypes).
+
 ## 7. Estado por repositório (retrato da sessão anterior; reverifique)
 
 Todos na branch `claude/frappe-ci-product-fixes-ag289b`. "Dispatch" = `workflow_dispatch` na branch.
 
-### 7.1 rh_brasil (PRIMEIRO) — backlog A, PR #6 aberto, Server vermelho
-- O agente caiu por limite de gasto antes de entregar relatório. Havia **7 commits locais e 2 arquivos sem commit**
-  (`rh_brasil/hooks.py`, `rh_brasil/tests/base_de_teste.py`); o `git log` mostrou, entre outros, `9b0338b`, `14a9a3d`,
-  `7129384` (CI: migrate antes dos testes, instalar payments, usar CLM_REPO_TOKEN também para assinatura_eletronica). Não
-  sei se foi empurrado: **verifique antes de qualquer coisa**.
-- Leia antes: `CLAUDE.md`, `AGENTS.md`, `docs/README.md`, `docs/status.md` e `rh_brasil/ponto/AGENTS.md` (obrigatório ao mexer
-  em `ponto/`). `CLAUDE.md` do repo exige commit e tag de patch ao final de cada ciclo: **a regra desta frente é não
-  taguear nem mexer em `__version__`**; confirme com o usuário se houver conflito.
-- Issue #7: CAT e ASO existem só no site, sem JSON/patch no app (`sst/cat.py:1`, `hooks.py:58`). Definições reais em
-  `doctypes/Atestado-de-Saude-Ocupacional.json` e `doctypes/Comunicacao-de-Acidente-do-Trabalho.json` do export. Trazer
-  para o módulo SST sem sobrescrever dados e permissões em produção. Avaliar o que o migrate faria ao encontrar o DocType
-  existente criado pela UI e **propor** o caminho mais seguro antes de aplicar.
-- Issue #8: Custom Fields do site: `custom_cpf` vem do integracoes_customizadas e não está em `required_apps`;
-  `custom_matricula` e `custom_colaboradores_substituidos` não existem no app. Declarar como fixtures (export em
-  `custom-fields/`) e propor a decisão de dependência.
-- Issue #9: testes dependem de dados de produção (Company MATRIZ, IBAN 1234 inválido, `INF-IMP-00001`), 4 falhas de
-  asserção e **282 testes pulados**. Tornar autossuficientes e listar o motivo de cada grupo de skip. Lembrete: o
-  `FrappeTestCase` só faz rollback no **fim da classe**; dados com nome fixo devem ir em `setUpClass`.
-- **Conflito de posse a decidir (I-1):** o rh_brasil tem na branch `rh_brasil/doctypes_do_site/{cbo,municipios,dependentes,colaboradores_link}.json`
-  e um `sync.py` (ADR 0004) que cria os mesmos 4 DocTypes só se faltarem, e o integracoes_customizadas faz o mesmo em
-  `cadastros/instalacao.py`. Duas fontes da verdade. Recomendação do revisor: o rh_brasil é o dono dos 4 cadastros
-  (consome Dependentes e é `required_app`); o integracoes fica só com o Canal de Denúncias. **Decisão do usuário
-  pendente.**
-- Padrões da seção 3 e Semgrep a 0 ainda não aplicados no rh_brasil. Auditoria de arredondamento monetário: só relatar
-  (folha, rescisão, férias etc.); não alterar cálculo trabalhista sem aprovação.
-- Depois de A: mesclar o PR #6 só com Server verde (o merge é do usuário).
+### 7.1 rh_brasil (PRIMEIRO) — PR #15 aberto, CI verde, aguardando revisão humana e merge
+- A `main` está na v2.0.28. Os PRs #6, #10, #11 e #12 já foram mesclados (#10 e #11 vieram de outra sessão, na branch
+  `claude/frappe-v15-ci-product-fixes-dp3zsx`: Semgrep de 430 para 0, testes autossuficientes, permissões do SESMT, fixtures reais).
+- **PR #15** (12 commits desta frente): Canal de Denúncias passa a ser do rh_brasil (`doctypes_do_site`, `garantir_modulo`), 9 de 14
+  testes pulados semeados (Server: 720 testes, 8 pulados), flags de permissão do Canal travados contra a produção e documentação
+  (ADR-0004, ADR-0005, ADR-0006, `docs/status.md`: DEC-10, DEC-14 a DEC-17, TST-01, REL-01). CI do PR: Server run 45338495235,
+  Linters run 45338495410, ambos success. Revisor humano pedido: `gregscardoso`.
+- Issues #7 e #8 fechadas; a #9 continua aberta até o merge (restam 8 pulados, documentados na ADR-0006: 5 saem com os DocTypes e 3 são legítimos).
+- **Decisões do mantenedor (2026-11-24):** DEC-17: os 3 campos `rh_disponivel_ao_colaborador` (Appraisal e Employee Performance
+  Feedback) e `rh_solicitar_feedback` (Training Event) **não existem em produção**, então as ações "Liberar ao colaborador" e "Solicitar
+  feedback" provavelmente falham; versionar os campos como Check é proposta que **aguarda aprovação**, em PR separado depois do #15.
+  DEC-16: cancelada para o rh_brasil. DEC-09: só depois de finalizar o CI. DEC-14: **aguarda decisão** (ver seção 8).
+- **Pendente:** merge do #15; fechar a #9; publicar as tags v2.0.26 a v2.0.28 (REL-01, fora do proxy); decidir a versão do #15 (o
+  `CLAUDE.md` do repo pede versão e tag por ciclo; o PR não altera `__version__`); validação pré-deploy (`bench export-fixtures` na produção,
+  `migrate` numa cópia do banco, `validar_template` do holerite, `bench clear-cache` depois); PR do `integracoes_customizadas` removendo a criação
+  dos 5 cadastros **depois** do merge.
 
 ### 7.2 clm (SEGUNDO) — PR #14 aberto
 - HEAD `f7fbc69`. Commits: `d16d1c0` (job_card), `4c29606` (precisão de moeda, **substituído** pelo truncamento),
@@ -235,8 +230,9 @@ Todos na branch `claude/frappe-ci-product-fixes-ag289b`. "Dispatch" = `workflow_
   rascunho e tem share, export, email e print; regras `mandatory_depends_on` comparam com status que não existem. Diff
   mínimo proposto: remover `delete` (e idealmente `share` e `export`) do HR User; `permlevel: 1` em `den_nome` e
   `den_email`. Em produção exige Custom DocPerm ou patch própria, com decisão do usuário.
-- Dono dos 5 cadastros: ver 7.1 (conflito com o rh_brasil). Módulo "Gestor Online" (Aviso Cirurgico, Canal de Denuncias,
-  Paciente) não pertence a nenhum app do conjunto: **dono pendente**.
+- Dono dos 5 cadastros: **rh_brasil** (decidido em 2026-11-24; o PR #15 cria o Canal lá). Remover a criação dos 5 em
+  `cadastros/instalacao.py` só **depois** do merge do #15. Módulo "Gestor Online" (Aviso Cirurgico, Canal de Denuncias,
+  Paciente) não pertence a nenhum app do conjunto: o Canal já é do rh_brasil; **dono de Aviso Cirurgico e Paciente pendente**.
 - Traduções: o dono é o `bhcl_theme`; ninguém conferiu se ele tem os 7 rótulos de compras (acesso ao repo negado).
 - `.whl`: o commit `28c3194` incluiu ~86 MiB de wheels por engano (removidos em `70b63df`, ainda no histórico, via PR #7 /
   `refs/pull/7/head`). O ensaio de `git filter-repo` num espelho funcionou (árvores idênticas; afetaria `main`,
@@ -260,13 +256,17 @@ Todos na branch `claude/frappe-ci-product-fixes-ag289b`. "Dispatch" = `workflow_
    recomendo aprovar), pdf_ocr (A), pulse_gestor (monkey-patching: recomendo aprovar), integracoes_customizadas
    (`override-doctype-class`: recomendo aprovar com teste de deriva).
 2. integracoes: remover `webhook_evolution` (recomendado) ou implementar HMAC.
-3. integracoes: política de acesso do Canal de Denúncias (LGPD) e o dono dos 5 cadastros (rh_brasil recomendado).
+3. Canal de Denúncias (LGPD, DEC-14): decidir quem pode ver a identidade do denunciante e quem pode apagar, exportar e compartilhar.
+   O dono dos 5 cadastros já é o rh_brasil.
 4. clm: regra de moedas além do BRL.
 5. pulse_finance: truncamento monetário em PR próprio e job de testes novo.
 6. assinatura_eletronica: validar o commit por processo em `reprocessar_pendentes`.
-7. Dono do módulo "Gestor Online".
+7. Dono de Aviso Cirurgico e Paciente (módulo "Gestor Online"); o Canal já é do rh_brasil.
 8. Reescrita do histórico do integracoes_customizadas (em espera; recomendo chamado ao GitHub antes).
-9. Ações do próprio usuário: revogar o `PERSONAL_REPO_TOKEN` e apagar o secret do rh_brasil; mesclar os PRs verdes.
+9. Ações do próprio usuário: mesclar os PRs verdes e publicar as tags v2.0.26 a v2.0.28 do rh_brasil. O `PERSONAL_REPO_TOKEN` já foi
+   revogado (informado em 2026-11-24).
+10. rh_brasil, DEC-17: aprovar ou não versionar os 3 campos `rh_*` como Check (bug confirmado em produção).
+11. Escopo do cancelamento do arredondamento (a DEC-16 vale só para o rh_brasil; a regra 13 da seção 2 segue valendo nos demais apps até confirmação).
 
 ## 9. Pendências técnicas gerais
 
@@ -308,9 +308,8 @@ Para criar o ambiente por ferramenta (alternativa à tela): `get_environment` e 
 ## 11. Primeira ação da nova sessão
 
 1. Ler este documento e confirmar o entendimento em poucas linhas.
-2. Verificar `git status` e `git log origin/<branch>..HEAD` no **rh_brasil**, o PR #6 e os checks reais.
-3. Retomar o backlog A do rh_brasil (seção 7.1), com um único agente, seguindo a seção 5. Quando terminar, apresentar o
-   resumo e as decisões e só então passar ao **clm**.
+2. Verificar o PR #15 do **rh_brasil** (merge, checks) e fechar o que a seção 7.1 lista como pendente.
+3. Seguir para o **clm** (seção 7.2), com um único agente, conforme a seção 5. Apresentar o resumo e as decisões antes de passar ao próximo.
 
 ## 12. Tarefa adicional: integração consultiva do StillPulse AI Reviewer no CI
 
