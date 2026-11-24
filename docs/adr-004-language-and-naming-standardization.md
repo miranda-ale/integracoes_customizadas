@@ -64,10 +64,15 @@ change.
 **Patches** (both `[pre_model_sync]`, idempotent, safe to retry)
 
 - `s01_rename_datajud_settings`: renames the Single DocType `Configurações DataJud` to `DataJud Settings` with
-  `frappe.rename_doc("DocType", ...)`. Because `rename_doc` does not rekey the Single's stored values, it also updates
-  `tabSingles.doctype` and `__Auth` (`doctype` and `name`, which hold the encrypted `api_key` and the circuit-breaker
-  state), only when the new rows do not exist yet. If the new DocType already exists it moves the leftover values and
-  deletes the old DocType. Does nothing once the old name is gone.
+  `frappe.rename_doc("DocType", ...)`. Because `rename_doc` does not rekey the Single's stored values, it then
+  **merges** the old rows into the new name: in `tabSingles` (key `doctype` + `field`) and `__Auth` (key `doctype` +
+  `name` + `fieldname`, which holds the encrypted `api_key`) it copies only the rows that do not exist yet under the new
+  name (an existing new value always wins; the password is copied as stored, with its `encrypted` flag), then deletes
+  the remaining old rows. The SQL uses only bound parameters. If the new DocType already exists (partial earlier run or
+  model sync) the values are merged first and only then the old DocType is deleted, so nothing, including the
+  circuit-breaker state and the key, is lost. Running it twice changes nothing. Covered by
+  `tests/test_s01_rename_datajud_settings.py` (clean rename, empty new, partial new merge, no overwrite of an existing
+  key, double run), which runs against an in-memory SQLite fake and does not need a bench.
 - `s02_rename_juridico_reports_and_workspace`: renames Reports `Relação de Processos` -> `Relacao de Processos`,
   `Provisão de Processos` -> `Provisao de Processos` and Workspace `Jurídico` -> `Juridico`. `rename_doc` rewrites the
   links; if both names already exist, the legacy record is deleted. Skips records that are gone.
