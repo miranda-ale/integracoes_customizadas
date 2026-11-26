@@ -45,3 +45,11 @@ and [`clm/docs/fixtures-and-migrations.md`](https://github.com/still-pulse/clm/b
   patches are never renamed or edited) and are registered in `patches.txt` (`[pre_model_sync]` for renames).
 - Renames of persisted names (DocTypes, fieldnames, roles, record names) need their own idempotent patch.
 - Cross-app imports are declared in `required_apps` or guarded; see [docs/dependencies.md](docs/dependencies.md).
+
+## Git tags in cloud agent sessions
+
+Agents running in a Claude Code cloud session cannot push git tags: the egress proxy answers `HTTP 403` (verified
+2026-11-26; branch pushes work). It is a policy denial: do not retry or route around it. Commit and push the branch,
+update `__version__` only when the task asks, and report once that the tag is pending. A human creates the tag
+(`git tag vX.Y.Z && git push origin vX.Y.Z` from a normal machine, or a GitHub release). Details:
+`pulse_platform/docs/handoff-dev-data.md`.
