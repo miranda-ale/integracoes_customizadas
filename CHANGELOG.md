@@ -5,6 +5,10 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
 
 ## Unreleased
 
+- Custom Fields: the 35 Employee/Designation fields shared with `rh_brasil` are no longer shipped here (`rh_brasil` owns
+  them; identical definitions, nothing changes on a site). The export filter now lists this app's 31 fields by name and a
+  test prevents a field from being shipped by both apps.
+
 - Fix: the DataJud circuit breaker never opened (the failure counter was reset on every call); the failure type now has its own
   field (`tipo_ultima_falha`).
 - Workspaces `Provas`, `Integracoes` and the DataJud Sync Log link in `Juridico` are created or completed on `migrate`

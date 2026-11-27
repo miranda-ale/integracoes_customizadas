@@ -42,3 +42,11 @@ these modules must keep a deprecated alias until the consumers migrate:
   `rh_brasil`, which must declare or guard its own use).
 - `rh_brasil` must not rely on this app's fixtures implicitly: it should guard with
   `frappe.get_installed_apps()` and check that the Custom Field exists (`frappe.get_meta("Employee").has_field`).
+
+## Custom Field ownership (Employee and Designation)
+
+`rh_brasil` owns the 35 Employee/Designation Custom Fields that both apps used to ship (it lists them by name in its
+`hooks.py` fixtures). This app ships only its own 31 (`custom_cpf`, `custom_tipo_de_deficiencia` and the layout fields it
+needs) and its export filter lists them by name; `tests/test_fixture_ownership.py` enforces that no field is shipped by
+both. The 35 had identical definitions in both apps, so no value changed. Removing a field from a fixture does not delete
+it from a site: nothing is dropped on `migrate`.

@@ -6,7 +6,50 @@ app_email = "alessandro.siqueira@outlook.com"
 app_license = "Proprietary"
 
 fixtures = [
-	{"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
+	# Custom Fields owned by this app. The ones rh_brasil also needs (35 shared Employee/Designation fields) are owned by
+	# rh_brasil (its hooks list them by name); do not add them back here.
+	{
+		"dt": "Custom Field",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					"Designation-appraisal_template",
+					"Designation-custom_column_break_qered",
+					"Designation-custom_column_break_r6yls",
+					"Designation-custom_section_break_11esu",
+					"Designation-custom_section_break_oqan4",
+					"Designation-required_skills_section",
+					"Designation-skills",
+					"Employee-approvers_section",
+					"Employee-column_break_45",
+					"Employee-custom_carteira_de_trabalho",
+					"Employee-custom_column_break_m88sg",
+					"Employee-custom_column_break_pnt0c",
+					"Employee-custom_column_break_qvocr",
+					"Employee-custom_column_break_t5ru5",
+					"Employee-custom_cpf",
+					"Employee-custom_dados_pessoais",
+					"Employee-custom_data_da_expedicao_ctps",
+					"Employee-custom_tipo_de_deficiencia",
+					"Employee-default_shift",
+					"Employee-employee_advance_account",
+					"Employee-employment_type",
+					"Employee-expense_approver",
+					"Employee-grade",
+					"Employee-health_insurance_no",
+					"Employee-health_insurance_provider",
+					"Employee-health_insurance_section",
+					"Employee-job_applicant",
+					"Employee-leave_approver",
+					"Employee-payroll_cost_center",
+					"Employee-salary_cb",
+					"Employee-shift_request_approver",
+				],
+			]
+		],
+	},
 	{"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
 	{"dt": "Custom HTML Block", "filters": [["name", "in", ["Relatórios"]]]},
 ]
