@@ -8,6 +8,7 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
 - Reports, Print Formats, Dashboard Charts, Number Cards, the Dashboard, the Workspaces (`Integ Legal`, `Integ Exams`, `Integ Integrations`) and
   the HTML block `Integ Reports`: English names with the `Integ` prefix (patch `s03`, see `docs/adr-005-persisted-names-phase-2-wave-2.md`).
   pt-BR labels in the new `translations/pt-BR.csv`.
+- The Purchasing Workspace shortcut and the tests cite the renamed `clm` Report `CLM Supplier Documents Expiring` (requires `clm` with its wave 2 names).
 
 - Custom Fields: the 35 Employee/Designation fields shared with `rh_brasil` are no longer shipped here (`rh_brasil` owns
   them; identical definitions, nothing changes on a site). The export filter now lists this app's 31 fields by name and a

@@ -59,4 +59,4 @@ class TestWorkspacesCompras(FrappeTestCase):
 			self.skipTest("clm não instalado")
 		alvos = {l.link_to for l in frappe.get_doc("Workspace", "Buying").links}
 		self.assertIn("CLM Supplier Document", alvos)
-		self.assertIn("CLM Documentos de Fornecedor a Vencer", alvos)
+		self.assertIn("CLM Supplier Documents Expiring", alvos)

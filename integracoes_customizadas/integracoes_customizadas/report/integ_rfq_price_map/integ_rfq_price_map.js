@@ -1,7 +1,7 @@
 // Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 // For license information, please see license.txt
 //
-// Adapted from the CLM "CLM Mapa de Precos" report, reading ERPNext Request for Quotation
+// Adapted from the CLM "CLM Price Map" report, reading ERPNext Request for Quotation
 // and the Supplier Quotations linked to it.
 
 frappe.query_reports["Integ RFQ Price Map"] = {

@@ -110,7 +110,7 @@ LAYOUTS = {
 					("Rastreador de compras", "Report", "Procurement Tracker"),
 					("Histórico de compras por item", "Report", "Item-wise Purchase History"),
 					("Comparação de cotações", "Report", "Supplier Quotation Comparison"),
-					("Documentos de fornecedor a vencer", "Report", "CLM Documentos de Fornecedor a Vencer"),
+					("Documentos de fornecedor a vencer", "Report", "CLM Supplier Documents Expiring"),
 				],
 			),
 			(

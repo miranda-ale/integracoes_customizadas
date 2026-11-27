@@ -2,7 +2,7 @@
 # For license information, please see license.txt
 #
 # Comparative price map for a Request for Quotation: one item per row, one supplier per column.
-# Adapted from the CLM "CLM Mapa de Precos" report (which reads CLM Quotation Request).
+# Adapted from the CLM "CLM Price Map" report (which reads CLM Quotation Request).
 
 import frappe
 from frappe.utils import cint, flt
