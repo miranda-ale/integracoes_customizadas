@@ -3,7 +3,12 @@
 Versions and dates follow the repository tags (`vMAJOR.MINOR.PATCH`). The attribution of the WhatsApp items to
 versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 (untagged) have no breakdown.
 
-## Unreleased — Language and naming standardization (phase 1)
+## Unreleased
+
+- Fix: the DataJud circuit breaker never opened (the failure counter was reset on every call); the failure type now has its own
+  field (`tipo_ultima_falha`).
+- Workspaces `Provas`, `Integracoes` and the DataJud Sync Log link in `Juridico` are created or completed on `migrate`
+  (`workspace_links.ensure_workspaces`, additive); the CI runs `migrate` before the tests. — Language and naming standardization (phase 1)
 
 - Metadata: publisher StillPulse Tecnologia LTDA, proprietary license, uniform `required_apps`.
 - Patches `s01_rename_datajud_settings` (Single DocType `Configurações DataJud` -> `DataJud Settings`, including

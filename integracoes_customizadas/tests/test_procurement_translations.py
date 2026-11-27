@@ -46,6 +46,10 @@ PERMITIDOS = frozenset(
 
 class TestTraducoesCompras(FrappeTestCase):
 	def test_rotulos_da_cadeia_estao_em_portugues(self):
+		# The pt-BR labels of ERPNext's fields live in bhcl_theme/translations (a site-wide theme app, not a dependency of
+		# this app): without it installed there is nothing to check here.
+		if "bhcl_theme" not in frappe.get_installed_apps():
+			self.skipTest("bhcl_theme (owner of the ERPNext pt-BR labels) is not installed on this site")
 		traducoes = get_all_translations("pt-BR")
 		faltando = {}
 		for doctype in DOCTYPES:
