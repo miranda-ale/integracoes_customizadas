@@ -70,6 +70,65 @@ def rfqs_da_material_request(material_request: str) -> list[str]:
 	)
 
 
+def motivo_rfq_indisponivel(
+	request_for_quotation: str, id_cotacao: str | None, importacao: str | None
+) -> str | None:
+	"""Por que a RFQ não pode ser desta cotação do Bionexo (None se pode).
+
+	Uma RFQ já marcada com outro ID Bionexo, ou já usada por outra importação de outra cotação, é de outra rodada
+	de compra: o relatório que a cita foi copiado de uma cotação anterior no Bionexo.
+	"""
+	id_rfq = None
+	if frappe.get_meta("Request for Quotation").has_field("custom_id_bionexo"):
+		id_rfq = frappe.db.get_value("Request for Quotation", request_for_quotation, "custom_id_bionexo")
+	if id_rfq and id_cotacao and str(id_rfq) != str(id_cotacao):
+		return _("vinculado à cotação {0} do Bionexo").format(id_rfq)
+	for outra in frappe.get_all(
+		"Importacao Bionexo",
+		filters={
+			"request_for_quotation": request_for_quotation,
+			"docstatus": ["<", 2],
+			"name": ["!=", importacao or ""],
+		},
+		fields=["name", "id_cotacao_bionexo"],
+	):
+		if outra.id_cotacao_bionexo and outra.id_cotacao_bionexo != id_cotacao:
+			return _("já importado em {0} (cotação {1} do Bionexo)").format(
+				outra.name, outra.id_cotacao_bionexo
+			)
+	return None
+
+
+def itens_do_relatorio_no_erp(itens: list[dict]) -> dict[str, float]:
+	"""{item_code: quantidade solicitada} dos itens do relatório (código do ERP ou custom_código_bionexo)."""
+	codigos = {item["codigo"]: item.get("qtd_solicitada") or 0 for item in itens if item.get("codigo")}
+	if not codigos:
+		return {}
+	no_erp = {
+		codigo: codigos[codigo]
+		for codigo in frappe.get_all("Item", filters={"name": ["in", list(codigos)]}, pluck="name")
+	}
+	if frappe.get_meta("Item").has_field("custom_código_bionexo"):
+		for item in frappe.get_all(
+			"Item",
+			filters={"custom_código_bionexo": ["in", list(codigos)]},
+			fields=["name", "custom_código_bionexo"],
+		):
+			no_erp.setdefault(item.name, codigos[item.custom_código_bionexo])
+	return no_erp
+
+
+def aderencia(doctype_item: str, parent: str, itens_erp: dict[str, float]) -> tuple[int, int]:
+	"""(itens do relatório presentes no documento, desses com a mesma quantidade)."""
+	linhas = frappe.get_all(doctype_item, filters={"parent": parent}, fields=["item_code", "qty"])
+	qtds = {}
+	for linha in linhas:
+		qtds[linha.item_code] = qtds.get(linha.item_code, 0) + (linha.qty or 0)
+	presentes = [codigo for codigo in itens_erp if codigo in qtds]
+	mesma_qtd = sum(1 for codigo in presentes if abs(qtds[codigo] - itens_erp[codigo]) < 1e-6)
+	return len(presentes), mesma_qtd
+
+
 @frappe.whitelist()
 def vinculos_da_rfq(request_for_quotation: str) -> dict:
 	"""Solicitações de Compras e itens de uma RFQ, para o formulário filtrar e preencher os campos."""
@@ -201,3 +260,53 @@ def itens_da_importacao(doctype, txt, searchfield, start, page_len, filters):
 		for l in linhas
 		if not txt or txt in l.item_code.lower() or txt in (l.item_name or "").lower()
 	][int(start) : int(start) + int(page_len)]
+
+
+# Documentos que a Importacao Bionexo referencia: a importação é o registro da leitura do PDF e não trava o
+# cancelamento nem a exclusão deles (antes, a OC não cancelava por causa da importação enviada e a importação
+# não cancelava por causa da OC enviada).
+VINCULOS_DA_IMPORTACAO = {
+	"Purchase Order": ("Importacao Bionexo Cotacao", "purchase_order"),
+	"Supplier Quotation": ("Importacao Bionexo Cotacao", "supplier_quotation"),
+	"Request for Quotation": ("Importacao Bionexo", "request_for_quotation"),
+	"Material Request": ("Importacao Bionexo", "material_request"),
+}
+
+
+def liberar_cancelamento(doc, method=None):
+	"""doc_events on_cancel: ignora a Importacao Bionexo na checagem de vínculos do cancelamento.
+
+	Roda depois do on_cancel do controller (que pode definir ignore_linked_doctypes, como a Purchase Order) e antes
+	da checagem do Frappe (check_no_back_links_exist).
+	"""
+	ignorados = tuple(doc.get("ignore_linked_doctypes") or ())
+	if "Importacao Bionexo" not in ignorados:
+		doc.ignore_linked_doctypes = (*ignorados, "Importacao Bionexo")
+
+
+def desvincular_ao_excluir(doc, method=None):
+	"""doc_events on_trash: limpa a referência na importação antes da checagem de vínculos da exclusão.
+
+	Grava só tabelas deste app. A importação enviada é um registro formalizado: a remoção da referência fica
+	registrada num comentário dela (não é edição silenciosa).
+	"""
+	tabela, campo = VINCULOS_DA_IMPORTACAO.get(doc.doctype, (None, None))
+	if not tabela:
+		return
+	pai = "parent" if tabela != "Importacao Bionexo" else "name"
+	importacoes = sorted(set(frappe.get_all(tabela, filters={campo: doc.name}, pluck=pai)))
+	if not importacoes:
+		return
+	frappe.db.set_value(tabela, {campo: doc.name}, campo, None, update_modified=False)
+	for importacao in importacoes:
+		frappe.get_doc(
+			{
+				"doctype": "Comment",
+				"comment_type": "Info",
+				"reference_doctype": "Importacao Bionexo",
+				"reference_name": importacao,
+				"content": _("{0} {1} foi excluído(a); a referência foi removida desta importação.").format(
+					_(doc.doctype), doc.name
+				),
+			}
+		).insert(ignore_permissions=True)

@@ -119,8 +119,10 @@ Há ainda recursos transversais: [normalização de cadastros em caixa alta](#no
 - **Exportação:** botão *Exportar XML Bionexo* na `Request for Quotation` submetida, no layout XML da Bionexo.
 - **Importação do PDF** (`Importacao Bionexo`, card *Bionexo* no workspace Compras ou botão *Importar PDF Bionexo*
   na cotação submetida): lê o "Relatório geral de PDC" e identifica o Pedido de Cotação (pelo nome gravado em
-  Observações pelo XML exportado ou pelo ID Bionexo), os itens (`item_code` ou `custom_código_bionexo`) e os
+  Título/Observações pelo XML exportado ou pelo ID Bionexo), os itens (`item_code` ou `custom_código_bionexo`) e os
   fornecedores (CNPJ completo; sem CNPJ válido no cadastro, pelo nome).
+  - A RFQ identificada precisa ter itens do relatório e não pode pertencer a outra cotação do Bionexo (cotação
+    copiada mantém o título da anterior). Com Solicitação ou Pedido de Cotação já escolhidos, o PDF não os troca.
   - Fornecedores não cadastrados são criados com a consulta de CNPJ do `busca_cnpj` (sem ela, com nome e CNPJ do
     relatório); itens não identificados são relacionados à mão ou ignorados.
   - Ao submeter, gera um `Supplier Quotation` submetido por fornecedor e uma `Purchase Order` em rascunho por
@@ -129,7 +131,9 @@ Há ainda recursos transversais: [normalização de cadastros em caixa alta](#no
     dos demais fornecedores* (marcada) inclui os demais com todos os itens cotados.
   - Solicitação de Compras sem Pedido de Cotação gera o Pedido de Cotação a partir do relatório. A empresa
     acompanha a Solicitação/Pedido escolhido (seção *Referências*).
-  - O cancelamento exclui as OCs em rascunho, cancela os orçamentos e o Pedido de Cotação gerado.
+  - O cancelamento exclui as OCs em rascunho, cancela os orçamentos e o Pedido de Cotação gerado; OCs enviadas
+    são canceladas antes. A importação enviada não trava o cancelamento nem a exclusão da OC, do orçamento, do
+    Pedido de Cotação e da Solicitação (excluir limpa a referência na importação e registra um comentário nela).
 - **Mapa de Preços RFQ:** relatório comparativo da `Request for Quotation` (item por linha, fornecedor por coluna),
   pelo botão *Mapa de Preços* da cotação.
 
