@@ -89,16 +89,16 @@ def _end_of_card(links, label):
 
 # DocTypes of this app that the access policy found without a Workspace on a new site.
 WORKSPACES = (
-	("Provas", "Provas", (("Provas", ("Prova", "Questao", "Disciplina", "Edital")),)),
+	("Integ Exams", "Provas", (("Provas", ("Prova", "Questao", "Disciplina", "Edital")),)),
 	(
-		"Integracoes",
+		"Integ Integrations",
 		"Integracoes Customizadas",
 		(
 			("WhatsApp", ("Configuracoes WhatsApp", "Modelo WhatsApp", "Envio WhatsApp")),
 			("Cadastros", ("Tipo de Deficiencia",)),
 		),
 	),
-	("Juridico", "Juridico", (("Judicial", ("DataJud Sync Log",)),)),
+	("Integ Legal", "Juridico", (("Judicial", ("DataJud Sync Log",)),)),
 )
 
 

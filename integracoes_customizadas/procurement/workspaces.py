@@ -24,9 +24,9 @@ CARD_FLUXO_COMPRAS = (
 		("2. Pedido de Cotação", "DocType", "Request for Quotation"),
 		("3. Cotação do Fornecedor", "DocType", "Supplier Quotation"),
 		("4. Ordem de Compra", "DocType", "Purchase Order"),
-		("5. Pedidos a Receber", "Report", "Pedidos a Receber"),
+		("5. Pedidos a Receber", "Report", "Integ Orders to Receive"),
 		("6. Recebimento de Compra", "DocType", "Purchase Receipt"),
-		("7. Recebidos a Faturar", "Report", "Recebidos a Faturar"),
+		("7. Recebidos a Faturar", "Report", "Integ Received Not Invoiced"),
 		("8. Nota Fiscal de Compra", "DocType", "Purchase Invoice"),
 	],
 )
@@ -35,7 +35,7 @@ CARD_FLUXO_COMPRAS = (
 CARD_FLUXO_ESTOQUE = (
 	"Fluxo do recebimento e estoque",
 	[
-		("1. Pedidos a Receber", "Report", "Pedidos a Receber"),
+		("1. Pedidos a Receber", "Report", "Integ Orders to Receive"),
 		("2. Recebimento de Compra", "DocType", "Purchase Receipt"),
 		("3. Movimento de Estoque", "DocType", "Stock Entry"),
 		("4. Saldo de Estoque", "Report", "Stock Balance"),
@@ -65,7 +65,7 @@ LAYOUTS = {
 				"{} a receber",
 				"Yellow",
 			),
-			("Pedidos a Receber", "Report", "Pedidos a Receber", None, None, "Blue"),
+			("Pedidos a Receber", "Report", "Integ Orders to Receive", None, None, "Blue"),
 			(
 				"Recebimento de Compra",
 				"DocType",
@@ -74,7 +74,7 @@ LAYOUTS = {
 				"{} em rascunho",
 				"Grey",
 			),
-			("Recebidos a Faturar", "Report", "Recebidos a Faturar", None, None, "Blue"),
+			("Recebidos a Faturar", "Report", "Integ Received Not Invoiced", None, None, "Blue"),
 			(
 				"Nota Fiscal de Compra",
 				"DocType",
@@ -90,7 +90,7 @@ LAYOUTS = {
 				"Bionexo",
 				[
 					("Importação do PDF Bionexo", "DocType", "Importacao Bionexo"),
-					("Mapa de Preços", "Report", "Mapa de Precos RFQ"),
+					("Mapa de Preços", "Report", "Integ RFQ Price Map"),
 				],
 			),
 			(
@@ -126,7 +126,7 @@ LAYOUTS = {
 	"Stock": {
 		"header": "Recebimento e estoque",
 		"shortcuts": [
-			("Pedidos a Receber", "Report", "Pedidos a Receber", None, None, "Blue"),
+			("Pedidos a Receber", "Report", "Integ Orders to Receive", None, None, "Blue"),
 			(
 				"Recebimento de Compra",
 				"DocType",

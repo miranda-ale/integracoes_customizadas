@@ -1,45 +1,45 @@
 {
   "doctype": "Dashboard",
-  "name": "Processos Judiciais",
-  "dashboard_name": "Processos Judiciais",
+  "name": "Integ Legal Cases",
+  "dashboard_name": "Integ Legal Cases",
   "module": "Juridico",
   "is_standard": 1,
   "is_default": 0,
   "charts": [
     {
-      "chart": "Processos por Situação",
+      "chart": "Integ Legal Cases by Status",
       "width": "Half"
     },
     {
-      "chart": "Processos por Risco",
+      "chart": "Integ Legal Cases by Risk",
       "width": "Half"
     },
     {
-      "chart": "Processos por Fase",
+      "chart": "Integ Legal Cases by Phase",
       "width": "Half"
     },
     {
-      "chart": "Processos por Tribunal",
+      "chart": "Integ Legal Cases by Court",
       "width": "Half"
     },
     {
-      "chart": "Processos por Localidade IBGE",
+      "chart": "Integ Legal Cases by IBGE Location",
       "width": "Full"
     },
     {
-      "chart": "Assuntos Judiciais mais Frequentes",
+      "chart": "Integ Top Legal Subjects",
       "width": "Full"
     }
   ],
   "cards": [
     {
-      "card": "Total de Processos Judiciais"
+      "card": "Integ Total Legal Cases"
     },
     {
-      "card": "Processos em Andamento"
+      "card": "Integ Ongoing Legal Cases"
     },
     {
-      "card": "Processos Encerrados"
+      "card": "Integ Closed Legal Cases"
     }
   ],
   "creation": "2026-09-16 16:54:16.000000",

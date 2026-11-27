@@ -1,7 +1,7 @@
 {
   "doctype": "Dashboard Chart",
-  "name": "Processos por Tribunal",
-  "chart_name": "Processos por Tribunal",
+  "name": "Integ Legal Cases by Court",
+  "chart_name": "Integ Legal Cases by Court",
   "module": "Juridico",
   "is_standard": 1,
   "is_public": 1,
