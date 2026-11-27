@@ -6,6 +6,7 @@
   "section_break_status",
   "ultima_sincronizacao_sucesso",
   "falhas_consecutivas",
+  "tipo_ultima_falha",
   "column_break_status",
   "ultimo_erro",
   "ultimo_erro_status_http",
@@ -42,6 +43,13 @@
    "label": "Falhas consecutivas",
    "read_only": 1,
    "default": "0"
+  },
+  {
+   "fieldname": "tipo_ultima_falha",
+   "fieldtype": "Data",
+   "label": "Tipo da última falha",
+   "read_only": 1,
+   "hidden": 1
   },
   {
    "fieldname": "column_break_status",

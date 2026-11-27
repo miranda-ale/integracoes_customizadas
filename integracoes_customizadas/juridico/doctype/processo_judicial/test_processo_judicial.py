@@ -39,6 +39,12 @@ def _fonte(identificador=IDENTIFICADOR, numero=NUMERO):
 
 
 class TestProcessoJudicialDataJud(FrappeTestCase):
+	def setUp(self):
+		# sincronizar_processos_acompanhados saves DataJud Settings, where api_key is mandatory.
+		settings = frappe.get_single("DataJud Settings")
+		settings.api_key = "chave-de-teste"
+		settings.save(ignore_permissions=True)
+
 	def test_descricoes_dos_complementos_e_submovimentos(self):
 		fonte = _fonte()
 		fonte["movimentos"] = [
@@ -127,18 +133,18 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 	def test_http_errors_and_retry(self):
 		with patch.object(datajud.requests, "post") as post, patch.object(datajud.time, "sleep"):
 			post.side_effect = [
-				Mock(status_code=429),
-				Mock(status_code=200, json=lambda: {"hits": {"hits": []}}),
+				Mock(text="", status_code=429),
+				Mock(text="", status_code=200, json=lambda: {"hits": {"hits": []}}),
 			]
 			self.assertIn("hits", datajud._post("trf1", {}, "chave"))
 			self.assertEqual(post.call_count, 2)
 			post.side_effect = None
-			post.return_value = Mock(status_code=401)
+			post.return_value = Mock(text="", status_code=401)
 			with self.assertRaises(datajud.DataJudError):
 				datajud._post("trf1", {}, "chave")
 			post.side_effect = [
-				Mock(status_code=200, json=lambda: {"timed_out": False, "_shards": {"failed": 1}}),
-				Mock(status_code=200, json=lambda: {"timed_out": False, "_shards": {"failed": 0}}),
+				Mock(text="", status_code=200, json=lambda: {"timed_out": False, "_shards": {"failed": 1}}),
+				Mock(text="", status_code=200, json=lambda: {"timed_out": False, "_shards": {"failed": 0}}),
 			]
 			self.assertEqual(datajud._post("trf1", {}, "chave")["_shards"]["failed"], 0)
 
@@ -536,6 +542,8 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			patch.object(datajud, "_chave_publica", return_value="chave"),
 			patch.object(datajud, "_verificar_saude", return_value=(True, None)),
 			patch.object(datajud, "atualizar_um_processo", return_value=True) as atualizar,
+			# The batch commits; that would persist this whole test transaction on the site.
+			patch.object(datajud.frappe.db, "commit"),
 		):
 			datajud.sincronizar_processos_acompanhados()
 		pares = [(call.args[0], call.args[1]) for call in atualizar.call_args_list]

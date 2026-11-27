@@ -19,3 +19,4 @@ class DataJudSettings(Document):
 			self.circuito_nivel_backoff = 0
 			self.circuito_proxima_tentativa = None
 			self.falhas_consecutivas = 0
+			self.tipo_ultima_falha = None

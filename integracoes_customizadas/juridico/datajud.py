@@ -735,8 +735,11 @@ def _notificar_administradores(assunto, mensagem):
 
 
 def _abrir_ou_manter_circuito(config, tipo_erro, *, status_http=None, mensagem=None):
-	if config.circuito_tipo_falha != tipo_erro:
+	# The failure type is tracked on its own field: circuito_tipo_falha is only set once the circuit opens, so comparing
+	# against it reset the counter on every call and the circuit never opened.
+	if config.tipo_ultima_falha != tipo_erro:
 		config.falhas_consecutivas = 0
+	config.tipo_ultima_falha = tipo_erro
 	config.falhas_consecutivas = (config.falhas_consecutivas or 0) + 1
 	config.ultimo_erro = mensagem or tipo_erro
 	config.ultimo_erro_status_http = status_http
@@ -778,6 +781,7 @@ def _fechar_circuito_se_necessario(config):
 	config.circuito_nivel_backoff = 0
 	config.circuito_proxima_tentativa = None
 	config.falhas_consecutivas = 0
+	config.tipo_ultima_falha = None
 	config.ultimo_erro = None
 	config.ultimo_erro_status_http = None
 	if estava_aberto:
