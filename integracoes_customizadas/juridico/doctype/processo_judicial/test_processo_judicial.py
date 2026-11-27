@@ -1349,23 +1349,25 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		empresa = com_prov.empresa
 
 		linhas = [
-			l for l in executar("passivo_de_processos", {"company": empresa}) if l.name == "processo-rel-2"
+			l
+			for l in executar("integ_legal_cases_liability", {"company": empresa})
+			if l.name == "processo-rel-2"
 		]
 		self.assertEqual(linhas[0].valor_provisionado, 600)
 		self.assertEqual(linhas[0].passivo_liquido, 350)
 
 		grupos = executar(
-			"provisao_de_processos", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"}
+			"integ_legal_cases_provision", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"}
 		)
 		provavel = next(g for g in grupos if g["probabilidade_perda"] == "Provável")
 		self.assertEqual(provavel["quantidade"], 1)
 		self.assertEqual(provavel["passivo_liquido"], 350)
 		self.assertEqual(sum(g["quantidade"] for g in grupos), 2)
 
-		por_cargo = executar("processos_por_colaborador", {"company": empresa})
+		por_cargo = executar("integ_legal_cases_by_employee", {"company": empresa})
 		self.assertIn("Enfermeiro", [g["cargo"] for g in por_cargo])
 
-		aging = executar("aging_de_processos", {"company": empresa})
+		aging = executar("integ_legal_cases_aging", {"company": empresa})
 		self.assertTrue(aging and all(g["faixa"] for g in aging))
 		self.assertEqual(
 			sum(g["quantidade"] for g in aging),
