@@ -282,12 +282,121 @@ class TestImportacaoBionexo(FrappeTestCase):
 	def tearDown(self):
 		frappe.db.rollback(save_point="teste_bionexo")
 
-	def nova_importacao(self, observacao=None, codigos=("_TST-BNX-A", "BNX-COD-B", "DESCONHECIDO")):
+	def nova_importacao(self, observacao=None, codigos=("_TST-BNX-A", "BNX-COD-B", "DESCONHECIDO"), **campos):
 		dados = parse_texto(relatorio(observacao or self.rfq, codigos))
 		with patch(PARSER, return_value=dados), patch(f"{CLASSE}.conteudo_pdf", return_value=b""):
 			return frappe.get_doc(
-				{"doctype": "Importacao Bionexo", "arquivo_pdf": "bionexo-teste.pdf"}
+				{"doctype": "Importacao Bionexo", "arquivo_pdf": "bionexo-teste.pdf", **campos}
 			).insert()
+
+	def nova_solicitacao(self):
+		mr = frappe.get_doc(
+			{
+				"doctype": "Material Request",
+				"material_request_type": "Purchase",
+				"company": self.company,
+				"schedule_date": add_days(nowdate(), 5),
+				"items": [
+					{
+						"item_code": codigo,
+						"qty": qty,
+						"schedule_date": add_days(nowdate(), 5),
+						"warehouse": self.warehouse,
+					}
+					for codigo, qty in zip(self.itens, (10, 1000, 2), strict=True)
+				],
+			}
+		)
+		mr.flags.ignore_mandatory = True
+		mr.insert()
+		mr.submit()
+		return mr.name
+
+	def test_rfq_citada_de_outra_cotacao_do_bionexo_nao_e_vinculada(self):
+		# Cotação copiada no Bionexo: o título/observações citam a RFQ da rodada anterior, já importada
+		# com outro ID Bionexo.
+		anterior = self.nova_importacao()
+		self.assertEqual(anterior.request_for_quotation, self.rfq)
+		frappe.db.set_value("Importacao Bionexo", anterior.name, "id_cotacao_bionexo", "123456")
+		doc = self.nova_importacao()
+		self.assertFalse(doc.request_for_quotation)
+		self.assertFalse(doc.material_request)
+
+	def test_rfq_citada_sem_itens_do_relatorio_nao_e_vinculada(self):
+		doc = self.nova_importacao(codigos=("DESCONHECIDO-1", "DESCONHECIDO-2", "DESCONHECIDO-3"))
+		self.assertFalse(doc.request_for_quotation)
+
+	def test_referencia_escolhida_nao_e_trocada_pelo_pdf(self):
+		mr = self.nova_solicitacao()
+		# O relatório cita a RFQ de outra Solicitação: a Solicitação escolhida prevalece (a RFQ será gerada).
+		doc = self.nova_importacao(material_request=mr)
+		self.assertEqual((doc.material_request, doc.request_for_quotation), (mr, None))
+
+		dados = parse_texto(relatorio(self.rfq, ("_TST-BNX-A", "_TST-BNX-B", "_TST-BNX-C")))
+		with patch(PARSER, return_value=dados), patch(f"{CLASSE}.conteudo_pdf", return_value=b""):
+			doc.reanalisar()
+		self.assertEqual((doc.material_request, doc.request_for_quotation), (mr, None))
+
+	def test_rfq_limpa_pelo_usuario_nao_volta_ao_salvar(self):
+		doc = self.nova_importacao()
+		self.assertEqual(doc.request_for_quotation, self.rfq)
+		doc.request_for_quotation = None
+		doc.save()
+		self.assertFalse(doc.request_for_quotation)
+		self.assertEqual(doc.material_request, self.mr)
+
+	def test_ordem_de_compra_cancela_e_exclui_com_importacao_enviada(self):
+		self.assertIn("Importacao Bionexo", frappe.get_hooks("auto_cancel_exempted_doctypes"))
+		doc = self.nova_importacao(codigos=("_TST-BNX-A", "_TST-BNX-B", "_TST-BNX-C"))
+		doc.gerar_demais_fornecedores = 0
+		doc.save()
+		doc.submit()
+		ordens = {c.supplier: c.purchase_order for c in doc.cotacoes if c.purchase_order}
+
+		beta = frappe.get_doc("Purchase Order", ordens["_TST BETA HOSPITALAR"])
+		beta.submit()
+		frappe.db.savepoint("cancelar_importacao")
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc("Importacao Bionexo", doc.name).cancel()
+		frappe.db.rollback(save_point="cancelar_importacao")
+		# Antes: LinkExistsError ("está vinculado com Importacao Bionexo"), sem saída. Só a importação é
+		# ignorada: a lista de vínculos que bloqueiam continua a mesma sem ela.
+		from frappe.model.delete_doc import get_linked_docs
+
+		from integracoes_customizadas.bionexo.importacao import liberar_cancelamento
+
+		beta.reload()
+		sem_hook = {d["reference_doctype"] for d in get_linked_docs(beta, method="Cancel")}
+		self.assertIn("Importacao Bionexo", sem_hook)
+		liberar_cancelamento(beta)
+		com_hook = {d["reference_doctype"] for d in get_linked_docs(beta, method="Cancel")}
+		self.assertEqual(com_hook, sem_hook - {"Importacao Bionexo"})
+		beta.reload()
+		beta.cancel()
+		self.assertEqual(beta.docstatus, 2)
+
+		frappe.delete_doc("Purchase Order", ordens["_TST ALFA DISTRIBUIDORA"])
+		self.assertTrue(
+			frappe.db.exists(
+				"Comment",
+				{
+					"reference_doctype": "Importacao Bionexo",
+					"reference_name": doc.name,
+					"content": ["like", f"%{ordens['_TST ALFA DISTRIBUIDORA']}%"],
+				},
+			)
+		)
+		self.assertFalse(
+			frappe.db.exists(
+				"Importacao Bionexo Cotacao", {"purchase_order": ordens["_TST ALFA DISTRIBUIDORA"]}
+			)
+		)
+
+		doc = frappe.get_doc("Importacao Bionexo", doc.name)
+		doc.cancel()
+		self.assertEqual(doc.status, "Cancelado")
+		orcamentos = {c.supplier_quotation for c in doc.cotacoes if c.supplier_quotation}
+		self.assertEqual({frappe.db.get_value("Supplier Quotation", n, "docstatus") for n in orcamentos}, {2})
 
 	def test_identifica_rfq_itens_e_fornecedores_pelo_relatorio(self):
 		doc = self.nova_importacao()
@@ -385,26 +494,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 		self.assertEqual(itens["_TST BETA HOSPITALAR"], ["_TST-BNX-B", "_TST-BNX-C"])
 
 	def test_gera_pedido_de_cotacao_quando_a_solicitacao_nao_tem(self):
-		mr = frappe.get_doc(
-			{
-				"doctype": "Material Request",
-				"material_request_type": "Purchase",
-				"company": self.company,
-				"schedule_date": add_days(nowdate(), 5),
-				"items": [
-					{
-						"item_code": codigo,
-						"qty": qty,
-						"schedule_date": add_days(nowdate(), 5),
-						"warehouse": self.warehouse,
-					}
-					for codigo, qty in zip(self.itens, (10, 1000, 2), strict=True)
-				],
-			}
-		)
-		mr.flags.ignore_mandatory = True
-		mr.insert()
-		mr.submit()
+		mr = frappe._dict(name=self.nova_solicitacao())
 
 		doc = self.nova_importacao(observacao=mr.name, codigos=("_TST-BNX-A", "_TST-BNX-B", "_TST-BNX-C"))
 		self.assertFalse(doc.request_for_quotation)
@@ -427,3 +517,27 @@ class TestImportacaoBionexo(FrappeTestCase):
 
 		doc.cancel()
 		self.assertEqual(frappe.db.get_value("Request for Quotation", rfq.name, "docstatus"), 2)
+
+
+class TestVinculosDaImportacao(FrappeTestCase):
+	"""Hooks de cancelamento/exclusão, sem banco (estilo dos testes de doc_events do clm)."""
+
+	def test_cancelamento_preserva_os_ignorados_do_controller_e_so_acrescenta_a_importacao(self):
+		from integracoes_customizadas.bionexo.importacao import liberar_cancelamento
+
+		doc = frappe._dict(
+			doctype="Purchase Order", ignore_linked_doctypes=("GL Entry", "Payment Ledger Entry")
+		)
+		liberar_cancelamento(doc)
+		liberar_cancelamento(doc)  # idempotente
+		self.assertEqual(
+			doc.ignore_linked_doctypes, ("GL Entry", "Payment Ledger Entry", "Importacao Bionexo")
+		)
+
+	def test_exclusao_de_doctype_sem_vinculo_nao_grava_nada(self):
+		from integracoes_customizadas.bionexo.importacao import desvincular_ao_excluir
+
+		with patch("frappe.db.set_value") as set_value, patch("frappe.get_all") as get_all:
+			desvincular_ao_excluir(frappe._dict(doctype="Purchase Invoice", name="X"))
+		set_value.assert_not_called()
+		get_all.assert_not_called()
