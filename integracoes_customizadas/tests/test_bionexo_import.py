@@ -356,12 +356,33 @@ class TestImportacaoBionexo(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc("Importacao Bionexo", doc.name).cancel()
 		frappe.db.rollback(save_point="cancelar_importacao")
-		# Antes: LinkExistsError ("está vinculado com Importacao Bionexo"), sem saída.
+		# Antes: LinkExistsError ("está vinculado com Importacao Bionexo"), sem saída. Só a importação é
+		# ignorada: a lista de vínculos que bloqueiam continua a mesma sem ela.
+		from frappe.model.delete_doc import get_linked_docs
+
+		from integracoes_customizadas.bionexo.importacao import liberar_cancelamento
+
+		beta.reload()
+		sem_hook = {d["reference_doctype"] for d in get_linked_docs(beta, method="Cancel")}
+		self.assertIn("Importacao Bionexo", sem_hook)
+		liberar_cancelamento(beta)
+		com_hook = {d["reference_doctype"] for d in get_linked_docs(beta, method="Cancel")}
+		self.assertEqual(com_hook, sem_hook - {"Importacao Bionexo"})
 		beta.reload()
 		beta.cancel()
 		self.assertEqual(beta.docstatus, 2)
 
 		frappe.delete_doc("Purchase Order", ordens["_TST Alfa Distribuidora"])
+		self.assertTrue(
+			frappe.db.exists(
+				"Comment",
+				{
+					"reference_doctype": "Importacao Bionexo",
+					"reference_name": doc.name,
+					"content": ["like", f"%{ordens['_TST Alfa Distribuidora']}%"],
+				},
+			)
+		)
 		self.assertFalse(
 			frappe.db.exists(
 				"Importacao Bionexo Cotacao", {"purchase_order": ordens["_TST Alfa Distribuidora"]}
@@ -493,3 +514,27 @@ class TestImportacaoBionexo(FrappeTestCase):
 
 		doc.cancel()
 		self.assertEqual(frappe.db.get_value("Request for Quotation", rfq.name, "docstatus"), 2)
+
+
+class TestVinculosDaImportacao(FrappeTestCase):
+	"""Hooks de cancelamento/exclusão, sem banco (estilo dos testes de doc_events do clm)."""
+
+	def test_cancelamento_preserva_os_ignorados_do_controller_e_so_acrescenta_a_importacao(self):
+		from integracoes_customizadas.bionexo.importacao import liberar_cancelamento
+
+		doc = frappe._dict(
+			doctype="Purchase Order", ignore_linked_doctypes=("GL Entry", "Payment Ledger Entry")
+		)
+		liberar_cancelamento(doc)
+		liberar_cancelamento(doc)  # idempotente
+		self.assertEqual(
+			doc.ignore_linked_doctypes, ("GL Entry", "Payment Ledger Entry", "Importacao Bionexo")
+		)
+
+	def test_exclusao_de_doctype_sem_vinculo_nao_grava_nada(self):
+		from integracoes_customizadas.bionexo.importacao import desvincular_ao_excluir
+
+		with patch("frappe.db.set_value") as set_value, patch("frappe.get_all") as get_all:
+			desvincular_ao_excluir(frappe._dict(doctype="Purchase Invoice", name="X"))
+		set_value.assert_not_called()
+		get_all.assert_not_called()

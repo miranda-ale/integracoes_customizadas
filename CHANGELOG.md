@@ -13,7 +13,8 @@ Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribu
 - A Ordem de Compra gerada por uma importação enviada pode ser cancelada (antes: "está vinculado com Importacao
   Bionexo", enquanto a importação exigia a OC cancelada antes — referência circular). O mesmo vale para o
   Orçamento de Fornecedor, o Pedido de Cotação e a Solicitação de Compras; excluir um deles limpa a referência na
-  importação. Ordem: cancele a OC e depois a importação (que cancela os orçamentos).
+  importação, com comentário de auditoria nela. Ordem: cancele a OC e depois a importação (que cancela os
+  orçamentos).
 
 ## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17
 

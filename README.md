@@ -133,7 +133,7 @@ Há ainda recursos transversais: [normalização de cadastros em caixa alta](#no
     acompanha a Solicitação/Pedido escolhido (seção *Referências*).
   - O cancelamento exclui as OCs em rascunho, cancela os orçamentos e o Pedido de Cotação gerado; OCs enviadas
     são canceladas antes. A importação enviada não trava o cancelamento nem a exclusão da OC, do orçamento, do
-    Pedido de Cotação e da Solicitação (excluir limpa a referência na importação).
+    Pedido de Cotação e da Solicitação (excluir limpa a referência na importação e registra um comentário nela).
 - **Mapa de Preços RFQ:** relatório comparativo da `Request for Quotation` (item por linha, fornecedor por coluna),
   pelo botão *Mapa de Preços* da cotação.
 
