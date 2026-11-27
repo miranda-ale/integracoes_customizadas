@@ -55,7 +55,7 @@ class ImportacaoBionexo(Document):
 		try:
 			dados = parse_relatorio(self.conteudo_pdf())
 		except Exception as erro:
-			frappe.throw(_("Não foi possível ler o relatório do Bionexo: {0}").format(erro))
+			frappe.throw(_("Não foi possível ler o relatório do Bionexo: {0}").format(str(erro)))
 
 		self.id_cotacao_bionexo = dados["id_cotacao"]
 		self.titulo_bionexo = (dados["titulo"] or "")[:140]
@@ -475,7 +475,7 @@ class ImportacaoBionexo(Document):
 		for cotacao in self.cotacoes:
 			cotacao.rfq_item = por_item_rfq.get(cotacao.item_code)
 			cotacao.db_set("rfq_item", cotacao.rfq_item)
-		self.request_for_quotation = rfq.name
+		# db_set grava e atualiza o atributo (on_submit não salva de novo o documento)
 		self.db_set({"request_for_quotation": rfq.name, "rfq_gerada": 1})
 
 	def _completar_rfq(self, rfq, por_fornecedor):

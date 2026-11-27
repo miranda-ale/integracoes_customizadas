@@ -313,8 +313,11 @@ class TestImportacaoBionexo(FrappeTestCase):
 		return mr.name
 
 	def test_rfq_citada_de_outra_cotacao_do_bionexo_nao_e_vinculada(self):
-		# Cotação copiada no Bionexo: o título/observações citam a RFQ da rodada anterior.
-		frappe.db.set_value("Request for Quotation", self.rfq, "custom_id_bionexo", "123456")
+		# Cotação copiada no Bionexo: o título/observações citam a RFQ da rodada anterior, já importada
+		# com outro ID Bionexo.
+		anterior = self.nova_importacao()
+		self.assertEqual(anterior.request_for_quotation, self.rfq)
+		frappe.db.set_value("Importacao Bionexo", anterior.name, "id_cotacao_bionexo", "123456")
 		doc = self.nova_importacao()
 		self.assertFalse(doc.request_for_quotation)
 		self.assertFalse(doc.material_request)
@@ -350,7 +353,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 		doc.submit()
 		ordens = {c.supplier: c.purchase_order for c in doc.cotacoes if c.purchase_order}
 
-		beta = frappe.get_doc("Purchase Order", ordens["_TST Beta Hospitalar"])
+		beta = frappe.get_doc("Purchase Order", ordens["_TST BETA HOSPITALAR"])
 		beta.submit()
 		frappe.db.savepoint("cancelar_importacao")
 		with self.assertRaises(frappe.ValidationError):
@@ -372,20 +375,20 @@ class TestImportacaoBionexo(FrappeTestCase):
 		beta.cancel()
 		self.assertEqual(beta.docstatus, 2)
 
-		frappe.delete_doc("Purchase Order", ordens["_TST Alfa Distribuidora"])
+		frappe.delete_doc("Purchase Order", ordens["_TST ALFA DISTRIBUIDORA"])
 		self.assertTrue(
 			frappe.db.exists(
 				"Comment",
 				{
 					"reference_doctype": "Importacao Bionexo",
 					"reference_name": doc.name,
-					"content": ["like", f"%{ordens['_TST Alfa Distribuidora']}%"],
+					"content": ["like", f"%{ordens['_TST ALFA DISTRIBUIDORA']}%"],
 				},
 			)
 		)
 		self.assertFalse(
 			frappe.db.exists(
-				"Importacao Bionexo Cotacao", {"purchase_order": ordens["_TST Alfa Distribuidora"]}
+				"Importacao Bionexo Cotacao", {"purchase_order": ordens["_TST ALFA DISTRIBUIDORA"]}
 			)
 		)
 
