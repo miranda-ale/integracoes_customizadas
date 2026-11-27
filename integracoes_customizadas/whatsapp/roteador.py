@@ -55,7 +55,9 @@ def escolher(variantes, *, chave, destino=None):
 		candidatas = [a for a in ativas if a[0] not in excluir_global]
 	if not candidatas:
 		candidatas = ativas
-	escolhida = random.choices(candidatas, weights=[max(int(v.get("peso") or 1), 1) for _i, v in candidatas])[0]
+	escolhida = random.choices(candidatas, weights=[max(int(v.get("peso") or 1), 1) for _i, v in candidatas])[
+		0
+	]
 
 	identificador = escolhida[0]
 	frappe.cache.set_value(

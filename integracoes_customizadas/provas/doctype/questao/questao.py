@@ -1,10 +1,10 @@
-# Copyright (c) 2026, Frappe and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 
 import frappe
 from frappe import _
-from frappe.utils import sanitize_html, strip_html
 from frappe.model.document import Document
+from frappe.utils import sanitize_html, strip_html
 
 
 class Questao(Document):
@@ -27,12 +27,10 @@ class Questao(Document):
 			preview_html_parts.append("<div class='questao-alternativas'>")
 			preview_html_parts.append("<ol class='questao-alternativas-list'>")
 
-			alternativas = sorted(self.alternativas or [], key=lambda alt: (alt.letra or ""))
+			alternativas = sorted(self.alternativas or [], key=lambda alt: alt.letra or "")
 			for alt in alternativas:
 				texto_html = sanitize_html(alt.texto or "", always_sanitize=True)
-				preview_html_parts.append(
-					f"<li><strong>{alt.letra})</strong> {texto_html}</li>"
-				)
+				preview_html_parts.append(f"<li><strong>{alt.letra})</strong> {texto_html}</li>")
 				texto_plain = strip_html(alt.texto or "").strip()
 				preview_text_parts.append(f"{alt.letra}) {texto_plain}".strip())
 
@@ -42,10 +40,7 @@ class Questao(Document):
 		elif self.tipo == "Discursiva":
 			resposta_html = sanitize_html(self.resposta_esperada or "", always_sanitize=True)
 			preview_html_parts.append(
-				"<div class='questao-resposta'>"
-				"<strong>Resposta esperada:</strong> "
-				f"{resposta_html}"
-				"</div>"
+				f"<div class='questao-resposta'><strong>Resposta esperada:</strong> {resposta_html}</div>"
 			)
 			resposta_plain = strip_html(self.resposta_esperada or "").strip()
 			if resposta_plain:
@@ -115,10 +110,7 @@ class Questao(Document):
 		for item in self.designations:
 			if item.designation not in cargos_disciplina:
 				frappe.throw(
-					_(
-						"O cargo '{0}' não é válido para a disciplina '{1}'. "
-						"Cargos permitidos: {2}"
-					).format(
+					_("O cargo '{0}' não é válido para a disciplina '{1}'. Cargos permitidos: {2}").format(
 						item.designation,
 						self.disciplina,
 						", ".join(cargos_disciplina),

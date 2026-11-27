@@ -2,7 +2,10 @@ frappe.listview_settings["Processo Judicial"] = {
 	onload(listview) {
 		const abrir_resultado = (resultado) => {
 			if (resultado.existente) {
-				frappe.show_alert({ message: __("Processo já cadastrado. Abrindo o registro existente."), indicator: "blue" });
+				frappe.show_alert({
+					message: __("Processo já cadastrado. Abrindo o registro existente."),
+					indicator: "blue",
+				});
 				frappe.set_route("Form", "Processo Judicial", resultado.name);
 				return;
 			}
@@ -14,14 +17,23 @@ frappe.listview_settings["Processo Judicial"] = {
 						for (const linha of value || []) {
 							const child = frappe.model.add_child(doc, fieldname);
 							for (const [campo, valor] of Object.entries(linha)) {
-								if (frappe.meta.has_field(child.doctype, campo)) child[campo] = valor;
+								if (frappe.meta.has_field(child.doctype, campo))
+									child[campo] = valor;
 							}
 						}
 					} else if (frappe.meta.has_field(doc.doctype, fieldname)) {
 						doc[fieldname] = value;
 					}
 				}
-				frappe.show_alert({ message: __("Consulta concluída. Revise os dados e salve o processo para cadastrá-lo."), indicator: "green" }, 8);
+				frappe.show_alert(
+					{
+						message: __(
+							"Consulta concluída. Revise os dados e salve o processo para cadastrá-lo."
+						),
+						indicator: "green",
+					},
+					8
+				);
 				frappe.set_route("Form", doc.doctype, doc.name);
 			});
 		};
@@ -46,7 +58,10 @@ frappe.listview_settings["Processo Judicial"] = {
 								label: __("Tribunal"),
 								options: [
 									{ label: __("Selecione um tribunal"), value: "" },
-									...tribunais.map((item) => ({ label: item.label, value: item.value })),
+									...tribunais.map((item) => ({
+										label: item.label,
+										value: item.value,
+									})),
 								],
 								reqd: 1,
 							},
@@ -68,15 +83,37 @@ frappe.listview_settings["Processo Judicial"] = {
 											abrir_resultado(ocorrencias[0]);
 										} else {
 											const escolhas = ocorrencias.map((item, indice) => ({
-												label: `${indice + 1}. ${item.existente ? item.name : item.doc.datajud_id}`,
+												label: `${indice + 1}. ${
+													item.existente
+														? item.name
+														: item.doc.datajud_id
+												}`,
 												value: String(indice),
 											}));
-											frappe.prompt([{ fieldname: "ocorrencia", fieldtype: "Select", label: __("Ocorrência"), options: escolhas, reqd: 1 }],
-												(selecao) => abrir_resultado(ocorrencias[Number(selecao.ocorrencia)]),
-												__("Selecione a ocorrência"), __("Abrir"));
+											frappe.prompt(
+												[
+													{
+														fieldname: "ocorrencia",
+														fieldtype: "Select",
+														label: __("Ocorrência"),
+														options: escolhas,
+														reqd: 1,
+													},
+												],
+												(selecao) =>
+													abrir_resultado(
+														ocorrencias[Number(selecao.ocorrencia)]
+													),
+												__("Selecione a ocorrência"),
+												__("Abrir")
+											);
 										}
 									} else {
-										frappe.msgprint(__("Nenhuma ocorrência encontrada para esse número e tribunal."));
+										frappe.msgprint(
+											__(
+												"Nenhuma ocorrência encontrada para esse número e tribunal."
+											)
+										);
 									}
 								},
 								always() {
@@ -87,8 +124,8 @@ frappe.listview_settings["Processo Judicial"] = {
 					});
 					dialog.show();
 					const input = dialog.get_field("numero_processo").$input;
-				input.attr("maxlength", 25);
-				input.on("input", () => {
+					input.attr("maxlength", 25);
+					input.on("input", () => {
 						const digits = input.val().replace(/\D/g, "").slice(0, 20);
 						let masked = digits.slice(0, 7);
 						if (digits.length > 7) masked += "-" + digits.slice(7, 9);
@@ -100,7 +137,11 @@ frappe.listview_settings["Processo Judicial"] = {
 					});
 				};
 				listview.set_primary_action = () => {
-					listview.page.set_primary_action(__("Adicionar Processo"), abrir_dialogo, "add");
+					listview.page.set_primary_action(
+						__("Adicionar Processo"),
+						abrir_dialogo,
+						"add"
+					);
 				};
 				listview.set_primary_action();
 			},

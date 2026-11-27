@@ -11,7 +11,7 @@ from frappe import _
 from frappe.utils import cstr, format_datetime, formatdate, get_datetime
 from jinja2.sandbox import SandboxedEnvironment
 
-from integracoes_customizadas import email_institucional
+from integracoes_customizadas import institutional_email
 from integracoes_customizadas.whatsapp import conector, roteador
 
 MODELO = "Modelo WhatsApp"
@@ -81,7 +81,7 @@ def completar_variantes(modelo) -> int:
 
 	Nunca altera nem remove uma variante existente. → quantas variantes entraram.
 	"""
-	from integracoes_customizadas.seed.variantes_modelos import VARIANTES
+	from integracoes_customizadas.seed.template_variants import VARIANTES
 
 	if len(variantes_ativas(modelo)) >= roteador.MIN_VARIANTES:
 		return 0
@@ -119,16 +119,20 @@ def renderizar(modelo, doc, extra=None, destino=None) -> dict:
 		html = _ENV.from_string(modelo.mensagem_email).render(**ctx)
 	else:
 		html = _para_html(texto)
-	html = email_institucional.corpo(assunto, html)
+	html = institutional_email.corpo(assunto, html)
 	return {"texto": texto, "assunto": assunto, "html": html, "variante": variante}
 
 
 def _para_html(texto) -> str:
-	try:
-		from assinatura_eletronica.servicos.canais import whatsapp_para_html
-	except ImportError:
-		return frappe.utils.escape_html(texto).replace("\n", "<br>")
-	return whatsapp_para_html(texto)
+	# Weak dependency: only use assinatura_eletronica when it is installed (see docs/dependencies.md).
+	if "assinatura_eletronica" in frappe.get_installed_apps():
+		try:
+			from assinatura_eletronica.servicos.canais import whatsapp_para_html
+		except ImportError:
+			pass
+		else:
+			return whatsapp_para_html(texto)
+	return frappe.utils.escape_html(texto).replace("\n", "<br>")
 
 
 def registrar_envio(
@@ -155,7 +159,12 @@ def enviar_whatsapp(telefone, texto, doc=None, variante=None) -> tuple[bool, str
 	numero = conector.normalizar_numero_br(telefone)
 	if not numero:
 		registrar_envio(
-			telefone=None, mensagem=texto, doc=doc, status="Ignorado", erro="Celular inválido.", variante=variante
+			telefone=None,
+			mensagem=texto,
+			doc=doc,
+			status="Ignorado",
+			erro="Celular inválido.",
+			variante=variante,
 		)
 		return False, _("Celular inválido.")
 	try:
@@ -198,4 +207,7 @@ def enviar_modelo(modelo, doc, *, telefone=None, email=None, canal="WhatsApp", e
 		enviados.append("E-mail")
 	elif usar_email and canal != "WhatsApp":
 		erros.append(_("Sem e-mail cadastrado."))
-	return {"canais": enviados, "erro": None if enviados else "; ".join(erros) or _("Nenhum canal disponível.")}
+	return {
+		"canais": enviados,
+		"erro": None if enviados else "; ".join(erros) or _("Nenhum canal disponível."),
+	}

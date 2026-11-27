@@ -19,7 +19,7 @@ def execute():
 			pendentes.append(nome)
 	if pendentes:
 		frappe.log_error(
-			"Modelos WhatsApp com menos de {0} variantes ativas: {1}".format(
+			"Modelos WhatsApp com menos de {} variantes ativas: {}".format(
 				MIN_VARIANTES, ", ".join(pendentes)
 			),
 			"Variantes de WhatsApp pendentes",

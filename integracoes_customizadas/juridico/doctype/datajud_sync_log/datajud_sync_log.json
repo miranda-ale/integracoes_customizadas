@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "creation": "2026-11-17 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "execucao",
+  "tipo_erro",
+  "contagem",
+  "column_break_1",
+  "status_http",
+  "tempo_resposta_ms",
+  "section_break_exemplo",
+  "tribunal",
+  "indice",
+  "numero_processo",
+  "column_break_2",
+  "endpoint",
+  "metodo",
+  "api_key_mascarada",
+  "section_break_detalhe",
+  "corpo_resposta",
+  "tipo_excecao",
+  "traceback",
+  "processos_afetados"
+ ],
+ "fields": [
+  {
+   "fieldname": "execucao",
+   "fieldtype": "Datetime",
+   "label": "Execução (início)",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tipo_erro",
+   "fieldtype": "Select",
+   "label": "Tipo de erro",
+   "options": "Autenticação\nLimite de Requisições\nNão Encontrado\nIndisponível\nDados Inválidos",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "contagem",
+   "fieldtype": "Int",
+   "label": "Ocorrências",
+   "default": "1",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status_http",
+   "fieldtype": "Int",
+   "label": "Status HTTP (exemplo)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tempo_resposta_ms",
+   "fieldtype": "Int",
+   "label": "Tempo de resposta (ms)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_exemplo",
+   "fieldtype": "Section Break",
+   "label": "Ocorrência de exemplo"
+  },
+  {
+   "fieldname": "tribunal",
+   "fieldtype": "Data",
+   "label": "Tribunal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "indice",
+   "fieldtype": "Data",
+   "label": "Índice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "numero_processo",
+   "fieldtype": "Data",
+   "label": "Processo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "endpoint",
+   "fieldtype": "Data",
+   "label": "Endpoint",
+   "read_only": 1
+  },
+  {
+   "fieldname": "metodo",
+   "fieldtype": "Data",
+   "label": "Método",
+   "read_only": 1
+  },
+  {
+   "fieldname": "api_key_mascarada",
+   "fieldtype": "Data",
+   "label": "Chave (mascarada)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_detalhe",
+   "fieldtype": "Section Break",
+   "label": "Detalhe técnico"
+  },
+  {
+   "fieldname": "corpo_resposta",
+   "fieldtype": "Code",
+   "label": "Corpo da resposta (1000 caracteres)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tipo_excecao",
+   "fieldtype": "Data",
+   "label": "Tipo de exceção",
+   "read_only": 1
+  },
+  {
+   "fieldname": "traceback",
+   "fieldtype": "Code",
+   "label": "Traceback",
+   "read_only": 1
+  },
+  {
+   "fieldname": "processos_afetados",
+   "fieldtype": "Long Text",
+   "label": "Processos afetados",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-11-17 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Juridico",
+ "name": "DataJud Sync Log",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1},
+  {"role": "Usuário Jurídico", "read": 1}
+ ],
+ "sort_field": "execucao",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "tipo_erro"
+}

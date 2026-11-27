@@ -1,4 +1,4 @@
-# Copyright (c) 2026, Frappe and contributors
+# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 # For license information, please see license.txt
 
 import frappe
@@ -15,7 +15,9 @@ class Disciplina(Document):
 		if not self.aplicavel_a_todos:
 			if not self.designations or len(self.designations) == 0:
 				frappe.throw(
-					_("Disciplinas não aplicáveis a todos os cargos devem ter pelo menos um cargo específico.")
+					_(
+						"Disciplinas não aplicáveis a todos os cargos devem ter pelo menos um cargo específico."
+					)
 				)
 
 			# Verifica duplicatas

@@ -1,0 +1,78 @@
+{
+  "actions": [],
+  "creation": "2026-10-30 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "papel",
+    "tipo_parte",
+    "doctype_parte",
+    "parte",
+    "nome",
+    "documento",
+    "principal"
+  ],
+  "fields": [
+    {
+      "fieldname": "papel",
+      "fieldtype": "Select",
+      "label": "Papel",
+      "options": "\nReclamante\nReclamada\nLitisconsorte\nTerceiro interessado\nTestemunha",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "tipo_parte",
+      "fieldtype": "Select",
+      "label": "Tipo da Parte",
+      "options": "\nEmployee\nCustomer\nSupplier\nTerceiros",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "doctype_parte",
+      "fieldtype": "Data",
+      "label": "DocType da Parte",
+      "hidden": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "parte",
+      "fieldtype": "Dynamic Link",
+      "label": "Parte",
+      "options": "doctype_parte",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "nome",
+      "fieldtype": "Data",
+      "label": "Nome",
+      "in_list_view": 1,
+      "description": "Preenchido pelo cadastro quando há vínculo."
+    },
+    {
+      "fieldname": "documento",
+      "fieldtype": "Data",
+      "label": "CPF/CNPJ",
+      "length": 18,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "principal",
+      "fieldtype": "Check",
+      "label": "Principal",
+      "in_list_view": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-10-30 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Parte",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 1
+}

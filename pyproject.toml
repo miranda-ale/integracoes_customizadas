@@ -1,7 +1,7 @@
 [project]
 name = "integracoes_customizadas"
 authors = [
-    { name = "Alessandro Miranda", email = "alessandro.siqueira@outlook.com"}
+    { name = "StillPulse Tecnologia LTDA", email = "alessandro.siqueira@outlook.com"}
 ]
 description = "Modulo de integracoes customizadas para o ERPNext"
 requires-python = ">=3.11"
@@ -50,16 +50,10 @@ ignore = [
     "E402", # module level import not at top of file
     "E501", # line too long
     "E741", # ambiguous variable name
-    "F401", # "unused" imports
     "F403", # can't detect undefined names from * import
     "F405", # can't detect undefined names from * import
     "F722", # syntax error in forward type annotation
     "W191", # indentation contains tabs
-    "UP030", # Use implicit references for positional format fields (translations)
-    "UP031", # Use format specifiers instead of percent format
-    "UP032", # Use f-string instead of `format` call (translations)
-    "UP037", # quoted annotations
-    "UP040", # Use type aliases instead of type annotations
 ]
 typing-modules = ["frappe.types.DF"]
 

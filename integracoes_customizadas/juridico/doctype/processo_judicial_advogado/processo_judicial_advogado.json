@@ -1,0 +1,63 @@
+{
+  "actions": [],
+  "creation": "2026-10-30 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "nome",
+    "oab",
+    "escritorio",
+    "tipo",
+    "honorarios"
+  ],
+  "fields": [
+    {
+      "fieldname": "nome",
+      "fieldtype": "Data",
+      "label": "Advogado",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "oab",
+      "fieldtype": "Data",
+      "label": "OAB",
+      "in_list_view": 1,
+      "length": 12,
+      "description": "Número/UF, ex.: 123456/SP."
+    },
+    {
+      "fieldname": "escritorio",
+      "fieldtype": "Data",
+      "label": "Escritório",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "tipo",
+      "fieldtype": "Select",
+      "label": "Tipo",
+      "options": "\nInterno\nExterno",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "honorarios",
+      "fieldtype": "Currency",
+      "label": "Honorários",
+      "options": "moeda",
+      "in_list_view": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-10-30 01:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Advogado",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 1
+}

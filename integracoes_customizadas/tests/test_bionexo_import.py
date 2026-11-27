@@ -324,7 +324,7 @@ class TestImportacaoBionexo(FrappeTestCase):
 
 	def test_conclusao_gera_orcamentos_submetidos_e_ordens_em_rascunho(self):
 		doc = self.nova_importacao()
-		with patch("busca_cnpj.api.buscar_cnpj", side_effect=frappe.ValidationError("offline")):
+		with patch("busca_cnpj.api.lookup_cnpj", side_effect=frappe.ValidationError("offline")):
 			resultado = criar_fornecedores(doc.name)
 		self.assertEqual(len(resultado["criados"]), 1)
 		self.assertEqual(frappe.db.get_value("Supplier", resultado["criados"][0], "tax_id"), CNPJ_GAMA)

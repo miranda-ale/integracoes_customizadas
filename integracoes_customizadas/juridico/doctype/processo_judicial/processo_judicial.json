@@ -7,23 +7,43 @@
     "aba_processo",
     "secao_identificacao",
     "numero_processo",
-    "situacao_cadastro",
-    "status_processo",
-    "datajud_id",
-    "coluna_identificacao",
     "tribunal",
     "grau",
+    "coluna_identificacao",
+    "situacao_cadastro",
+    "status_processo",
     "nivel_sigilo",
+    "datajud_id",
+    "secao_gestao",
+    "empresa",
+    "polo_empresa",
+    "coluna_gestao",
+    "risco",
+    "fase_processo",
+    "secao_classificacao_interna",
+    "natureza",
+    "tipo_acao",
+    "objeto",
+    "coluna_classificacao_interna",
+    "pasta_interna",
+    "responsavel_interno",
     "secao_cadastro",
+    "partes",
+    "secao_parte_principal",
     "tipo_parte",
     "doctype_parte",
     "parte",
+    "coluna_parte_principal",
     "nome_parte",
+    "cpf_parte",
+    "parte_vinculada",
+    "secao_ex_colaborador",
+    "data_admissao",
+    "cargo_funcao",
+    "coluna_ex_colaborador",
+    "data_demissao",
+    "motivo_desligamento",
     "consulta_token",
-    "coluna_cadastro",
-    "empresa",
-    "risco",
-    "fase_processo",
     "secao_classificacao",
     "classe_nome",
     "classe_codigo",
@@ -54,6 +74,33 @@
     "valor_causa",
     "coluna_valores",
     "valor_condenacao",
+    "secao_pedidos",
+    "pedidos",
+    "secao_provisao",
+    "probabilidade_perda",
+    "valor_provisionado_sugerido",
+    "provisao_manual",
+    "coluna_provisao",
+    "valor_provisionado",
+    "data_provisao",
+    "secao_depositos",
+    "depositos",
+    "secao_acordos",
+    "acordos",
+    "secao_custas",
+    "custas",
+    "secao_encerramento",
+    "resultado",
+    "data_encerramento",
+    "coluna_encerramento",
+    "saldo_depositado",
+    "total_acordos",
+    "total_custas",
+    "aba_juridico",
+    "secao_advogados",
+    "advogados",
+    "secao_audiencias",
+    "audiencias",
     "aba_conexoes",
     "processo_relacionado"
   ],
@@ -92,7 +139,6 @@
       "fieldname": "grau",
       "fieldtype": "Data",
       "label": "Grau",
-      "in_list_view": 1,
       "in_standard_filter": 1,
       "read_only": 1
     },
@@ -262,14 +308,15 @@
     {
       "fieldname": "secao_cadastro",
       "fieldtype": "Section Break",
-      "label": "Partes"
+      "label": "Partes do Processo"
     },
     {
       "fieldname": "tipo_parte",
       "fieldtype": "Select",
       "label": "Tipo da Parte",
       "options": "\nEmployee\nCustomer\nSupplier\nTerceiros",
-      "description": "Cadastre pacientes em Contatos e selecione Terceiros."
+      "description": "Cadastre pacientes em Contatos e selecione Terceiros. Espelha a parte principal da tabela.",
+      "read_only_depends_on": "eval:doc.partes && doc.partes.length"
     },
     {
       "fieldname": "doctype_parte",
@@ -283,15 +330,19 @@
       "fieldtype": "Dynamic Link",
       "label": "Parte",
       "options": "doctype_parte",
-      "depends_on": "eval:doc.tipo_parte"
+      "depends_on": "eval:doc.tipo_parte",
+      "read_only_depends_on": "eval:doc.partes && doc.partes.length",
+      "description": "Espelha a parte principal da tabela."
     },
     {
       "fieldname": "nome_parte",
       "fieldtype": "Data",
       "label": "Nome da Parte",
-      "read_only": 1,
+      "read_only": 0,
       "in_list_view": 1,
-      "hidden": 1
+      "read_only_depends_on": "eval:doc.parte || (doc.partes && doc.partes.length)",
+      "depends_on": "eval:doc.tipo_parte",
+      "description": "Preenchido automaticamente quando há vínculo; informe manualmente para ex-colaboradores sem cadastro. Espelha a parte principal da tabela."
     },
     {
       "fieldname": "consulta_token",
@@ -348,10 +399,6 @@
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "coluna_cadastro",
-      "fieldtype": "Column Break"
-    },
-    {
       "fieldname": "coluna_classificacao",
       "fieldtype": "Column Break"
     },
@@ -388,10 +435,302 @@
       "fieldtype": "Tab Break",
       "label": "Conexões",
       "show_dashboard": 1
+    },
+    {
+      "fieldname": "cpf_parte",
+      "fieldtype": "Data",
+      "label": "CPF/CNPJ da Parte",
+      "depends_on": "eval:doc.tipo_parte",
+      "in_standard_filter": 1,
+      "search_index": 1,
+      "length": 18,
+      "read_only_depends_on": "eval:doc.partes && doc.partes.length",
+      "description": "Espelha a parte principal da tabela."
+    },
+    {
+      "fieldname": "parte_vinculada",
+      "fieldtype": "Check",
+      "label": "Parte Vinculada a Cadastro",
+      "read_only": 1,
+      "no_copy": 1,
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "secao_ex_colaborador",
+      "fieldtype": "Section Break",
+      "label": "Dados do Colaborador (sem cadastro)",
+      "depends_on": "eval:doc.tipo_parte=='Employee' && !doc.parte"
+    },
+    {
+      "fieldname": "data_admissao",
+      "fieldtype": "Date",
+      "label": "Data de Admissão"
+    },
+    {
+      "fieldname": "cargo_funcao",
+      "fieldtype": "Data",
+      "label": "Cargo/Função"
+    },
+    {
+      "fieldname": "coluna_ex_colaborador",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "data_demissao",
+      "fieldtype": "Date",
+      "label": "Data de Desligamento"
+    },
+    {
+      "fieldname": "motivo_desligamento",
+      "fieldtype": "Select",
+      "label": "Motivo do Desligamento",
+      "options": "\nSem justa causa\nJusta causa\nPedido de demissão\nAcordo (art. 484-A)\nTérmino de contrato\nOutro"
+    },
+    {
+      "fieldname": "partes",
+      "fieldtype": "Table",
+      "label": "Partes",
+      "options": "Processo Judicial Parte"
+    },
+    {
+      "fieldname": "polo_empresa",
+      "fieldtype": "Select",
+      "label": "Polo da Empresa",
+      "options": "\nAtivo\nPassivo",
+      "in_standard_filter": 1,
+      "description": "Obrigatório para finalizar o cadastro."
+    },
+    {
+      "fieldname": "secao_gestao",
+      "fieldtype": "Section Break",
+      "label": "Gestão"
+    },
+    {
+      "fieldname": "coluna_gestao",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "secao_parte_principal",
+      "fieldtype": "Section Break",
+      "label": "Parte Principal (espelho)",
+      "collapsible": 1,
+      "collapsible_depends_on": "eval:doc.partes && doc.partes.length"
+    },
+    {
+      "fieldname": "coluna_parte_principal",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "secao_classificacao_interna",
+      "fieldtype": "Section Break",
+      "label": "Classificação Interna"
+    },
+    {
+      "fieldname": "natureza",
+      "fieldtype": "Select",
+      "label": "Natureza",
+      "options": "\nTrabalhista\nCível\nTributário\nOutros",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "tipo_acao",
+      "fieldtype": "Data",
+      "label": "Tipo de Ação",
+      "description": "Ex.: Reclamação trabalhista, execução fiscal, indenização."
+    },
+    {
+      "fieldname": "objeto",
+      "fieldtype": "Small Text",
+      "label": "Objeto"
+    },
+    {
+      "fieldname": "coluna_classificacao_interna",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "pasta_interna",
+      "fieldtype": "Data",
+      "label": "Pasta / Código Interno",
+      "no_copy": 1,
+      "search_index": 1,
+      "description": "Único por empresa."
+    },
+    {
+      "fieldname": "responsavel_interno",
+      "fieldtype": "Link",
+      "label": "Responsável Interno",
+      "options": "User",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "aba_juridico",
+      "fieldtype": "Tab Break",
+      "label": "Jurídico"
+    },
+    {
+      "fieldname": "secao_advogados",
+      "fieldtype": "Section Break",
+      "label": "Advogados"
+    },
+    {
+      "fieldname": "advogados",
+      "fieldtype": "Table",
+      "label": "Advogados",
+      "options": "Processo Judicial Advogado"
+    },
+    {
+      "fieldname": "secao_pedidos",
+      "fieldtype": "Section Break",
+      "label": "Pedidos"
+    },
+    {
+      "fieldname": "pedidos",
+      "fieldtype": "Table",
+      "label": "Pedidos",
+      "options": "Processo Judicial Pedido"
+    },
+    {
+      "fieldname": "secao_provisao",
+      "fieldtype": "Section Break",
+      "label": "Provisão"
+    },
+    {
+      "fieldname": "probabilidade_perda",
+      "fieldtype": "Select",
+      "label": "Probabilidade de Perda",
+      "options": "\nProvável\nPossível\nRemota",
+      "in_standard_filter": 1,
+      "read_only_depends_on": "eval:doc.pedidos && doc.pedidos.length",
+      "description": "Com pedidos, assume a probabilidade do pior pedido."
+    },
+    {
+      "fieldname": "valor_provisionado_sugerido",
+      "fieldtype": "Currency",
+      "label": "Provisão Sugerida",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Soma do valor provável dos pedidos com perda provável."
+    },
+    {
+      "fieldname": "provisao_manual",
+      "fieldtype": "Check",
+      "label": "Informar provisão manualmente",
+      "no_copy": 1
+    },
+    {
+      "fieldname": "coluna_provisao",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "valor_provisionado",
+      "fieldtype": "Currency",
+      "label": "Valor Provisionado",
+      "options": "moeda",
+      "read_only_depends_on": "eval:!doc.provisao_manual"
+    },
+    {
+      "fieldname": "data_provisao",
+      "fieldtype": "Date",
+      "label": "Data da Provisão",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Atualizada quando a probabilidade ou o valor provisionado mudam."
+    },
+    {
+      "fieldname": "secao_audiencias",
+      "fieldtype": "Section Break",
+      "label": "Audiências e Prazos"
+    },
+    {
+      "fieldname": "audiencias",
+      "fieldtype": "Table",
+      "label": "Audiências e Prazos",
+      "options": "Processo Judicial Audiencia"
+    },
+    {
+      "fieldname": "secao_depositos",
+      "fieldtype": "Section Break",
+      "label": "Depósitos Judiciais e Recursais"
+    },
+    {
+      "fieldname": "depositos",
+      "fieldtype": "Table",
+      "label": "Depósitos",
+      "options": "Processo Judicial Deposito"
+    },
+    {
+      "fieldname": "secao_acordos",
+      "fieldtype": "Section Break",
+      "label": "Acordos"
+    },
+    {
+      "fieldname": "acordos",
+      "fieldtype": "Table",
+      "label": "Acordos",
+      "options": "Processo Judicial Acordo"
+    },
+    {
+      "fieldname": "secao_custas",
+      "fieldtype": "Section Break",
+      "label": "Custas e Despesas"
+    },
+    {
+      "fieldname": "custas",
+      "fieldtype": "Table",
+      "label": "Custas",
+      "options": "Processo Judicial Custa"
+    },
+    {
+      "fieldname": "secao_encerramento",
+      "fieldtype": "Section Break",
+      "label": "Resultado e Totais"
+    },
+    {
+      "fieldname": "resultado",
+      "fieldtype": "Select",
+      "label": "Resultado",
+      "options": "\nProcedente\nImprocedente\nAcordo",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "data_encerramento",
+      "fieldtype": "Date",
+      "label": "Data de Encerramento"
+    },
+    {
+      "fieldname": "coluna_encerramento",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "saldo_depositado",
+      "fieldtype": "Currency",
+      "label": "Saldo Depositado",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Depósitos na situação Depositado."
+    },
+    {
+      "fieldname": "total_acordos",
+      "fieldtype": "Currency",
+      "label": "Total de Acordos",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1,
+      "description": "Acordos, exceto descumpridos."
+    },
+    {
+      "fieldname": "total_custas",
+      "fieldtype": "Currency",
+      "label": "Total de Custas",
+      "options": "moeda",
+      "read_only": 1,
+      "no_copy": 1
     }
   ],
   "links": [],
-  "modified": "2026-09-16 00:00:00.000000",
+  "modified": "2026-10-30 06:00:00.000000",
   "modified_by": "Administrator",
   "module": "Juridico",
   "name": "Processo Judicial",
@@ -402,14 +741,20 @@
       "read": 1,
       "print": 1,
       "write": 1,
-      "create": 1
+      "create": 1,
+      "report": 1
     },
     {
       "role": "System Manager",
       "read": 1,
       "print": 1,
       "write": 1,
-      "create": 1
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "email": 1,
+      "share": 1
     }
   ],
   "sort_field": "modified",
@@ -419,5 +764,5 @@
   "naming_rule": "By fieldname",
   "title_field": "numero_processo",
   "search_fields": "datajud_id,numero_processo,tribunal,grau",
-  "track_changes": 0
+  "track_changes": 1
 }

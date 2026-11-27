@@ -17,12 +17,12 @@ import frappe
 import requests
 from frappe import _
 
-from integracoes_customizadas.whatsapp.distribuidor import (
+from integracoes_customizadas.whatsapp.dispatcher import (
 	SemInstanciaDisponivel,
 	escolher_instancia,
 	multiplas,
 )
-from integracoes_customizadas.whatsapp.distribuidor import nomes as nomes_instancias
+from integracoes_customizadas.whatsapp.dispatcher import nomes as nomes_instancias
 
 CHAVE_ULTIMO_ENVIO = "evolution_ultimo_envio"
 
@@ -158,7 +158,11 @@ def verificar_numero(numero, *, instancia=None) -> dict:
 	if not normalizado:
 		raise NumeroInvalido(_("Número de telefone inválido."))
 	dados = _requisicao(
-		"POST", "chat/whatsappNumbers/{instancia}", json={"numbers": [normalizado]}, repetir=False, instancia=instancia
+		"POST",
+		"chat/whatsappNumbers/{instancia}",
+		json={"numbers": [normalizado]},
+		repetir=False,
+		instancia=instancia,
 	)
 	item = next((i for i in (dados if isinstance(dados, list) else []) if isinstance(i, dict)), {})
 	if not item.get("exists"):

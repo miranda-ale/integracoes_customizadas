@@ -1,4 +1,4 @@
-// Copyright (c) 2026, BHCL and contributors
+// Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
 // For license information, please see license.txt
 //
 // Adapted from the CLM "CLM Mapa de Precos" report, reading ERPNext Request for Quotation
@@ -37,9 +37,21 @@ frappe.query_reports["Mapa de Precos RFQ"] = {
 				return { filters };
 			},
 		},
-		{ fieldname: "include_discarded", label: __("Incluir canceladas/paralisadas"), fieldtype: "Check" },
-		{ fieldname: "include_description", label: __("Incluir descrição do objeto"), fieldtype: "Check" },
-		{ fieldname: "include_global_value", label: __("Incluir Valor Global"), fieldtype: "Check" },
+		{
+			fieldname: "include_discarded",
+			label: __("Incluir canceladas/paralisadas"),
+			fieldtype: "Check",
+		},
+		{
+			fieldname: "include_description",
+			label: __("Incluir descrição do objeto"),
+			fieldtype: "Check",
+		},
+		{
+			fieldname: "include_global_value",
+			label: __("Incluir Valor Global"),
+			fieldtype: "Check",
+		},
 	],
 	formatter: function (value, row, column, data, default_formatter) {
 		value = default_formatter(value, row, column, data);

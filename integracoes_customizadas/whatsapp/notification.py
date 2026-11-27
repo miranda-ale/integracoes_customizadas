@@ -8,7 +8,7 @@ from frappe.core.doctype.role.role import get_users
 from frappe.email.doctype.notification.notification import Notification, get_assignees
 from frappe.utils import cstr, get_url_to_form, md_to_html, strip_html
 
-from integracoes_customizadas import email_institucional
+from integracoes_customizadas import institutional_email
 from integracoes_customizadas.whatsapp.delivery import nome_anexo, normalize_phone
 
 CORPO_INSTITUCIONAL = "_corpo_institucional"
@@ -25,7 +25,9 @@ class WhatsAppNotification(Notification):
 			return
 		if not self.get("modelo_whatsapp"):
 			frappe.throw(
-				_("Escolha o Modelo WhatsApp: toda notificação de WhatsApp usa um modelo com ao menos 10 variantes.")
+				_(
+					"Escolha o Modelo WhatsApp: toda notificação de WhatsApp usa um modelo com ao menos 10 variantes."
+				)
 			)
 		modelo = frappe.get_doc("Modelo WhatsApp", self.modelo_whatsapp)
 		if not modelo.ativo:
@@ -57,18 +59,16 @@ class WhatsAppNotification(Notification):
 
 def corpo_do_email(alert, doc, context):
 	"""HTML institucional do e-mail da regra, ou None quando não há layout (sem clm) ou a mensagem já o tem."""
-	if not alert.message or not email_institucional._render_email():
+	if not alert.message or not institutional_email._render_email():
 		return None
 	corpo = frappe.render_template(alert.message, context)
-	if email_institucional.ja_institucional(corpo):
+	if institutional_email.ja_institucional(corpo):
 		return None
 	if alert.get("message_type") == "Markdown":
 		corpo = md_to_html(corpo)
 	titulo = strip_html(frappe.render_template(alert.subject, context)) if alert.subject else alert.name
 	referencia = (doc.parenttype, doc.parent) if doc.meta.istable else (doc.doctype, doc.name)
-	return email_institucional.corpo(
-		titulo, corpo, acao=(_("Abrir documento"), get_url_to_form(*referencia))
-	)
+	return institutional_email.corpo(titulo, corpo, acao=(_("Abrir documento"), get_url_to_form(*referencia)))
 
 
 def _field_values(field_spec, doc):
@@ -85,12 +85,18 @@ def recipient_users(alert, doc, context):
 		if row.condition and not frappe.safe_eval(row.condition, None, context):
 			continue
 		if row.receiver_by_role:
-			users.update(["Administrator"] if row.receiver_by_role == "Administrator" else get_users(row.receiver_by_role))
+			users.update(
+				["Administrator"]
+				if row.receiver_by_role == "Administrator"
+				else get_users(row.receiver_by_role)
+			)
 		field_spec = row.receiver_by_document_field
 		if field_spec == "owner":
 			users.add(doc.owner)
 		elif field_spec:
-			users.update(value for value in _field_values(field_spec, doc) if value and frappe.db.exists("User", value))
+			users.update(
+				value for value in _field_values(field_spec, doc) if value and frappe.db.exists("User", value)
+			)
 	if alert.send_to_all_assignees:
 		users.update(get_assignees(doc))
 	return sorted(user for user in users if user and user != "Guest")
@@ -184,8 +190,12 @@ def _register_delivery(alert, doc, context, phone, seen, user=None):
 			"nome_arquivo": nome_anexo(reference_name) if anexar else None,
 			"message": message,
 			"variante": detalhe.get("variante"),
-			"error": None if phone else (
-				"Celular ausente ou inválido no cadastro do usuário." if user else "Número ausente ou inválido."
+			"error": None
+			if phone
+			else (
+				"Celular ausente ou inválido no cadastro do usuário."
+				if user
+				else "Número ausente ou inválido."
 			),
 		}
 	).insert(ignore_permissions=True)

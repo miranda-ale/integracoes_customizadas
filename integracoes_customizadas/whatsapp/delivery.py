@@ -5,7 +5,7 @@ from frappe.utils import now_datetime
 
 from integracoes_customizadas.whatsapp.api import evolution_request, instance_path, message_path
 from integracoes_customizadas.whatsapp.conector import corpo_documento, normalizar_numero_br
-from integracoes_customizadas.whatsapp.distribuidor import SemInstanciaDisponivel, escolher_instancia
+from integracoes_customizadas.whatsapp.dispatcher import SemInstanciaDisponivel, escolher_instancia
 
 
 def normalize_phone(value):
@@ -38,7 +38,8 @@ def gerar_anexo(delivery):
 		doc.name,
 		file_name=(delivery.nome_arquivo or nome_anexo(doc.name)).removesuffix(".pdf"),
 		print_format=delivery.print_format,
-		lang=doc.get("language") or frappe.db.get_value("Print Format", delivery.print_format, "default_print_language"),
+		lang=doc.get("language")
+		or frappe.db.get_value("Print Format", delivery.print_format, "default_print_language"),
 	)
 	conteudo = anexo["fcontent"]
 	if not conteudo.startswith(b"%PDF"):
@@ -65,13 +66,15 @@ def send_delivery(delivery_name):
 		if delivery.get("print_format"):
 			corpo = corpo_documento(gerar_anexo(delivery), delivery.nome_arquivo, delivery.message)
 			response = evolution_request(
-				"POST", message_path("sendMedia", instancia),
+				"POST",
+				message_path("sendMedia", instancia),
 				json={"number": delivery.phone, **corpo},
 				timeout=TIMEOUT_MIDIA,
 			)
 		else:
 			response = evolution_request(
-				"POST", message_path("sendText", instancia),
+				"POST",
+				message_path("sendText", instancia),
 				json={"number": delivery.phone, "text": delivery.message},
 			)
 		delivery.db_set(

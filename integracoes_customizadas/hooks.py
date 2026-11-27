@@ -1,9 +1,9 @@
 app_name = "integracoes_customizadas"
 app_title = "Integracoes Customizadas"
-app_publisher = "Alessandro Miranda"
+app_publisher = "StillPulse Tecnologia LTDA"
 app_description = "Modulo de integracoes customizadas para o ERPNext"
 app_email = "alessandro.siqueira@outlook.com"
-app_license = "mit"
+app_license = "Proprietary"
 
 fixtures = [
 	{"dt": "Custom Field", "filters": [["dt", "in", ["Employee", "Designation"]]]},
@@ -21,7 +21,13 @@ override_doctype_dashboards = {
 # Apps
 # ------------------
 
-required_apps = ["erpnext", "hrms"]
+required_apps = [
+	"frappe/frappe@version-15",
+	"frappe/erpnext@version-15",
+	"frappe/hrms@version-15",
+	"still-pulse/rh_brasil@main",
+	"still-pulse/busca_cnpj@main",
+]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -39,10 +45,10 @@ required_apps = ["erpnext", "hrms"]
 
 # include js, css files in header of desk.html
 # Etapas do processo de compras (barra nos formulários da cadeia Solicitação -> Fatura)
-app_include_css = "/assets/integracoes_customizadas/css/compras_steps.css?v=0.1.2"
+app_include_css = "/assets/integracoes_customizadas/css/procurement_steps.css?v=0.1.2"
 app_include_js = [
-	"/assets/integracoes_customizadas/js/compras_steps.js?v=0.1.2",
-	"/assets/integracoes_customizadas/js/maiusculas.js?v=0.1.0",
+	"/assets/integracoes_customizadas/js/procurement_steps.js?v=0.1.2",
+	"/assets/integracoes_customizadas/js/uppercase.js?v=0.1.0",
 ]
 # app_include_js = "/assets/integracoes_customizadas/js/desk_theme.js"  # desativado: so servia pro experimento de topbar teal, revertido
 
@@ -124,9 +130,9 @@ after_migrate = [
 	"integracoes_customizadas.juridico.setup.after_migrate",
 	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
 	"integracoes_customizadas.bionexo.setup.ensure_buying_card",
-	"integracoes_customizadas.compras.setup.after_migrate",
+	"integracoes_customizadas.procurement.setup.after_migrate",
 	# Política: todo DocType dos apps customizados tem atalho em Workspace e leitor (apenas avisa)
-	"integracoes_customizadas.politicas.acesso_doctypes.avisar_violacoes",
+	"integracoes_customizadas.policies.doctype_access.avisar_violacoes",
 ]
 
 override_doctype_class = {
@@ -173,18 +179,18 @@ override_doctype_class = {
 # 	}
 # }
 doc_events = {
-	# Nomes de cadastro em caixa alta (allowlist em normalizacao/maiusculas.py)
+	# Nomes de cadastro em caixa alta (allowlist em normalization/uppercase.py)
 	"*": {
-		"before_insert": "integracoes_customizadas.normalizacao.maiusculas.aplicar",
-		"before_validate": "integracoes_customizadas.normalizacao.maiusculas.aplicar",
+		"before_insert": "integracoes_customizadas.normalization.uppercase.aplicar",
+		"before_validate": "integracoes_customizadas.normalization.uppercase.aplicar",
 	},
 	# Nota Fiscal registrada pela unidade no recebimento; a fatura herda número e data
 	"Purchase Receipt": {
-		"validate": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
-		"before_update_after_submit": "integracoes_customizadas.compras.receipt.validar_nota_fiscal",
+		"validate": "integracoes_customizadas.procurement.receipt.validar_nota_fiscal",
+		"before_update_after_submit": "integracoes_customizadas.procurement.receipt.validar_nota_fiscal",
 	},
 	"Purchase Invoice": {
-		"before_validate": "integracoes_customizadas.compras.receipt.herdar_nota_fiscal",
+		"before_validate": "integracoes_customizadas.procurement.receipt.herdar_nota_fiscal",
 	},
 }
 
@@ -193,7 +199,8 @@ doc_events = {
 
 scheduler_events = {
 	"cron": {
-		"0 3 * * 1-5": ["integracoes_customizadas.juridico.datajud.atualizar_processos_acompanhados"],
+		"0 3 * * 1-5": ["integracoes_customizadas.juridico.datajud.agendar_sincronizacao"],
+		"0 7 * * *": ["integracoes_customizadas.juridico.agenda_alerts.alertar_prazos"],
 	},
 }
 
@@ -234,6 +241,9 @@ scheduler_events = {
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "integracoes_customizadas.event.get_events"
 # }
+override_whitelisted_methods = {
+	"frappe.desk.notifications.get_open_count": "integracoes_customizadas.juridico.dashboard.get_open_count",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

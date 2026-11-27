@@ -1,0 +1,63 @@
+{
+  "actions": [],
+  "creation": "2026-10-30 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "data",
+    "tipo",
+    "valor",
+    "pago",
+    "data_pagamento"
+  ],
+  "fields": [
+    {
+      "fieldname": "data",
+      "fieldtype": "Date",
+      "label": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "tipo",
+      "fieldtype": "Select",
+      "label": "Tipo",
+      "options": "Custas processuais\nPerícia\nEmolumentos\nMulta\nOutras",
+      "default": "Custas processuais",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "valor",
+      "fieldtype": "Currency",
+      "label": "Valor",
+      "options": "moeda",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "pago",
+      "fieldtype": "Check",
+      "label": "Pago",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "data_pagamento",
+      "fieldtype": "Date",
+      "label": "Data do Pagamento",
+      "depends_on": "eval:doc.pago"
+    }
+  ],
+  "links": [],
+  "modified": "2026-10-30 04:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Processo Judicial Custa",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "istable": 1,
+  "editable_grid": 1
+}
