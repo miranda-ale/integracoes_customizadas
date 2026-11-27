@@ -128,6 +128,7 @@ after_install = "integracoes_customizadas.setup.after_install"
 after_migrate = [
 	"integracoes_customizadas.provas.setup.after_migrate",
 	"integracoes_customizadas.juridico.setup.after_migrate",
+	"integracoes_customizadas.workspace_links.ensure_workspaces",
 	"integracoes_customizadas.whatsapp.setup.ensure_notification_field",
 	"integracoes_customizadas.bionexo.setup.ensure_buying_card",
 	"integracoes_customizadas.procurement.setup.after_migrate",
