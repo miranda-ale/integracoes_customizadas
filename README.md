@@ -122,6 +122,8 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
   submitted quotation): reads the "general PDC report" and identifies the Request for Quotation (by the name stored in
   Remarks by the exported XML or by the Bionexo ID), the items (`item_code` or `custom_código_bionexo`) and the suppliers
   (full CNPJ; without a valid CNPJ in the record, by name).
+  - The identified RFQ must have items of the report and cannot belong to another Bionexo quotation (a copied quotation keeps the
+    title of the previous one). With the Purchase Request or the Request for Quotation already chosen, the PDF does not replace them.
   - Unregistered suppliers are created with the CNPJ lookup of `busca_cnpj` (without it, with the name and CNPJ from the
     report); unidentified items are matched by hand or ignored.
   - On submit, generates one submitted `Supplier Quotation` per supplier and one draft `Purchase Order` per supplier with
@@ -130,7 +132,9 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
     other suppliers* box (checked) includes the others with all quoted items.
   - A Purchase Request without a Request for Quotation generates the Request for Quotation from the report. The company
     follows the chosen Request (*References* section).
-  - Cancelling deletes the draft POs, cancels the quotations and the generated Request for Quotation.
+  - Cancelling deletes the draft POs, cancels the quotations and the generated Request for Quotation; sent POs are cancelled first.
+    A submitted import does not block cancelling or deleting the PO, the quotation, the Request for Quotation and the Purchase
+    Request (deleting one clears the reference in the import and records a comment on it).
 - **Price Map RFQ** ("Mapa de Precos RFQ"): comparative report of the `Request for Quotation` (item per row, supplier per
   column), through the *Price Map* button of the quotation.
 

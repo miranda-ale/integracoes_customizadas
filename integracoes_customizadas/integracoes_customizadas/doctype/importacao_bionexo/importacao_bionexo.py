@@ -17,9 +17,12 @@ from frappe.utils import flt, getdate, nowdate
 
 from integracoes_customizadas.bionexo.import_pdf import parse_relatorio
 from integracoes_customizadas.bionexo.importacao import (
+	aderencia,
 	fornecedor_por_cnpj,
 	fornecedor_por_nome,
+	itens_do_relatorio_no_erp,
 	material_requests_da_rfq,
+	motivo_rfq_indisponivel,
 	normalizar_cnpj,
 	rfqs_da_material_request,
 )
@@ -41,7 +44,7 @@ class ImportacaoBionexo(Document):
 
 	@frappe.whitelist()
 	def reanalisar(self):
-		"""Relê o PDF (descarta escolhas manuais) e salva."""
+		"""Relê o PDF (descarta os itens relacionados à mão; mantém a Solicitação e o Pedido de Cotação) e salva."""
 		self.analisar_pdf()
 		self.save()
 
@@ -123,30 +126,74 @@ class ImportacaoBionexo(Document):
 				},
 			)
 
-		if not self.request_for_quotation:
-			self.identificar_rfq(dados)
+		# Referência já escolhida (à mão, pelo botão da RFQ ou numa leitura anterior) nunca é trocada pelo PDF.
+		if not self.request_for_quotation and not self.material_request:
+			self.identificar_referencias(dados)
 
-	def identificar_rfq(self, dados):
-		"""RFQ citada em Observações/Título (o XML exportado grava o nome dela) ou com o mesmo ID Bionexo."""
-		texto = "\n".join([dados["observacoes"] or "", dados["titulo"] or ""])
-		for nome in re.findall(r"[A-Z0-9]+(?:-[A-Z0-9]+){2,}", texto):
-			if frappe.db.get_value("Request for Quotation", nome, "docstatus") == 1:
-				self.request_for_quotation = nome
-				return
-			if not self.material_request and frappe.db.get_value("Material Request", nome, "docstatus") == 1:
-				self.material_request = nome
-		if self.id_cotacao_bionexo:
-			self.request_for_quotation = frappe.db.get_value(
+	def identificar_referencias(self, dados):
+		"""Pedido de Cotação (ou Solicitação de Compras) desta cotação do Bionexo.
+
+		Candidatas: a RFQ marcada com o mesmo ID Bionexo e os nomes citados no Título/Observações (o XML exportado
+		grava o nome da RFQ). Uma cotação copiada no Bionexo mantém o título da anterior, então o nome citado não
+		basta: a RFQ precisa ter itens do relatório e não pode pertencer a outra cotação do Bionexo. Entre as
+		válidas, vence a do ID Bionexo e depois a que tem mais itens (e quantidades) iguais aos do relatório.
+		"""
+		texto = "\n".join([dados["titulo"] or "", dados["observacoes"] or ""])
+		citados = list(dict.fromkeys(re.findall(r"[A-Z0-9]+(?:-[A-Z0-9]+){2,}", texto)))
+		por_id = []
+		if self.id_cotacao_bionexo and frappe.get_meta("Request for Quotation").has_field(
+			"custom_id_bionexo"
+		):
+			por_id = frappe.get_all(
 				"Request for Quotation",
-				{"custom_id_bionexo": self.id_cotacao_bionexo, "docstatus": 1},
-				"name",
+				filters={"custom_id_bionexo": self.id_cotacao_bionexo, "docstatus": 1},
+				pluck="name",
+			)
+		rfqs = [n for n in citados if frappe.db.get_value("Request for Quotation", n, "docstatus") == 1]
+		solicitacoes = [n for n in citados if frappe.db.get_value("Material Request", n, "docstatus") == 1]
+		itens_erp = itens_do_relatorio_no_erp(dados["itens"])
+
+		descartadas, melhor, melhor_nota = [], None, None
+		for rfq in dict.fromkeys([*por_id, *rfqs]):
+			motivo = motivo_rfq_indisponivel(rfq, self.id_cotacao_bionexo, self.name)
+			if not motivo and solicitacoes and not set(material_requests_da_rfq(rfq)) & set(solicitacoes):
+				motivo = _("não pertence à Solicitação de Compras citada ({0})").format(
+					", ".join(solicitacoes)
+				)
+			nota = aderencia("Request for Quotation Item", rfq, itens_erp)
+			if not motivo and not nota[0]:
+				motivo = _("nenhum item do relatório está nele")
+			if motivo:
+				descartadas.append(f"{rfq}: {motivo}")
+				continue
+			nota = (rfq in por_id, *nota)
+			if melhor_nota is None or nota > melhor_nota:
+				melhor, melhor_nota = rfq, nota
+
+		if melhor:
+			self.request_for_quotation = melhor
+		else:
+			self.material_request = next(
+				(mr for mr in solicitacoes if aderencia("Material Request Item", mr, itens_erp)[0]), None
+			)
+		if descartadas:
+			frappe.msgprint(
+				_("Pedido de Cotação citado no relatório e não usado:")
+				+ "<br>"
+				+ "<br>".join(descartadas)
+				+ "<br>"
+				+ _("Confira a Solicitação de Compras e o Pedido de Cotação em Referências."),
+				title=_("Referências do relatório"),
+				indicator="orange",
 			)
 
 	def validar_vinculos(self):
 		if not self.request_for_quotation and self.material_request:
 			self.validar_solicitacao()
-			existentes = rfqs_da_material_request(self.material_request)
-			if len(existentes) == 1:
+			# Só ao escolher a Solicitação: um Pedido de Cotação que o usuário limpou não volta ao salvar.
+			escolheu = self.is_new() or self.has_value_changed("material_request")
+			existentes = self.rfqs_disponiveis()
+			if escolheu and len(existentes) == 1:
 				self.request_for_quotation = existentes[0]
 		if not self.request_for_quotation:
 			return
@@ -194,6 +241,14 @@ class ImportacaoBionexo(Document):
 					self.company, rotulo, nome, empresa
 				)
 			)
+
+	def rfqs_disponiveis(self) -> list[str]:
+		"""Pedidos de Cotação da Solicitação que não pertencem a outra cotação do Bionexo."""
+		return [
+			rfq
+			for rfq in rfqs_da_material_request(self.material_request)
+			if not motivo_rfq_indisponivel(rfq, self.id_cotacao_bionexo, self.name)
+		]
 
 	def rfq_sera_gerada(self) -> bool:
 		"""Há Solicitação de Compras sem Pedido de Cotação: ele é gerado a partir do relatório ao concluir."""
@@ -304,7 +359,7 @@ class ImportacaoBionexo(Document):
 		pendencias = []
 		if not self.request_for_quotation and not self.material_request:
 			pendencias.append(_("Selecione a Solicitação de Compras ou o Pedido de Cotação."))
-		elif not self.request_for_quotation and len(rfqs_da_material_request(self.material_request)) > 1:
+		elif not self.request_for_quotation and len(self.rfqs_disponiveis()) > 1:
 			pendencias.append(_("Há mais de um Pedido de Cotação para a Solicitação: escolha um."))
 		nao_identificados = [i for i in self.itens if i.situacao == NAO_IDENTIFICADO]
 		if nao_identificados:
