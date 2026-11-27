@@ -33,6 +33,9 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
   the import required the PO to be cancelled first: a circular reference). The same holds for the Supplier Quotation, the Request for
   Quotation and the Purchase Request; deleting one of them clears the reference in the import, with an audit comment on it. Order:
   cancel the PO, then the import (which cancels the quotations).
+- Language and naming (develop): the new helpers, hook functions (`bionexo.importacao.release_cancellation`, `unlink_on_delete`), controller
+  methods (`identify_references`, `available_rfqs`) and tests use English identifiers, docstrings and comments; `main` keeps the
+  Portuguese names of the hotfix until `develop` is promoted. Behaviour is identical.
 
 ## v4.1.0 — DataJud structured logs and circuit breaker · 2026-11-17
 

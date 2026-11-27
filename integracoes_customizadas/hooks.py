@@ -236,11 +236,11 @@ doc_events = {
 	"Purchase Invoice": {
 		"before_validate": "integracoes_customizadas.procurement.receipt.herdar_nota_fiscal",
 	},
-	# A Importacao Bionexo enviada não trava o cancelamento nem a exclusão dos documentos que referencia
+	# A submitted Importacao Bionexo does not block cancelling or deleting the documents it references
 	**{
 		doctype: {
-			"on_cancel": "integracoes_customizadas.bionexo.importacao.liberar_cancelamento",
-			"on_trash": "integracoes_customizadas.bionexo.importacao.desvincular_ao_excluir",
+			"on_cancel": "integracoes_customizadas.bionexo.importacao.release_cancellation",
+			"on_trash": "integracoes_customizadas.bionexo.importacao.unlink_on_delete",
 		}
 		for doctype in ("Purchase Order", "Supplier Quotation", "Request for Quotation", "Material Request")
 	},
@@ -307,7 +307,7 @@ override_whitelisted_methods = {
 # exempt linked doctypes from being automatically cancelled
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
-# Cancelar a Ordem de Compra não oferece cancelar junto a Importacao Bionexo (que exige a OC cancelada antes)
+# Cancelling the Purchase Order does not offer to cancel the Importacao Bionexo with it (which requires the PO to be cancelled first)
 auto_cancel_exempted_doctypes = ["Importacao Bionexo"]
 
 # Ignore links to specified DocTypes when deleting documents
