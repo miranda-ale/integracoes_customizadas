@@ -285,7 +285,28 @@ def liberar_cancelamento(doc, method=None):
 
 
 def desvincular_ao_excluir(doc, method=None):
-	"""doc_events on_trash: limpa a referência na importação antes da checagem de vínculos da exclusão."""
+	"""doc_events on_trash: limpa a referência na importação antes da checagem de vínculos da exclusão.
+
+	Grava só tabelas deste app. A importação enviada é um registro formalizado: a remoção da referência fica
+	registrada num comentário dela (não é edição silenciosa).
+	"""
 	tabela, campo = VINCULOS_DA_IMPORTACAO.get(doc.doctype, (None, None))
-	if tabela:
-		frappe.db.set_value(tabela, {campo: doc.name}, campo, None, update_modified=False)
+	if not tabela:
+		return
+	pai = "parent" if tabela != "Importacao Bionexo" else "name"
+	importacoes = sorted(set(frappe.get_all(tabela, filters={campo: doc.name}, pluck=pai)))
+	if not importacoes:
+		return
+	frappe.db.set_value(tabela, {campo: doc.name}, campo, None, update_modified=False)
+	for importacao in importacoes:
+		frappe.get_doc(
+			{
+				"doctype": "Comment",
+				"comment_type": "Info",
+				"reference_doctype": "Importacao Bionexo",
+				"reference_name": importacao,
+				"content": _("{0} {1} foi excluído(a); a referência foi removida desta importação.").format(
+					_(doc.doctype), doc.name
+				),
+			}
+		).insert(ignore_permissions=True)
