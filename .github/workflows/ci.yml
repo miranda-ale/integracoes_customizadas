@@ -95,10 +95,10 @@ jobs:
         run: |
           bench get-app erpnext --branch version-15
           bench get-app hrms --branch version-15
-          bench get-app busca_cnpj https://github.com/miranda-ale/busca_cnpj.git
+          bench get-app busca_cnpj https://github.com/miranda-ale/busca_cnpj.git --branch develop
           # clm e rh_brasil são repositórios privados e estão em required_apps: precisam do segredo CLM_REPO_TOKEN
-          bench get-app clm "https://x-access-token:${{ secrets.CLM_REPO_TOKEN }}@github.com/still-pulse/clm.git"
-          bench get-app rh_brasil "https://x-access-token:${{ secrets.CLM_REPO_TOKEN }}@github.com/still-pulse/rh_brasil.git"
+          bench get-app clm "https://x-access-token:${{ secrets.CLM_REPO_TOKEN }}@github.com/still-pulse/clm.git" --branch develop
+          bench get-app rh_brasil "https://x-access-token:${{ secrets.CLM_REPO_TOKEN }}@github.com/still-pulse/rh_brasil.git" --branch develop
           bench get-app integracoes_customizadas $GITHUB_WORKSPACE
           bench setup requirements --dev
           bench new-site --db-root-password root --admin-password admin test_site

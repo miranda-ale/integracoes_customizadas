@@ -11,8 +11,8 @@ fallback), never at module import time.
 | `frappe/frappe@version-15` | Framework. |
 | `frappe/erpnext@version-15` | Buying/Stock chain (Request for Quotation, Purchase Receipt/Invoice, Workspace `Buying`), Supplier, Company. |
 | `frappe/hrms@version-15` | Exams module (Job Applicant, Interview Round, Shift Type) and Employee/Designation custom fields. |
-| `still-pulse/rh_brasil@main` | `rh_brasil.documentos.format_cpf` (Legal module) and the Employee CPF field convention. |
-| `still-pulse/busca_cnpj@main` | CNPJ lookup/validation (`busca_cnpj.api.lookup_cnpj`, `confirm_cnpj_data`, `busca_cnpj.cnpj.*`) used by the Legal module and the Bionexo import; its JS helper `busca_cnpj.taxid` is used in `processo_judicial.js` behind a `window.busca_cnpj?.taxid` guard. |
+| `still-pulse/rh_brasil@develop` | `rh_brasil.documentos.format_cpf` (Legal module) and the Employee CPF field convention. |
+| `still-pulse/busca_cnpj@develop` | CNPJ lookup/validation (`busca_cnpj.api.lookup_cnpj`, `confirm_cnpj_data`, `busca_cnpj.cnpj.*`) used by the Legal module and the Bionexo import; its JS helper `busca_cnpj.taxid` is used in `processo_judicial.js` behind a `window.busca_cnpj?.taxid` guard. |
 
 The English names of `busca_cnpj` are used here; the Portuguese aliases it keeps are deprecated and not used.
 

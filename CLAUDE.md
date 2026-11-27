@@ -5,7 +5,7 @@ See `AGENTS.md` for the language and naming rules and the lint workflow.
 ## Dependencies
 
 - `required_apps = ["frappe/frappe@version-15", "frappe/erpnext@version-15", "frappe/hrms@version-15",
-  "still-pulse/rh_brasil@main", "still-pulse/busca_cnpj@main"]`: they are not independent. The Legal module and the
+  "still-pulse/rh_brasil@develop", "still-pulse/busca_cnpj@develop"]`: they are not independent. The Legal module and the
   Bionexo import use `busca_cnpj` (English API names); the Legal module uses `rh_brasil.documentos`.
 - **Weak, undeclared** dependencies: `clm` (`email_layout`, institutional e-mail, only if installed) and
   `assinatura_eletronica` (`servicos.canais`, WhatsApp formatting). They are guarded: do not import without checking
