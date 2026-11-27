@@ -1,6 +1,6 @@
 import frappe
 
-from integracoes_customizadas.seed.template_variants import VARIANTES
+from integracoes_customizadas.seed.variantes_modelos import VARIANTES
 
 
 def execute():

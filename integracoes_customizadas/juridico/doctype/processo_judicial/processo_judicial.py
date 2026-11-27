@@ -1,4 +1,4 @@
-# Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
+# Copyright (c) 2026, Frappe and contributors
 # For license information, please see license.txt
 
 import json
@@ -11,7 +11,7 @@ from frappe.model.document import Document
 from frappe.utils import flt, getdate, today
 from frappe.utils.data import convert_utc_to_system_timezone, get_datetime
 
-from integracoes_customizadas.juridico import agenda_alerts as agenda
+from integracoes_customizadas.juridico import agenda
 
 
 def _datajud_datetime(value: str | None, label: str, *, ajuizamento: bool = False) -> datetime | None:
@@ -38,15 +38,15 @@ def _data_hora_igual(atual, anterior):
 
 def _normalizar_documento(valor: str | None) -> str | None:
 	"""Valida e aplica a máscara de CPF ou CNPJ (reutiliza busca_cnpj e rh_brasil); vazio vira None."""
-	from busca_cnpj.cnpj import format_cnpj, normalize_cnpj, validate_tax_id
+	from busca_cnpj.cnpj import formatar_cnpj, normalizar_cnpj, validar_tax_id
 	from rh_brasil.documentos import format_cpf
 
-	base = normalize_cnpj(valor)
+	base = normalizar_cnpj(valor)
 	if not base:
 		return None
-	if len(base) not in (11, 14) or not validate_tax_id(base):
+	if len(base) not in (11, 14) or not validar_tax_id(base):
 		frappe.throw(_("CPF/CNPJ inválido: {0}").format(valor))
-	return format_cpf(base) if len(base) == 11 else format_cnpj(base)
+	return format_cpf(base) if len(base) == 11 else formatar_cnpj(base)
 
 
 def _normalizar_oab(valor: str | None) -> str | None:
