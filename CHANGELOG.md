@@ -2,6 +2,19 @@
 
 Versões e datas seguem as tags do repositório (`vMAJOR.MINOR.PATCH`). A atribuição dos itens de WhatsApp às versões v1.14.0–v1.17.x segue as mensagens de commit; a tag v1.12.0 e a v1.13.0 (sem tag) não têm detalhamento.
 
+## v4.1.1 — Importação Bionexo: referências e cancelamento da OC · 2026-11-27
+
+- A identificação automática do Pedido de Cotação pelo PDF só aceita a RFQ citada (Título/Observações) ou marcada
+  com o ID Bionexo se ela tiver itens do relatório e não pertencer a outra cotação do Bionexo (outro ID gravado ou
+  outra importação). Cotação copiada no Bionexo, que mantém o título da anterior, deixava a importação presa ao
+  Pedido de Cotação e à Solicitação de Compras errados; as RFQs descartadas são avisadas ao salvar.
+- Referência escolhida à mão não é mais trocada pelo PDF: a identificação só roda com Solicitação e Pedido de
+  Cotação vazios (inclusive no *Ler PDF novamente*), e o Pedido de Cotação limpo pelo usuário não volta ao salvar.
+- A Ordem de Compra gerada por uma importação enviada pode ser cancelada (antes: "está vinculado com Importacao
+  Bionexo", enquanto a importação exigia a OC cancelada antes — referência circular). O mesmo vale para o
+  Orçamento de Fornecedor, o Pedido de Cotação e a Solicitação de Compras; excluir um deles limpa a referência na
+  importação. Ordem: cancele a OC e depois a importação (que cancela os orçamentos).
+
 ## v4.1.0 — Logs estruturados e circuit breaker do DataJud · 2026-11-17
 
 - Novo DocType `DataJud Sync Log`: grava endpoint, método, status HTTP, tempo de resposta, corpo (1.000
