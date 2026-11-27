@@ -144,10 +144,10 @@ def criar_fornecedores(importacao: str, cnpjs: str | list | None = None) -> dict
 def _criar_fornecedor(linha) -> str:
 	dados = None
 	if "busca_cnpj" in frappe.get_installed_apps():
-		from busca_cnpj.api import lookup_cnpj
+		from busca_cnpj.api import buscar_cnpj
 
 		try:
-			dados = lookup_cnpj(linha.cnpj)
+			dados = buscar_cnpj(linha.cnpj)
 		except Exception:
 			frappe.clear_messages()
 			dados = None
@@ -168,11 +168,11 @@ def _criar_fornecedor(linha) -> str:
 	supplier.insert()
 
 	if dados:
-		from busca_cnpj.api import confirm_cnpj_data
+		from busca_cnpj.api import confirmar_dados_cnpj
 
 		if not dados.get("email"):
 			dados["email"] = linha.email
-		return confirm_cnpj_data(supplier.name, json.dumps(dados))["supplier"]
+		return confirmar_dados_cnpj(supplier.name, json.dumps(dados))["supplier"]
 	return supplier.name
 
 

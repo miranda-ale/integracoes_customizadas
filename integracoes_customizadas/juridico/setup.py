@@ -7,7 +7,7 @@ import frappe
 
 from integracoes_customizadas.juridico.datajud import _descricao_movimento
 
-WORKSPACE = "Juridico"
+WORKSPACE = "Jurídico"
 BLOCOS_DIR = Path(__file__).resolve().parent / "custom_blocks"
 INDICADORES_BLOCK = "Juridico Indicadores"
 INDICADORES_ID = "juridico-indicadores-block"
@@ -100,8 +100,8 @@ def _style_do_bloco() -> str:
 def ensure_indicadores_block():
 	"""Cria/atualiza o Custom HTML Block dos indicadores (HTML/JS/CSS versionados no app)."""
 	valores = {
-		"html": (BLOCOS_DIR / "legal_indicators.html").read_text(encoding="utf-8"),
-		"script": (BLOCOS_DIR / "legal_indicators.js").read_text(encoding="utf-8"),
+		"html": (BLOCOS_DIR / "indicadores_juridico.html").read_text(encoding="utf-8"),
+		"script": (BLOCOS_DIR / "indicadores_juridico.js").read_text(encoding="utf-8"),
 		"style": _style_do_bloco(),
 		"private": 0,
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) 2026, StillPulse Tecnologia LTDA and contributors
+// Copyright (c) 2026, BHCL and contributors
 // For license information, please see license.txt
 //
 // Adapted from the CLM "CLM Mapa de Precos" report, reading ERPNext Request for Quotation

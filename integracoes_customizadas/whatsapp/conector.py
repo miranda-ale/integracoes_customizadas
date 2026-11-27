@@ -17,12 +17,12 @@ import frappe
 import requests
 from frappe import _
 
-from integracoes_customizadas.whatsapp.dispatcher import (
+from integracoes_customizadas.whatsapp.distribuidor import (
 	SemInstanciaDisponivel,
 	escolher_instancia,
 	multiplas,
 )
-from integracoes_customizadas.whatsapp.dispatcher import nomes as nomes_instancias
+from integracoes_customizadas.whatsapp.distribuidor import nomes as nomes_instancias
 
 CHAVE_ULTIMO_ENVIO = "evolution_ultimo_envio"
 

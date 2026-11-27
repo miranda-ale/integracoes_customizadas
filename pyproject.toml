@@ -1,7 +1,7 @@
 [project]
 name = "integracoes_customizadas"
 authors = [
-    { name = "StillPulse Tecnologia LTDA", email = "alessandro.siqueira@outlook.com"}
+    { name = "Alessandro Miranda", email = "alessandro.siqueira@outlook.com"}
 ]
 description = "Modulo de integracoes customizadas para o ERPNext"
 requires-python = ">=3.11"
