@@ -1,7 +1,7 @@
 {
   "doctype": "Number Card",
-  "name": "Total de Processos Judiciais",
-  "label": "Total de Processos Judiciais",
+  "name": "Integ Total Legal Cases",
+  "label": "Integ Total Legal Cases",
   "module": "Juridico",
   "is_standard": 1,
   "is_public": 1,

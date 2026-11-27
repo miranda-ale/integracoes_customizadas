@@ -1,7 +1,7 @@
 {
   "doctype": "Dashboard Chart",
-  "name": "Assuntos Judiciais mais Frequentes",
-  "chart_name": "Assuntos Judiciais mais Frequentes",
+  "name": "Integ Top Legal Subjects",
+  "chart_name": "Integ Top Legal Subjects",
   "module": "Juridico",
   "is_standard": 1,
   "is_public": 1,

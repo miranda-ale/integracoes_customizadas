@@ -393,7 +393,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user(usuario)
-			workspace = Workspace({"name": "Juridico"})
+			workspace = Workspace({"name": "Integ Legal"})
 			blocos = frappe.parse_json(workspace.doc.content)
 			self.assertEqual(
 				[block["type"] for block in blocos],
@@ -402,7 +402,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
 			self.assertEqual(len(workspace.get_number_cards()), 0)
 			self.assertTrue(
-				{"Processo Judicial", "DataJud Settings", "Processos Judiciais"}.issubset(
+				{"Processo Judicial", "DataJud Settings", "Integ Legal Cases"}.issubset(
 					{item["link_to"] for item in workspace.get_shortcuts()}
 				)
 			)
@@ -415,8 +415,8 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertIn(
 				"Juridico Indicadores", [block.custom_block_name for block in workspace.get_custom_blocks()]
 			)
-			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
-			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
+			self.assertEqual(len(get_permitted_cards("Integ Legal Cases")), 3)
+			self.assertEqual(len(get_permitted_charts("Integ Legal Cases")), 6)
 			self.assertTrue(frappe.has_permission("Processo Judicial", "read"))
 			frappe.get_single("DataJud Settings").validate()
 		finally:
@@ -440,12 +440,12 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user(usuario)
-			workspace = Workspace({"name": "Juridico"})
+			workspace = Workspace({"name": "Integ Legal"})
 			# Os indicadores vêm do Custom HTML Block (juridico.setup), não de Number Cards no workspace.
 			self.assertEqual(len(workspace.get_number_cards()), 0)
 			atalhos = {item["link_to"] for item in workspace.get_shortcuts()}
 			self.assertIn("Processo Judicial", atalhos)
-			self.assertIn("Processos Judiciais", atalhos)
+			self.assertIn("Integ Legal Cases", atalhos)
 			self.assertNotIn("DataJud Settings", atalhos)
 			caixas = {card["label"] for card in workspace.get_links()}
 			self.assertIn("Judicial", caixas)
@@ -453,8 +453,8 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertIn(
 				"Juridico Indicadores", [block.custom_block_name for block in workspace.get_custom_blocks()]
 			)
-			self.assertEqual(len(get_permitted_cards("Processos Judiciais")), 3)
-			self.assertEqual(len(get_permitted_charts("Processos Judiciais")), 6)
+			self.assertEqual(len(get_permitted_cards("Integ Legal Cases")), 3)
+			self.assertEqual(len(get_permitted_charts("Integ Legal Cases")), 6)
 			self.assertFalse(frappe.has_permission("DataJud Settings", "read"))
 		finally:
 			frappe.set_user(usuario_original)
@@ -966,7 +966,9 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertTrue(processo.parte_vinculada)
 
 	def test_relatorio_filtra_por_qualquer_parte_e_lista_outras(self):
-		from integracoes_customizadas.juridico.report.relacao_de_processos.relacao_de_processos import execute
+		from integracoes_customizadas.juridico.report.integ_legal_cases_list.integ_legal_cases_list import (
+			execute,
+		)
 
 		colaborador = self._employee("Relatório Parte")
 		processo = self._processo_sem_cadastro("processo-partes-10")
@@ -1000,7 +1002,9 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(processo.nome_parte, "Novo Nome")
 
 	def test_classificacao_interna_e_pasta_unica_por_empresa(self):
-		from integracoes_customizadas.juridico.report.relacao_de_processos.relacao_de_processos import execute
+		from integracoes_customizadas.juridico.report.integ_legal_cases_list.integ_legal_cases_list import (
+			execute,
+		)
 
 		primeiro = self._processo_sem_cadastro(
 			"processo-class-1",
@@ -1345,23 +1349,25 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		empresa = com_prov.empresa
 
 		linhas = [
-			l for l in executar("passivo_de_processos", {"company": empresa}) if l.name == "processo-rel-2"
+			l
+			for l in executar("integ_legal_cases_liability", {"company": empresa})
+			if l.name == "processo-rel-2"
 		]
 		self.assertEqual(linhas[0].valor_provisionado, 600)
 		self.assertEqual(linhas[0].passivo_liquido, 350)
 
 		grupos = executar(
-			"provisao_de_processos", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"}
+			"integ_legal_cases_provision", {"company": empresa, "natureza": "Trabalhista", "risco": "Alto"}
 		)
 		provavel = next(g for g in grupos if g["probabilidade_perda"] == "Provável")
 		self.assertEqual(provavel["quantidade"], 1)
 		self.assertEqual(provavel["passivo_liquido"], 350)
 		self.assertEqual(sum(g["quantidade"] for g in grupos), 2)
 
-		por_cargo = executar("processos_por_colaborador", {"company": empresa})
+		por_cargo = executar("integ_legal_cases_by_employee", {"company": empresa})
 		self.assertIn("Enfermeiro", [g["cargo"] for g in por_cargo])
 
-		aging = executar("aging_de_processos", {"company": empresa})
+		aging = executar("integ_legal_cases_aging", {"company": empresa})
 		self.assertTrue(aging and all(g["faixa"] for g in aging))
 		self.assertEqual(
 			sum(g["quantidade"] for g in aging),

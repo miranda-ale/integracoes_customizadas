@@ -93,12 +93,12 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
 
 **Indicators and reports**
 
-- **Dashboard View** *Processos Judiciais*: cards (total, in progress, closed) and charts by status, risk, phase, court,
+- **Dashboard View** *Integ Legal Cases*: cards (total, in progress, closed) and charts by status, risk, phase, court,
   IBGE locality and most frequent subjects; **Juridico Indicadores** panel in the workspace (see
   [docs/legal-dashboard.md](docs/legal-dashboard.md)).
-- Reports: **Relacao de Processos** (filters by company, party, phase, status, subject, court, instance, risk, nature,
-  responsible person, number and period; own print/PDF), **Provisao de Processos**, **Passivo de Processos**,
-  **Processos por Colaborador** and **Aging de Processos**.
+- Reports: **Integ Legal Cases List** (filters by company, party, phase, status, subject, court, instance, risk, nature,
+  responsible person, number and period; own print/PDF), **Integ Legal Cases Provision**, **Integ Legal Cases Liability**,
+  **Integ Legal Cases by Employee** and **Integ Legal Cases Aging**.
 - **Juridico** workspace (label "Jurídico", with a shortcut to the `clm` Legal Opinions) and **Usuário Jurídico**
   role. The legacy *Contencioso* (litigation) was removed by patches.
 
@@ -109,8 +109,8 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
 - **Prova** (submittable): composition from the question bank, linked to an Edital.
 - **Edital**: recruitment processes with stages and candidates, integrated with HRMS *Job Applicant*, *Job Opening*
   and *Interview*.
-- **Reports:** Candidatos por Etapa, Candidatos por Status and Comparativo entre Editais.
-- **Print formats:** Minuta Edital, Prova Completa and Gabarito.
+- **Reports:** Integ Candidates by Stage, Integ Candidates by Status and Integ Notice Comparison.
+- **Print formats:** Integ Notice Draft, Integ Full Exam and Integ Exam Answer Key.
 - Details in [docs/exams-module.md](docs/exams-module.md) (the document header still says "Version 0.1.0").
 
 ### Purchasing (Compras)
@@ -135,14 +135,14 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
   - Cancelling deletes the draft POs, cancels the quotations and the generated Request for Quotation; sent POs are cancelled first.
     A submitted import does not block cancelling or deleting the PO, the quotation, the Request for Quotation and the Purchase
     Request (deleting one clears the reference in the import and records a comment on it).
-- **Price Map RFQ** ("Mapa de Precos RFQ"): comparative report of the `Request for Quotation` (item per row, supplier per
+- **Price Map RFQ** ("Integ RFQ Price Map"): comparative report of the `Request for Quotation` (item per row, supplier per
   column), through the *Price Map* button of the quotation.
 
 **Receipt and flow**
 
 - **Supplier Nota Fiscal** on the Purchase Receipt (number, series, validated access key, date, amount, attachment;
   editable after submit); the Purchase Invoice inherits `bill_no` and `bill_date`.
-- Reports **Pedidos a Receber** (*Receive* button) and **Recebidos a Faturar** (*Create Invoice* button).
+- Reports **Integ Orders to Receive** (*Receive* button) and **Integ Received Not Invoiced** (*Create Invoice* button).
 - **Process stages** bar (Request → Quotation → Order → Receipt → Invoice) on the chain forms; documents without read
   permission are only counted.
 - **Lean Purchasing and Stock workspaces**, defined in `procurement/workspaces.py` and reapplied on every migrate.
@@ -228,7 +228,7 @@ integracoes_customizadas/
 ├── policies/        # doctype_access.py
 ├── seed/            # template_variants.py (seed wordings)
 ├── institutional_email.py
-├── integracoes_customizadas/   # WhatsApp and Importacao Bionexo DocTypes, reports Mapa de Precos RFQ, Pedidos a Receber, Recebidos a Faturar
+├── integracoes_customizadas/   # WhatsApp and Importacao Bionexo DocTypes, reports Integ RFQ Price Map, Integ Orders to Receive, Integ Received Not Invoiced
 ├── patches/ · fixtures/ · public/ (css and js) · docs/
 └── tests/           # 14 files (WhatsApp, Bionexo, Purchasing, Legal, uppercase, access policy)
 ```

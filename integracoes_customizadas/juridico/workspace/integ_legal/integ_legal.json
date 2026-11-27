@@ -1,0 +1,193 @@
+{
+  "charts": [],
+  "content": "[{\"id\":\"juridico_numero_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Integ Total Legal Cases\",\"col\":4}},{\"id\":\"juridico_numero_1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Integ Ongoing Legal Cases\",\"col\":4}},{\"id\":\"juridico_numero_2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Integ Closed Legal Cases\",\"col\":4}},{\"id\":\"juridico_atalho_0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Processo Judicial\",\"col\":3}},{\"id\":\"juridico_atalho_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Canal de Denúncias\",\"col\":3}},{\"id\":\"juridico_atalho_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Configurações de Processos Judiciais\",\"col\":3}},{\"id\":\"juridico_atalho_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard de Processos\",\"col\":3}},{\"id\":\"juridico_caixa_0\",\"type\":\"card\",\"data\":{\"card_name\":\"Ética\",\"col\":3}},{\"id\":\"juridico_caixa_1\",\"type\":\"card\",\"data\":{\"card_name\":\"Judicial\",\"col\":3}},{\"id\":\"juridico_caixa_relatorios\",\"type\":\"card\",\"data\":{\"card_name\":\"Relatórios\",\"col\":3}},{\"id\":\"juridico_caixa_configuracoes\",\"type\":\"card\",\"data\":{\"card_name\":\"Configurações\",\"col\":3}}]",
+  "creation": "2026-01-30 10:10:49.516368",
+  "custom_blocks": [],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": "",
+  "hide_custom": 0,
+  "icon": "project",
+  "idx": 0,
+  "indicator_color": "",
+  "is_hidden": 0,
+  "label": "Integ Legal",
+  "links": [
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Ética",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Canal de Denúncias",
+      "link_count": 0,
+      "link_to": "Canal de Denuncias",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Judicial",
+      "link_count": 2,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Processo Judicial",
+      "link_count": 0,
+      "link_to": "Processo Judicial",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Assuntos Judiciais",
+      "link_count": 0,
+      "link_to": "Assunto Judicial",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Relatórios",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Relação de Processos",
+      "link_count": 0,
+      "link_to": "Integ Legal Cases List",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Provisão de Processos",
+      "link_count": 0,
+      "link_to": "Integ Legal Cases Provision",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Integ Legal Cases Liability",
+      "link_count": 0,
+      "link_to": "Integ Legal Cases Liability",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Integ Legal Cases by Employee",
+      "link_count": 0,
+      "link_to": "Integ Legal Cases by Employee",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Integ Legal Cases Aging",
+      "link_count": 0,
+      "link_to": "Integ Legal Cases Aging",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Configurações",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Configurações de Processos Judiciais",
+      "link_count": 0,
+      "link_to": "DataJud Settings",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    }
+  ],
+  "modified": "2026-11-28 12:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Juridico",
+  "name": "Integ Legal",
+  "number_cards": [
+    {
+      "number_card_name": "Integ Total Legal Cases",
+      "label": "Integ Total Legal Cases"
+    },
+    {
+      "number_card_name": "Integ Ongoing Legal Cases",
+      "label": "Integ Ongoing Legal Cases"
+    },
+    {
+      "number_card_name": "Integ Closed Legal Cases",
+      "label": "Integ Closed Legal Cases"
+    }
+  ],
+  "owner": "Administrator",
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [],
+  "roles": [],
+  "sequence_id": 11.0,
+  "shortcuts": [
+    {
+      "label": "Processo Judicial",
+      "link_to": "Processo Judicial",
+      "type": "DocType",
+      "color": "Orange",
+      "doc_view": "List"
+    },
+    {
+      "label": "Canal de Denúncias",
+      "link_to": "Canal de Denuncias",
+      "type": "DocType",
+      "color": "Grey",
+      "doc_view": "List"
+    },
+    {
+      "label": "Configurações de Processos Judiciais",
+      "link_to": "DataJud Settings",
+      "type": "DocType",
+      "color": "Grey",
+      "doc_view": "List"
+    },
+    {
+      "label": "Dashboard de Processos",
+      "link_to": "Integ Legal Cases",
+      "type": "Dashboard",
+      "color": "Blue"
+    }
+  ],
+  "title": "Integ Legal"
+}

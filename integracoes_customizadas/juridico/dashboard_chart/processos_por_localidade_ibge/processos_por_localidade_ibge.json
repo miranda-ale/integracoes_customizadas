@@ -1,7 +1,7 @@
 {
   "doctype": "Dashboard Chart",
-  "name": "Processos por Localidade IBGE",
-  "chart_name": "Processos por Localidade IBGE",
+  "name": "Integ Legal Cases by IBGE Location",
+  "chart_name": "Integ Legal Cases by IBGE Location",
   "module": "Juridico",
   "is_standard": 1,
   "is_public": 1,

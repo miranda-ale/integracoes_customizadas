@@ -51,7 +51,7 @@ fixtures = [
 		],
 	},
 	{"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
-	{"dt": "Custom HTML Block", "filters": [["name", "in", ["Relatórios"]]]},
+	{"dt": "Custom HTML Block", "filters": [["name", "in", ["Integ Reports"]]]},
 ]
 
 override_doctype_dashboards = {

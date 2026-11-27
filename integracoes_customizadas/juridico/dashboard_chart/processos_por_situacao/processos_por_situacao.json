@@ -1,7 +1,7 @@
 {
   "doctype": "Dashboard Chart",
-  "name": "Processos por Situação",
-  "chart_name": "Processos por Situação",
+  "name": "Integ Legal Cases by Status",
+  "chart_name": "Integ Legal Cases by Status",
   "module": "Juridico",
   "is_standard": 1,
   "is_public": 1,
