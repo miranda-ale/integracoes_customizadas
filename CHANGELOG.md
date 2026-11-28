@@ -5,6 +5,7 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
 
 ## Unreleased
 
+- Fix: patch `s02` renames the accented Juridico Reports and Workspace (and their Custom Roles) instead of deleting them; its existence check is now exact (accent-sensitive).
 - Role `Usuário Jurídico` renamed to `Integ Legal User` (patch `s04`, `[pre_model_sync]`, merges when both exist; see
   `docs/adr-006-role-names-phase-2.md`).
 - Reports, Print Formats, Dashboard Charts, Number Cards, the Dashboard, the Workspaces (`Integ Legal`, `Integ Exams`, `Integ Integrations`) and

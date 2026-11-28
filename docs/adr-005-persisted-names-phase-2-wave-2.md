@@ -52,6 +52,10 @@ visible label of the shortcut stays, so the idempotent organizer does not create
 Server Scripts, Notification templates, bookmarks and hand-made Workspaces (their `content` may cite the Number Cards or Charts
 by name) outside the repository are not rewritten: check them on staging. Report URLs change.
 
+Patch `s02` (accented Juridico names to ASCII, before model sync) uses an exact-name check: `frappe.db.exists` ignores accents,
+so it would delete the legacy Report instead of renaming it (found by L3). The check compares the names returned by
+`frappe.get_all` exactly, as `s03` does.
+
 ## Verification (faithful baseline: production code migrated to `develop` plus this change)
 
 - [x] L0 ruff check/format, compileall, JSON parse.
