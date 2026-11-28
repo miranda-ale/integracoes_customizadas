@@ -117,7 +117,7 @@ class DataJudError(Exception):
 
 
 def _check_user():
-	if frappe.session.user != "Administrator" and not {"Usuário Jurídico", "System Manager"}.intersection(
+	if frappe.session.user != "Administrator" and not {"Integ Legal User", "System Manager"}.intersection(
 		frappe.get_roles()
 	):
 		frappe.throw(_("Sem permissão para acompanhar processos judiciais."), frappe.PermissionError)

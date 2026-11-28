@@ -5,6 +5,7 @@ integracoes_customizadas.patches.add_juridico_module
 integracoes_customizadas.patches.s01_rename_datajud_settings
 integracoes_customizadas.patches.s02_rename_juridico_reports_and_workspace
 integracoes_customizadas.patches.s03_rename_reports_print_formats_cards_and_workspaces
+integracoes_customizadas.patches.s04_rename_roles
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated

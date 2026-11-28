@@ -151,7 +151,7 @@
  "owner": "Administrator",
  "permissions": [
   {"role": "System Manager", "read": 1},
-  {"role": "Usuário Jurídico", "read": 1}
+  {"role": "Integ Legal User", "read": 1}
  ],
  "sort_field": "execucao",
  "sort_order": "DESC",
