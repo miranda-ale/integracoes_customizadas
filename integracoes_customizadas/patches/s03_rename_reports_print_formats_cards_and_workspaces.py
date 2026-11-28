@@ -47,7 +47,12 @@ RENAMES = (
 
 
 def _exact(doctype, name):
-	return bool(frappe.db.sql(f"select 1 from `tab{doctype}` where name = %s collate utf8mb4_bin", name))
+	"""Exact, accent-sensitive existence check.
+
+	`frappe.db.exists` matches accented legacy names because of the table collation; the Python comparison on the
+	returned names makes the check exact without building SQL by hand.
+	"""
+	return name in frappe.get_all(doctype, filters={"name": name}, pluck="name")
 
 
 def execute():
