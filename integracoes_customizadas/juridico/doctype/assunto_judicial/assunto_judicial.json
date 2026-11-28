@@ -29,7 +29,7 @@
   "name": "Assunto Judicial",
   "owner": "Administrator",
   "permissions": [
-    {"role": "Usuário Jurídico", "read": 1},
+    {"role": "Integ Legal User", "read": 1},
     {"role": "System Manager", "read": 1}
   ],
   "sort_field": "nome",

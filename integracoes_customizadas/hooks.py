@@ -50,7 +50,7 @@ fixtures = [
 			]
 		],
 	},
-	{"dt": "Role", "filters": [["name", "in", ["Usuário Jurídico"]]]},
+	{"dt": "Role", "filters": [["name", "in", ["Integ Legal User"]]]},
 	{"dt": "Custom HTML Block", "filters": [["name", "in", ["Integ Reports"]]]},
 ]
 

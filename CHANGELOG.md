@@ -5,6 +5,8 @@ versions v1.14.0–v1.17.x follows the commit messages; tag v1.12.0 and v1.13.0 
 
 ## Unreleased
 
+- Role `Usuário Jurídico` renamed to `Integ Legal User` (patch `s04`, `[pre_model_sync]`, merges when both exist; see
+  `docs/adr-006-role-names-phase-2.md`).
 - Reports, Print Formats, Dashboard Charts, Number Cards, the Dashboard, the Workspaces (`Integ Legal`, `Integ Exams`, `Integ Integrations`) and
   the HTML block `Integ Reports`: English names with the `Integ` prefix (patch `s03`, see `docs/adr-005-persisted-names-phase-2-wave-2.md`).
   pt-BR labels in the new `translations/pt-BR.csv`.

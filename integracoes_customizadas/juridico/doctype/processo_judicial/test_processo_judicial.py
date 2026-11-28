@@ -250,7 +250,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user("juridico-datajud@example.com")
-			with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
+			with patch("frappe.get_roles", return_value=["Integ Legal User"]):
 				self.assertIn("tre-ac", [t["value"] for t in datajud.listar_tribunais()])
 			with patch("frappe.get_roles", return_value=["System Manager"]):
 				self.assertIn("tre-ac", [t["value"] for t in datajud.listar_tribunais()])
@@ -267,7 +267,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 		self.assertEqual(
 			{(p.role, p.read, p.write, p.create) for p in meta.permissions},
 			{
-				("Usuário Jurídico", 1, 1, 1),
+				("Integ Legal User", 1, 1, 1),
 				("System Manager", 1, 1, 1),
 			},
 		)
@@ -275,7 +275,7 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			[(p.role, p.read, p.write) for p in frappe.get_meta("DataJud Settings").permissions],
 			[("System Manager", 1, 1)],
 		)
-		self.assertTrue(frappe.db.exists("Role", "Usuário Jurídico"))
+		self.assertTrue(frappe.db.exists("Role", "Integ Legal User"))
 		self.assertTrue(frappe.has_permission("DataJud Settings", "read", user="Administrator"))
 		with patch("frappe.get_roles", return_value=["System Manager"]):
 			self.assertTrue(
@@ -284,11 +284,11 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			self.assertTrue(
 				frappe.has_permission("DataJud Settings", "write", user="gestor-datajud@example.com")
 			)
-		with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
+		with patch("frappe.get_roles", return_value=["Integ Legal User"]):
 			self.assertFalse(
 				frappe.has_permission("DataJud Settings", "read", user="juridico-datajud@example.com")
 			)
-		with patch("frappe.get_roles", return_value=["Usuário Jurídico"]):
+		with patch("frappe.get_roles", return_value=["Integ Legal User"]):
 			self.assertTrue(
 				frappe.has_permission("Processo Judicial", "read", user="juridico-datajud@example.com")
 			)
@@ -431,12 +431,12 @@ class TestProcessoJudicialDataJud(FrappeTestCase):
 			{
 				"doctype": "User",
 				"email": usuario,
-				"first_name": "Usuário Jurídico",
+				"first_name": "Integ Legal User",
 				"send_welcome_email": 0,
 				"user_type": "System User",
 			}
 		).insert(ignore_permissions=True)
-		frappe.get_doc("User", usuario).add_roles("Usuário Jurídico")
+		frappe.get_doc("User", usuario).add_roles("Integ Legal User")
 		usuario_original = frappe.session.user
 		try:
 			frappe.set_user(usuario)

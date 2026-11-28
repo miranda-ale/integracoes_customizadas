@@ -99,7 +99,7 @@ There are also cross-cutting features: [uppercase normalization of records](#rec
 - Reports: **Integ Legal Cases List** (filters by company, party, phase, status, subject, court, instance, risk, nature,
   responsible person, number and period; own print/PDF), **Integ Legal Cases Provision**, **Integ Legal Cases Liability**,
   **Integ Legal Cases by Employee** and **Integ Legal Cases Aging**.
-- **Juridico** workspace (label "Jurídico", with a shortcut to the `clm` Legal Opinions) and **Usuário Jurídico**
+- **Juridico** workspace (label "Jurídico", with a shortcut to the `clm` Legal Opinions) and **Integ Legal User**
   role. The legacy *Contencioso* (litigation) was removed by patches.
 
 ### Exams (`Provas` module)
@@ -164,7 +164,7 @@ On every `migrate`, `policies/doctype_access.py` warns about orphan or unreachab
 
 - `Employee` fields (personal documents, labor data, dependents, PCD (persons with disabilities), ethnicity) and
   `Designation` fields (CBO occupation code, education, professional council, activity description).
-- `Usuário Jurídico` role and the `Relatórios` Custom HTML Block. The *Juridico Indicadores* panel is applied by code
+- `Integ Legal User` role and the `Relatórios` Custom HTML Block. The *Juridico Indicadores* panel is applied by code
   (`juridico.setup`), not by fixture.
 
 ## Requirements

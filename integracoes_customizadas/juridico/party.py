@@ -49,7 +49,7 @@ def vincular_colaborador(processo: str) -> dict:
 @frappe.whitelist()
 def vincular_em_lote() -> dict:
 	"""Reconcilia todos os processos sem vínculo cujo CPF corresponda a um único Employee."""
-	frappe.only_for(("Usuário Jurídico", "System Manager"))
+	frappe.only_for(("Integ Legal User", "System Manager"))
 	pendentes = frappe.get_all(
 		"Processo Judicial",
 		filters={"parte_vinculada": 0, "cpf_parte": ["is", "set"], "tipo_parte": ["in", ["Employee", ""]]},

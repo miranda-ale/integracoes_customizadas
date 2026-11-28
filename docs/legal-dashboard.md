@@ -10,7 +10,7 @@ Permissions; filter by unit).
 - Block code: `juridico/custom_blocks/`; applied idempotently by `juridico.setup.after_migrate`.
 - The "Pareceres Jurídicos" shortcut points to `CLM Legal Evaluation` (only CLM Administrator/Manager/User and
   System Manager can read it).
-- Workspace restricted to the roles: Usuário Jurídico, System Manager, HR Manager, HR User and CLM roles.
+- Workspace restricted to the roles: Integ Legal User, System Manager, HR Manager, HR User and CLM roles.
 - `Processo Judicial` permissions come only from the DocType JSON (patch `alinhar_permissoes_processo_judicial`).
 - Legacy "Contencioso" (litigation): patch `remover_contencioso_orfaos` removed Reports, empty `CJ *` DocTypes and CJ
   roles without users. Leftovers (`CJ *` DocTypes, orphan rows of ProcJud-2026-00001, tables and Module Def) were

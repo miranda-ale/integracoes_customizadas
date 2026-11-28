@@ -15,7 +15,7 @@ PARECERES_ID = "juridico-atalho-pareceres"
 PARECERES_LABEL = "Pareceres Jurídicos"
 PARECERES_DOCTYPE = "CLM Legal Evaluation"
 ROLES_WORKSPACE = (
-	"Usuário Jurídico",
+	"Integ Legal User",
 	"System Manager",
 	"HR Manager",
 	"HR User",
