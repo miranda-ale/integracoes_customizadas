@@ -53,8 +53,8 @@ Server Scripts, Notification templates, bookmarks and hand-made Workspaces (thei
 by name) outside the repository are not rewritten: check them on staging. Report URLs change.
 
 Patch `s02` (accented Juridico names to ASCII, before model sync) uses an exact-name check: `frappe.db.exists` ignores accents,
-so it would delete the legacy Report instead of renaming it (found by L3). The check compares the names returned by
-`frappe.get_all` exactly, as `s03` does.
+so it would delete the legacy Report instead of renaming it (found by L3); the same flaw would also have deleted the Workspace
+`Jurídico` (a rename keeps its creation and links). The check compares the names returned by `frappe.get_all` exactly, as `s03` does.
 
 ## Verification (faithful baseline: production code migrated to `develop` plus this change)
 

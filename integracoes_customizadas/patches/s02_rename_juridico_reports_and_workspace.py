@@ -32,7 +32,8 @@ def execute():
 		if not _exact(doctype, old):
 			continue
 		if _exact(doctype, new):
-			# Both exist exactly (e.g. the sync ran first): drop the legacy record, the new one is canonical.
+			# Unreachable on MariaDB (the accent-insensitive primary key cannot hold both names); only a hand-made exact
+			# duplicate on a case/accent-sensitive database. The new record is canonical.
 			frappe.delete_doc(doctype, old, force=True, ignore_permissions=True)
 		else:
 			# Accent-only differences are not a clash for `rename_doc` (its own check compares exactly), so it renames.
